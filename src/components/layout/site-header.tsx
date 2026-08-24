@@ -51,8 +51,8 @@ export function SiteHeader() {
           ))}
         </nav>
 
-        <div className="hidden flex-1 justify-center px-4 lg:flex">
-          <SearchBar size="md" className="max-w-md" />
+        <div className="hidden flex-1 justify-end px-4 lg:flex">
+          <SearchBar size="md" collapsible className="max-w-md" />
         </div>
 
         <div className="ml-auto flex items-center gap-2">

@@ -22,8 +22,8 @@ export function AppTopbar() {
     <header className="sticky top-0 z-30 border-b border-border bg-background/85 backdrop-blur-md">
       <div className="container-koro flex h-16 items-center gap-4">
         <Logo href="/app" />
-        <div className="hidden flex-1 justify-center px-4 md:flex">
-          <SearchBar size="md" className="max-w-md" />
+        <div className="hidden flex-1 justify-end px-3 md:flex">
+          <SearchBar size="md" collapsible className="max-w-md" />
         </div>
         <div className="ml-auto flex items-center gap-2">
           <ThemeToggle />

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Compass, BookOpenText, BookmarkPlus, Sparkles, ArrowRight } from "lucide-react";
+import { Compass, BookOpenText, BookmarkPlus, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SearchBar } from "@/components/search/search-bar";
 import { LanguageCard } from "@/components/language/language-card";
@@ -40,31 +40,66 @@ export default function HomePage() {
   return (
     <div>
       {/* Hero */}
-      <section className="relative overflow-hidden border-b border-border bg-muted/40">
-        <div className="container-koro flex flex-col items-center gap-6 py-20 text-center sm:py-28">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-primary-100 bg-primary-50 px-3.5 py-1.5 text-xs font-semibold text-primary-700">
-            <Sparkles className="size-3.5" /> Language discovery, made simple
-          </span>
-          <h1 className="text-4xl font-extrabold tracking-tight text-balance sm:text-5xl lg:text-6xl">
-            Discover. Learn. Preserve.
-          </h1>
-          <p className="max-w-xl text-balance text-base text-muted-foreground sm:text-lg">
-            Explore languages, discover words, and build your own collection of language knowledge
-            with Koro.
-          </p>
-          <div className="w-full max-w-xl">
-            <SearchBar size="lg" />
-          </div>
-          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
-            <Button size="lg" asChild>
-              <Link href="/languages">Explore Languages</Link>
-            </Button>
-            <Button size="lg" variant="outline" asChild>
-              <Link href="/dictionary">Explore Dictionary</Link>
-            </Button>
-          </div>
-        </div>
-      </section>
+      <section className="border-b border-border bg-muted/30">
+  <div className="container-koro grid gap-12 py-16 sm:py-20 lg:grid-cols-[1.15fr_0.85fr] lg:items-center lg:gap-20">
+    {/* Hero Content */}
+    <div>
+      <div className="inline-flex items-center rounded-full border border-border bg-background px-3 py-1 text-xs font-medium text-primary shadow-sm">
+        Koro Language Dictionary
+      </div>
+
+     <h1 className="mt-4 max-w-2xl text-3xl font-bold tracking-tight sm:text-3xl">
+     Discover words. Understand languages.
+    </h1>
+
+      <p className="mt-5 max-w-2xl text-base leading-7 text-muted-foreground sm:text-sm">
+        Search and explore language knowledge from communities around the
+        world. Discover languages, meanings, categories, and translations —
+        all in one place.
+      </p>
+
+      <div className="mt-8 max-w-2xl">
+        <SearchBar size="lg" />
+
+        <p className="mt-3 text-sm text-muted-foreground">
+          Try a language, category, or word such as{" "}
+          <span className="font-medium text-foreground">&ldquo;family&rdquo;</span>.
+        </p>
+      </div>
+    </div>
+
+    {/* Quick Links */}
+    <div className="lg:border-l lg:border-border lg:pl-12">
+      <p className="text-sm font-semibold text-foreground">
+        Explore Koro
+      </p>
+
+      <p className="mt-1 text-sm leading-6 text-muted-foreground">
+        Start exploring the dictionary and discover new languages.
+      </p>
+
+      <div className="mt-6 divide-y divide-border border-y border-border">
+        <QuickLink
+          href="/languages"
+          title="Browse languages"
+          description="Discover all available languages"
+        />
+
+        <QuickLink
+          href="/dictionary"
+          title="Open the dictionary"
+          description="Explore words, meanings, and categories"
+        />
+
+        <QuickLink
+          href="/about"
+          title="Learn about Koro"
+          description="See how the project works"
+        />
+      </div>
+    </div>
+  </div>
+</section>
 
       {/* Featured Languages */}
       <section className="container-koro py-16 sm:py-20">
@@ -217,5 +252,17 @@ function Stat({ label, value }: { label: string; value?: number }) {
       <p className="text-3xl font-extrabold text-primary">{value ?? "—"}</p>
       <p className="text-sm text-muted-foreground">{label}</p>
     </div>
+  );
+}
+
+function QuickLink({ href, title, description }: { href: string; title: string; description: string }) {
+  return (
+    <Link href={href} className="group flex items-center justify-between gap-4 py-4">
+      <span>
+        <span className="block text-sm font-semibold group-hover:text-primary">{title}</span>
+        <span className="mt-1 block text-sm text-muted-foreground">{description}</span>
+      </span>
+      <ArrowRight className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary" />
+    </Link>
   );
 }

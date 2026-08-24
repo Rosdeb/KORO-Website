@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Search, Languages, BookOpen, Shapes, Loader2 } from "lucide-react";
 import { useDebouncedValue } from "@/lib/utils/use-debounced-value";
 import { useGlobalSearch } from "@/features/search/hooks";
@@ -15,6 +15,8 @@ interface SearchBarProps {
   autoFocus?: boolean;
   onNavigate?: () => void;
   className?: string;
+  /** Start as a small icon button and expand into the full input on click/focus. */
+  collapsible?: boolean;
 }
 
 export function SearchBar({
@@ -23,26 +25,61 @@ export function SearchBar({
   autoFocus,
   onNavigate,
   className,
+  collapsible = false,
 }: SearchBarProps) {
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
+  const [expanded, setExpanded] = useState(!collapsible);
   const debounced = useDebouncedValue(query, 300);
   const { data, isFetching } = useGlobalSearch(debounced);
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const hasResults =
     !!data && (data.languages.length > 0 || data.concepts.length > 0 || data.categories.length > 0);
 
-  function goToFullSearch() {
-    if (!query.trim()) return;
+  function expand() {
+    if (collapsible) setExpanded(true);
+  }
+
+  function collapseIfIdle() {
+    if (!collapsible || query.trim()) return;
+    setOpen(false);
+    setExpanded(false);
+  }
+
+  function handleNavigated() {
     setOpen(false);
     onNavigate?.();
+    if (collapsible) {
+      setQuery("");
+      setExpanded(false);
+    }
+  }
+
+  useEffect(() => {
+    if (expanded && collapsible) {
+      inputRef.current?.focus();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [expanded]);
+
+  function goToFullSearch() {
+    if (!query.trim()) return;
     router.push(`/search?q=${encodeURIComponent(query.trim())}`);
+    handleNavigated();
   }
 
   return (
-    <div ref={containerRef} className={cn("relative w-full", className)}>
+    <div
+      ref={containerRef}
+      className={cn(
+        "relative transition-[width] duration-200 ease-out",
+        expanded ? "w-full" : "w-10",
+        className,
+      )}
+    >
       <form
         role="search"
         onSubmit={(e) => {
@@ -51,29 +88,45 @@ export function SearchBar({
         }}
       >
         <div className="relative">
-          <Search
+          <button
+            type="button"
+            aria-label="Search"
+            tabIndex={collapsible && !expanded ? 0 : -1}
+            onClick={expand}
             className={cn(
-              "pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground",
-              size === "lg" ? "size-5" : "size-4",
+              "absolute left-0 top-1/2 flex -translate-y-1/2 items-center justify-center text-muted-foreground",
+              collapsible && !expanded ? "size-10 cursor-pointer" : "pointer-events-none pl-4",
             )}
-          />
+          >
+            <Search className={size === "lg" ? "size-5" : "size-4"} />
+          </button>
           <input
+            ref={inputRef}
             autoFocus={autoFocus}
             value={query}
             onChange={(e) => {
               setQuery(e.target.value);
               setOpen(true);
             }}
-            onFocus={() => setOpen(true)}
-            onBlur={() => setTimeout(() => setOpen(false), 150)}
-            placeholder={placeholder}
+            onFocus={() => {
+              setOpen(true);
+              expand();
+            }}
+            onBlur={() => setTimeout(() => {
+              setOpen(false);
+              collapseIfIdle();
+            }, 150)}
+            placeholder={expanded ? placeholder : ""}
+            aria-hidden={collapsible && !expanded}
+            tabIndex={collapsible && !expanded ? -1 : 0}
             className={cn(
               "w-full rounded-full border border-input bg-card pl-11 pr-4 text-foreground placeholder:text-muted-foreground shadow-sm transition-shadow",
               "focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent",
-              size === "lg" ? "h-14 text-base pl-12" : "h-11 text-sm",
+              size === "lg" ? "h-14 text-base pl-12" : "h-9 text-sm",
+              collapsible && !expanded && "cursor-pointer",
             )}
           />
-          {isFetching && (
+          {isFetching && expanded && (
             <Loader2 className="absolute right-4 top-1/2 size-4 -translate-y-1/2 animate-spin text-muted-foreground" />
           )}
         </div>
@@ -93,10 +146,7 @@ export function SearchBar({
                 <Link
                   key={l.code}
                   href={`/languages/${l.code}`}
-                  onClick={() => {
-                    setOpen(false);
-                    onNavigate?.();
-                  }}
+                  onClick={handleNavigated}
                   className="flex items-center justify-between px-4 py-2.5 text-sm hover:bg-muted"
                 >
                   <span>{l.name}</span>
@@ -112,10 +162,7 @@ export function SearchBar({
                 <Link
                   key={c.id}
                   href={`/dictionary/${c.slug}`}
-                  onClick={() => {
-                    setOpen(false);
-                    onNavigate?.();
-                  }}
+                  onClick={handleNavigated}
                   className="flex items-center px-4 py-2.5 text-sm hover:bg-muted"
                 >
                   {c.name}
@@ -130,10 +177,7 @@ export function SearchBar({
                 <Link
                   key={c.id}
                   href={`/dictionary/${c.categorySlug}/${c.slug}`}
-                  onClick={() => {
-                    setOpen(false);
-                    onNavigate?.();
-                  }}
+                  onClick={handleNavigated}
                   className="flex items-center px-4 py-2.5 text-sm hover:bg-muted"
                 >
                   {c.name}
