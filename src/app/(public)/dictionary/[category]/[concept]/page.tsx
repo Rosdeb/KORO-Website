@@ -66,7 +66,7 @@ export default function ConceptDetailPage({
                 )}
               </div>
               <p className={`text-3xl ${scriptClassFor(t.languageCode)}`}>{t.text}</p>
-              {t.example && <p className="text-sm text-muted-foreground">&ldquo;{t.example}&rdquo;</p>}
+              {t.notes && <p className="text-sm text-muted-foreground">{t.notes}</p>}
             </div>
           </Card>
         ))}

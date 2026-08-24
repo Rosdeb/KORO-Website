@@ -1,10 +1,13 @@
 import { NextResponse } from "next/server";
-import { backendBaseUrl, setRefreshCookie } from "@/lib/api/server-auth";
+import { backendBaseUrl } from "@/lib/api/server-auth";
 
+// /api/v1/auth/register only returns a { message } confirmation — no
+// tokens — so registering doesn't log the user in. The client follows up
+// with a normal login call using the same credentials.
 export async function POST(req: Request) {
   const body = await req.json();
 
-  const backendRes = await fetch(`${backendBaseUrl()}/auth/register`, {
+  const backendRes = await fetch(`${backendBaseUrl()}/api/v1/auth/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
@@ -19,10 +22,5 @@ export async function POST(req: Request) {
     );
   }
 
-  const accessToken = data.accessToken ?? data.token;
-  const refreshToken = data.refreshToken;
-
-  const res = NextResponse.json({ accessToken, user: data.user });
-  if (refreshToken) setRefreshCookie(res, refreshToken);
-  return res;
+  return NextResponse.json({ message: data?.message ?? "Account created." });
 }

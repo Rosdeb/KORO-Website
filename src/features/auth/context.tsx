@@ -3,6 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { authApi, profileApi } from "@/lib/api/endpoints";
+import { mapUser } from "@/lib/api/mappers";
 import { AUTH_LOGOUT_EVENT, setAccessToken } from "@/lib/auth/token-store";
 import type { User } from "@/types";
 
@@ -32,7 +33,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const { accessToken } = await res.json();
         setAccessToken(accessToken);
         const me = await profileApi.me();
-        if (!cancelled) setUser(me);
+        if (!cancelled) setUser(mapUser(me));
       } catch {
         if (!cancelled) setUser(null);
       } finally {
@@ -57,14 +58,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = useCallback(async (email: string, password: string) => {
     const res = await authApi.login(email, password);
     setAccessToken(res.accessToken);
-    setUser(res.user);
+    const me = await profileApi.me();
+    setUser(mapUser(me));
   }, []);
 
-  const register = useCallback(async (name: string, email: string, password: string) => {
-    const res = await authApi.register(name, email, password);
-    setAccessToken(res.accessToken);
-    setUser(res.user);
-  }, []);
+  const register = useCallback(
+    async (name: string, email: string, password: string) => {
+      // Registration only returns a confirmation message, not tokens, so
+      // sign the new account in immediately after for a one-step signup.
+      await authApi.register(name, email, password);
+      await login(email, password);
+    },
+    [login],
+  );
 
   const logout = useCallback(async () => {
     await authApi.logout().catch(() => undefined);

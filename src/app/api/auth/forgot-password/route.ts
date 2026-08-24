@@ -4,7 +4,7 @@ import { backendBaseUrl } from "@/lib/api/server-auth";
 export async function POST(req: Request) {
   const body = await req.json();
 
-  const backendRes = await fetch(`${backendBaseUrl()}/auth/forgot-password`, {
+  const backendRes = await fetch(`${backendBaseUrl()}/api/v1/auth/forgot-password`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),

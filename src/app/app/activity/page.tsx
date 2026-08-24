@@ -1,8 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid } from "recharts";
-import { Search, BookmarkPlus, BookMarked, Camera, MessageSquarePlus, Clock } from "lucide-react";
+import { Languages, BookmarkPlus, Camera, FileDown, Clock } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/state/empty-state";
@@ -19,6 +18,12 @@ const RANGE_OPTIONS: { key: RangeKey; label: string }[] = [
   { key: "year", label: "Year" },
   { key: "custom", label: "Custom" },
 ];
+
+// The backend parses `from`/`to` as a plain LocalDate (yyyy-MM-dd) — a full
+// ISO datetime string 400s.
+function toLocalDate(date: Date) {
+  return date.toISOString().slice(0, 10);
+}
 
 function rangeToDates(range: RangeKey, customFrom?: string, customTo?: string) {
   const to = new Date();
@@ -39,7 +44,7 @@ function rangeToDates(range: RangeKey, customFrom?: string, customTo?: string) {
     case "custom":
       return { from: customFrom, to: customTo };
   }
-  return { from: from.toISOString(), to: to.toISOString() };
+  return { from: toLocalDate(from), to: toLocalDate(to) };
 }
 
 export default function ActivityPage() {
@@ -50,16 +55,18 @@ export default function ActivityPage() {
   const { from, to } = rangeToDates(range, customFrom, customTo);
   const params = range === "custom" && (!customFrom || !customTo) ? undefined : { from, to };
 
-  const { data: stats, isLoading: statsLoading, isError: statsError, refetch: refetchStats } = useActivityStatistics(params);
+  // The backend's /activity/statistics endpoint returns lifetime totals with
+  // no date-range filter, so the range picker below only scopes the log.
+  const { data: stats, isLoading: statsLoading, isError: statsError, refetch: refetchStats } = useActivityStatistics();
   const { data: activity, isLoading: activityLoading, isError: activityError, refetch: refetchActivity } = useActivity(params);
 
   const summaryTiles = useMemo(
     () => [
-      { label: "Searches", value: stats?.searches, icon: Search },
+      { label: "Total activities", value: stats?.totalActivities, icon: Clock },
+      { label: "Translations", value: stats?.translations, icon: Languages },
       { label: "Saved words", value: stats?.savedWords, icon: BookmarkPlus },
-      { label: "Books", value: stats?.books, icon: BookMarked },
-      { label: "Scans", value: stats?.scans, icon: Camera },
-      { label: "Contributions", value: stats?.contributions, icon: MessageSquarePlus },
+      { label: "Image scans", value: stats?.imageRecognitions, icon: Camera },
+      { label: "PDF exports", value: stats?.pdfExports, icon: FileDown },
     ],
     [stats],
   );
@@ -121,32 +128,6 @@ export default function ActivityPage() {
               </Card>
             ))}
         </div>
-      )}
-
-      {!statsError && !statsLoading && stats && stats.series.length > 0 && (
-        <Card>
-          <div className="p-5">
-            <h2 className="mb-4 text-sm font-semibold text-muted-foreground">Activity over time</h2>
-            <div className="h-64 w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={stats.series}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
-                  <XAxis dataKey="date" tick={{ fontSize: 12 }} stroke="var(--muted-foreground)" />
-                  <YAxis tick={{ fontSize: 12 }} stroke="var(--muted-foreground)" allowDecimals={false} />
-                  <Tooltip
-                    contentStyle={{
-                      background: "var(--card)",
-                      border: "1px solid var(--border)",
-                      borderRadius: 12,
-                      fontSize: 13,
-                    }}
-                  />
-                  <Bar dataKey="count" fill="var(--primary)" radius={[6, 6, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-        </Card>
       )}
 
       <div>

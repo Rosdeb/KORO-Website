@@ -1,6 +1,7 @@
 import { broadcastLoggedOut, getAccessToken, setAccessToken } from "@/lib/auth/token-store";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080";
+const API_PREFIX = "/api/v1";
 
 export class ApiError extends Error {
   status: number;
@@ -44,24 +45,31 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
   if (!isFormData) {
     finalHeaders.set("Content-Type", "application/json");
   }
-  if (auth) {
-    const token = getAccessToken();
-    if (token) finalHeaders.set("Authorization", `Bearer ${token}`);
-  }
+  // The backend requires a bearer token on nearly every endpoint (see
+  // security: bearerAuth in the OpenAPI doc), so attach it whenever we have
+  // one — not just on calls explicitly flagged `auth`.
+  const token = getAccessToken();
+  if (token) finalHeaders.set("Authorization", `Bearer ${token}`);
 
-  const res = await fetch(`${API_BASE_URL}${path}`, {
+  const res = await fetch(`${API_BASE_URL}${API_PREFIX}${path}`, {
     ...rest,
     headers: finalHeaders,
     body: body === undefined ? undefined : isFormData ? (body as FormData) : JSON.stringify(body),
   });
 
-  if (res.status === 401 && auth && !skipRetryOn401) {
-    const newToken = await refreshAccessToken();
-    if (newToken) {
-      return request<T>(path, { ...options, skipRetryOn401: true });
+  if (res.status === 401) {
+    // Only attempt a silent refresh if this call actually had a token to
+    // begin with — otherwise it's just an anonymous visitor hitting an
+    // endpoint that requires login, not an expired session.
+    if (auth && token && !skipRetryOn401) {
+      const newToken = await refreshAccessToken();
+      if (newToken) {
+        return request<T>(path, { ...options, skipRetryOn401: true });
+      }
+      broadcastLoggedOut();
+      throw new ApiError("Session expired. Please log in again.", 401);
     }
-    broadcastLoggedOut();
-    throw new ApiError("Session expired. Please log in again.", 401);
+    throw new ApiError("Please log in to continue.", 401);
   }
 
   if (!res.ok) {
@@ -74,6 +82,15 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
 
   if (res.status === 204) return undefined as T;
   return res.json() as Promise<T>;
+}
+
+// File URLs the backend returns (scanned images, generated PDFs) are host-
+// relative paths served by the API, not the Next.js origin — resolve them
+// against API_BASE_URL so <img src> / downloads point at the right server.
+export function resolveApiFileUrl(url: string | null | undefined): string {
+  if (!url) return "";
+  if (/^https?:\/\//i.test(url)) return url;
+  return `${API_BASE_URL}${url.startsWith("/") ? "" : "/"}${url}`;
 }
 
 export const apiClient = {

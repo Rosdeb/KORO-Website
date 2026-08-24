@@ -10,7 +10,7 @@ export async function POST() {
     return NextResponse.json({ message: "No active session." }, { status: 401 });
   }
 
-  const backendRes = await fetch(`${backendBaseUrl()}/auth/refresh`, {
+  const backendRes = await fetch(`${backendBaseUrl()}/api/v1/auth/refresh`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ refreshToken }),
@@ -24,7 +24,9 @@ export async function POST() {
     return res;
   }
 
-  const accessToken = data.accessToken ?? data.token;
+  // /api/v1/auth/refresh returns a flat { accessToken, refreshToken,
+  // tokenType } — a different shape than login's nested `token` object.
+  const accessToken = data.accessToken;
   const newRefreshToken = data.refreshToken;
 
   const res = NextResponse.json({ accessToken });

@@ -24,9 +24,6 @@ export default function LanguagesPage() {
     );
   }, [languages, query]);
 
-  const popular = filtered.filter((l) => l.popular);
-  const rest = filtered.filter((l) => !l.popular);
-
   return (
     <div className="container-koro py-12">
       <div className="mx-auto max-w-2xl text-center">
@@ -64,27 +61,11 @@ export default function LanguagesPage() {
         />
       )}
 
-      {!isLoading && !isError && popular.length > 0 && (
-        <div className="mt-10">
-          <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted-foreground">Popular</h2>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {popular.map((lang) => (
-              <LanguageCard key={lang.code} language={lang} />
-            ))}
-          </div>
-        </div>
-      )}
-
-      {!isLoading && !isError && rest.length > 0 && (
-        <div className="mt-10">
-          <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-            {popular.length > 0 ? "All languages" : "Languages"}
-          </h2>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {rest.map((lang) => (
-              <LanguageCard key={lang.code} language={lang} />
-            ))}
-          </div>
+      {!isLoading && !isError && filtered.length > 0 && (
+        <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {filtered.map((lang) => (
+            <LanguageCard key={lang.code} language={lang} />
+          ))}
         </div>
       )}
     </div>

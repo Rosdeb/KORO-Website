@@ -10,6 +10,7 @@ import { EmptyState } from "@/components/state/empty-state";
 import { ErrorState } from "@/components/state/error-state";
 import { useBook, useRemoveBookItem } from "@/features/books/hooks";
 import { scriptClassFor } from "@/lib/utils/script-font";
+import type { BookItem } from "@/types";
 
 export default function BookDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -24,7 +25,8 @@ export default function BookDetailPage({ params }: { params: Promise<{ id: strin
     return <ErrorState onRetry={() => refetch()} />;
   }
 
-  const allItems = book.chapters?.flatMap((c) => c.items) ?? [];
+  const allItems = book.items;
+  const chapters = groupByChapter(allItems);
 
   return (
     <div className="flex flex-col gap-6">
@@ -58,14 +60,14 @@ export default function BookDetailPage({ params }: { params: Promise<{ id: strin
         />
       )}
 
-      {(book.chapters ?? []).map((chapter) => (
-        <div key={chapter.id}>
+      {chapters.map(([chapterName, items]) => (
+        <div key={chapterName}>
           <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-            {chapter.title}
+            {chapterName}
           </h2>
           <Card>
             <ul className="divide-y divide-border">
-              {chapter.items.map((item) => (
+              {items.map((item) => (
                 <li key={item.id} className="flex items-center gap-4 px-5 py-4">
                   <div className="min-w-0 flex-1">
                     <p className="font-medium">{item.conceptName}</p>
@@ -94,4 +96,17 @@ export default function BookDetailPage({ params }: { params: Promise<{ id: strin
       ))}
     </div>
   );
+}
+
+// The backend attaches an optional free-text `chapter` label per item
+// rather than managing chapter groups server-side, so grouping happens here.
+function groupByChapter(items: BookItem[]) {
+  const groups = new Map<string, BookItem[]>();
+  for (const item of items) {
+    const key = item.chapter?.trim() || "Words";
+    const list = groups.get(key) ?? [];
+    list.push(item);
+    groups.set(key, list);
+  }
+  return Array.from(groups.entries());
 }

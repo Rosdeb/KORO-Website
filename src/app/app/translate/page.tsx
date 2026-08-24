@@ -19,11 +19,13 @@ export default function TranslatePage() {
   const search = useTranslationSearch();
 
   const effectiveToLanguage = toLanguage || languages?.[0]?.code || "";
+  const targetLanguage = languages?.find((l) => l.code === effectiveToLanguage);
+  const sourceLanguage = languages?.find((l) => l.code === "en");
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!query.trim() || !effectiveToLanguage) return;
-    search.mutate({ query: query.trim(), fromLanguage: "en", toLanguage: effectiveToLanguage });
+    if (!query.trim() || !targetLanguage) return;
+    search.mutate({ query: query.trim(), sourceLanguageId: sourceLanguage?.id, targetLanguageId: targetLanguage.id });
   }
 
   return (
@@ -102,7 +104,18 @@ export default function TranslatePage() {
                     <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Concept</p>
                     <p className="text-lg font-bold">{concept.name}</p>
                   </div>
-                  <SaveToBookButton concept={concept} defaultLanguageCode={effectiveToLanguage} />
+                  <SaveToBookButton
+                    concept={{
+                      id: concept.id,
+                      slug: concept.slug,
+                      name: concept.name,
+                      categoryId: "",
+                      categoryName: "",
+                      categorySlug: concept.categorySlug,
+                      translations: [translation],
+                    }}
+                    defaultLanguageId={translation.languageId}
+                  />
                 </div>
 
                 <div>
@@ -121,10 +134,10 @@ export default function TranslatePage() {
                   </div>
                 )}
 
-                {translation.example && (
+                {translation.notes && (
                   <div>
-                    <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Example</p>
-                    <p className="text-sm text-muted-foreground">&ldquo;{translation.example}&rdquo;</p>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Notes</p>
+                    <p className="text-sm text-muted-foreground">{translation.notes}</p>
                   </div>
                 )}
               </div>

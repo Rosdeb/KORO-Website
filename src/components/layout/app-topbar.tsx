@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { LogOut, Settings } from "lucide-react";
 import { Logo } from "@/components/layout/logo";
+import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { SearchBar } from "@/components/search/search-bar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -24,7 +25,8 @@ export function AppTopbar() {
         <div className="hidden flex-1 justify-center px-4 md:flex">
           <SearchBar size="md" className="max-w-md" />
         </div>
-        <div className="ml-auto">
+        <div className="ml-auto flex items-center gap-2">
+          <ThemeToggle />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button className="rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">

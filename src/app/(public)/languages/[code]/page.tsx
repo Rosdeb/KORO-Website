@@ -23,8 +23,8 @@ export default function LanguageDetailPage({ params }: { params: Promise<{ code:
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
-    if (!query.trim()) return;
-    search.mutate({ query: query.trim(), toLanguage: code });
+    if (!query.trim() || !language) return;
+    search.mutate({ query: query.trim(), targetLanguageId: language.id });
   }
 
   if (isLoading) {

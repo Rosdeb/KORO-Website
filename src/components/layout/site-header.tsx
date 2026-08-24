@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Menu, Search, X, LayoutGrid, LogOut, Settings, BookMarked } from "lucide-react";
 import { Logo } from "@/components/layout/logo";
+import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { SearchBar } from "@/components/search/search-bar";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -62,6 +63,8 @@ export function SiteHeader() {
           >
             <Search className="size-5" />
           </button>
+
+          <ThemeToggle />
 
           {!isLoading && !isAuthenticated && (
             <div className="hidden items-center gap-2 sm:flex">
@@ -133,9 +136,12 @@ export function SiteHeader() {
         <div className="fixed inset-0 z-40 bg-background md:hidden animate-fade-in">
           <div className="container-koro flex h-16 items-center justify-between">
             <Logo />
-            <button aria-label="Close menu" onClick={() => setMobileOpen(false)} className="rounded-full p-2.5 hover:bg-muted">
-              <X className="size-5" />
-            </button>
+            <div className="flex items-center gap-1">
+              <ThemeToggle />
+              <button aria-label="Close menu" onClick={() => setMobileOpen(false)} className="rounded-full p-2.5 hover:bg-muted">
+                <X className="size-5" />
+              </button>
+            </div>
           </div>
           <nav className="container-koro flex flex-col gap-1 py-4">
             {NAV_LINKS.map((link) => (

@@ -14,27 +14,29 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useLanguages } from "@/features/languages/hooks";
+import { useAllConcepts } from "@/features/dictionary/hooks";
 import { useCreateSubmission } from "@/features/submissions/hooks";
 
 const schema = z.object({
   conceptId: z.string().min(1, "Concept is required"),
-  languageCode: z.string().min(1, "Select a language"),
-  suggestedText: z.string().min(1, "Suggested translation is required"),
+  languageId: z.string().min(1, "Select a language"),
+  suggestedTranslation: z.string().min(1, "Suggested translation is required"),
   pronunciation: z.string().optional(),
-  note: z.string().optional(),
+  notes: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof schema>;
 
 export default function NewSubmissionPage() {
   const { data: languages } = useLanguages();
+  const { data: concepts } = useAllConcepts();
   const createSubmission = useCreateSubmission();
   const router = useRouter();
   const [submitted, setSubmitted] = useState(false);
 
   const {
-    register,
     control,
+    register,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({ resolver: zodResolver(schema) });
@@ -81,8 +83,25 @@ export default function NewSubmissionPage() {
         <CardContent className="pt-6">
           <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="conceptId">Concept</Label>
-              <Input id="conceptId" placeholder="e.g. Hello, Water, Mother..." {...register("conceptId")} />
+              <Label>Concept</Label>
+              <Controller
+                control={control}
+                name="conceptId"
+                render={({ field }) => (
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="e.g. Hello, Water, Mother..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {(concepts ?? []).map((c) => (
+                        <SelectItem key={c.id} value={c.id}>
+                          {c.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
               {errors.conceptId && <p className="text-xs text-danger">{errors.conceptId.message}</p>}
             </div>
 
@@ -90,7 +109,7 @@ export default function NewSubmissionPage() {
               <Label>Target language</Label>
               <Controller
                 control={control}
-                name="languageCode"
+                name="languageId"
                 render={({ field }) => (
                   <Select value={field.value} onValueChange={field.onChange}>
                     <SelectTrigger>
@@ -98,7 +117,7 @@ export default function NewSubmissionPage() {
                     </SelectTrigger>
                     <SelectContent>
                       {(languages ?? []).map((l) => (
-                        <SelectItem key={l.code} value={l.code}>
+                        <SelectItem key={l.id} value={l.id}>
                           {l.name}
                         </SelectItem>
                       ))}
@@ -106,13 +125,15 @@ export default function NewSubmissionPage() {
                   </Select>
                 )}
               />
-              {errors.languageCode && <p className="text-xs text-danger">{errors.languageCode.message}</p>}
+              {errors.languageId && <p className="text-xs text-danger">{errors.languageId.message}</p>}
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="suggestedText">Suggested translation</Label>
-              <Input id="suggestedText" {...register("suggestedText")} />
-              {errors.suggestedText && <p className="text-xs text-danger">{errors.suggestedText.message}</p>}
+              <Label htmlFor="suggestedTranslation">Suggested translation</Label>
+              <Input id="suggestedTranslation" {...register("suggestedTranslation")} />
+              {errors.suggestedTranslation && (
+                <p className="text-xs text-danger">{errors.suggestedTranslation.message}</p>
+              )}
             </div>
 
             <div className="flex flex-col gap-1.5">
@@ -121,8 +142,8 @@ export default function NewSubmissionPage() {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="note">Note (optional)</Label>
-              <Textarea id="note" placeholder="Any context that helps a reviewer" {...register("note")} />
+              <Label htmlFor="notes">Note (optional)</Label>
+              <Textarea id="notes" placeholder="Any context that helps a reviewer" {...register("notes")} />
             </div>
 
             <Button type="submit" loading={isSubmitting} className="mt-2 self-start">

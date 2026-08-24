@@ -12,10 +12,10 @@ import type { Concept } from "@/types";
 
 interface SaveToBookButtonProps {
   concept: Concept;
-  defaultLanguageCode?: string;
+  defaultLanguageId?: string;
 }
 
-export function SaveToBookButton({ concept, defaultLanguageCode }: SaveToBookButtonProps) {
+export function SaveToBookButton({ concept, defaultLanguageId }: SaveToBookButtonProps) {
   const { isAuthenticated } = useAuth();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -74,7 +74,7 @@ export function SaveToBookButton({ concept, defaultLanguageCode }: SaveToBookBut
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         concept={concept}
-        defaultLanguageCode={defaultLanguageCode}
+        defaultLanguageId={defaultLanguageId}
         onSaved={() => setJustSaved(true)}
       />
     </>

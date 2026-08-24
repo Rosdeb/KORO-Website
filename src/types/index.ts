@@ -1,37 +1,51 @@
+/**
+ * Shapes mirror the live backend contract at http://localhost:8080/v3/api-docs
+ * (Koro API 1.0.0). Fields the backend doesn't return (slugs, language codes
+ * on nested translations, chapter grouping) are computed client-side in the
+ * feature hooks and marked below.
+ */
+
 export interface Language {
+  id: string;
   code: string;
   name: string;
   nativeName: string;
   region: string;
-  description?: string;
+  active: boolean;
+  description?: string | null;
   conceptCount?: number;
-  translationCount?: number;
-  popular?: boolean;
 }
 
 export interface Category {
   id: string;
-  slug: string;
+  slug: string; // derived from name
   name: string;
-  icon?: string;
+  description?: string | null;
   conceptCount?: number;
 }
 
+// A translation joined with its language's short `code`, since the backend
+// only returns languageId/languageName on TranslationResponse.
 export interface Translation {
+  id: string;
+  languageId: string;
   languageCode: string;
   languageName: string;
   text: string;
-  pronunciation?: string;
-  example?: string;
+  pronunciation?: string | null;
+  verified?: boolean;
+  notes?: string | null;
 }
 
 export interface Concept {
   id: string;
-  slug: string;
+  slug: string; // derived from name
   name: string;
+  description?: string | null;
   categoryId: string;
-  categorySlug: string;
-  imageUrl?: string;
+  categoryName: string;
+  categorySlug: string; // derived from categoryName
+  imageUrl?: string | null;
   translations: Translation[];
 }
 
@@ -43,44 +57,43 @@ export interface User {
   nativeLanguage?: string;
   preferredLanguage?: string;
   roles: string[];
+  status?: "ACTIVE" | "INACTIVE" | "SUSPENDED";
 }
 
 export interface AuthResponse {
   accessToken: string;
+  refreshToken?: string;
   user: User;
 }
 
 export interface Book {
   id: string;
   title: string;
-  description?: string;
+  description?: string | null;
+  items: BookItem[];
   wordCount: number;
   updatedAt: string;
-  chapters?: BookChapter[];
-}
-
-export interface BookChapter {
-  id: string;
-  title: string;
-  items: BookItem[];
 }
 
 export interface BookItem {
   id: string;
   conceptId: string;
   conceptName: string;
+  languageId: string;
   languageCode: string;
   translationText: string;
-  pronunciation?: string;
-  note?: string;
+  pronunciation?: string | null;
+  note?: string | null;
+  chapter?: string | null;
 }
 
 export interface ExportRecord {
   id: string;
   bookId: string;
   bookTitle: string;
-  languageCode: string;
   fileUrl: string;
+  fileName: string;
+  fileSize: number;
   createdAt: string;
 }
 
@@ -90,13 +103,14 @@ export interface Submission {
   id: string;
   conceptId: string;
   conceptName: string;
+  languageId: string;
   languageCode: string;
   languageName: string;
   suggestedText: string;
-  pronunciation?: string;
-  note?: string;
+  pronunciation?: string | null;
+  note?: string | null;
   status: SubmissionStatus;
-  reviewNote?: string;
+  reviewNote?: string | null;
   createdAt: string;
 }
 
@@ -105,32 +119,41 @@ export interface ScanResult {
   imageUrl: string;
   detectedLabel: string;
   confidence: number;
-  conceptId?: string;
-  conceptName?: string;
+  conceptId?: string | null;
+  conceptName?: string | null;
+  categoryName?: string | null;
   translations: Translation[];
   createdAt: string;
 }
 
+export type ActivityType =
+  | "LOGIN"
+  | "LOGOUT"
+  | "TRANSLATION"
+  | "SEARCH"
+  | "IMAGE_UPLOAD"
+  | "IMAGE_RECOGNITION"
+  | "SAVE_WORD"
+  | "REMOVE_SAVED_WORD"
+  | "ADD_VOCABULARY"
+  | "EXPORT_PDF"
+  | "DOWNLOAD_BOOK"
+  | "CHANGE_LANGUAGE"
+  | "UPDATE_PROFILE";
+
 export interface ActivityEntry {
   id: string;
-  type: "SEARCH" | "SAVE" | "SCAN" | "SUBMISSION" | "BOOK" | "EXPORT";
+  type: ActivityType;
   description: string;
   createdAt: string;
 }
 
 export interface ActivityStatistics {
-  searches: number;
+  totalActivities: number;
+  translations: number;
+  imageRecognitions: number;
+  pdfExports: number;
   savedWords: number;
-  books: number;
-  scans: number;
-  contributions: number;
-  series: { date: string; count: number }[];
-}
-
-export interface SearchResults {
-  languages: Language[];
-  concepts: Concept[];
-  categories: Category[];
 }
 
 export interface Paginated<T> {

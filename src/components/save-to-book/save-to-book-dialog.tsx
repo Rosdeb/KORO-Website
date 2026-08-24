@@ -21,7 +21,7 @@ interface SaveToBookDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   concept: Concept;
-  defaultLanguageCode?: string;
+  defaultLanguageId?: string;
   onSaved?: () => void;
 }
 
@@ -29,7 +29,7 @@ export function SaveToBookDialog({
   open,
   onOpenChange,
   concept,
-  defaultLanguageCode,
+  defaultLanguageId,
   onSaved,
 }: SaveToBookDialogProps) {
   const { data: books, isLoading } = useBooks();
@@ -37,8 +37,8 @@ export function SaveToBookDialog({
   const addItem = useAddBookItem();
   const { toast } = useToast();
 
+  const [languageId, setLanguageId] = useState(defaultLanguageId ?? concept.translations[0]?.languageId ?? "");
   const [selectedBookId, setSelectedBookId] = useState<string>("");
-  const [languageCode, setLanguageCode] = useState(defaultLanguageCode ?? concept.translations[0]?.languageCode ?? "");
   const [newBookTitle, setNewBookTitle] = useState("");
   const [creatingNew, setCreatingNew] = useState(false);
 
@@ -52,8 +52,8 @@ export function SaveToBookDialog({
         const book = await createBook.mutateAsync({ title: newBookTitle.trim() });
         bookId = book.id;
       }
-      if (!bookId || !languageCode) return;
-      await addItem.mutateAsync({ collectionId: bookId, conceptId: concept.id, languageCode });
+      if (!bookId || !languageId) return;
+      await addItem.mutateAsync({ collectionId: bookId, conceptId: concept.id, languageId });
       toast({ title: "Saved to book", variant: "success" });
       onSaved?.();
       onOpenChange(false);
@@ -76,13 +76,13 @@ export function SaveToBookDialog({
           {concept.translations.length > 1 && (
             <div>
               <label className="mb-1.5 block text-sm font-medium">Language</label>
-              <Select value={languageCode} onValueChange={setLanguageCode}>
+              <Select value={languageId} onValueChange={setLanguageId}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select a language" />
                 </SelectTrigger>
                 <SelectContent>
                   {concept.translations.map((t) => (
-                    <SelectItem key={t.languageCode} value={t.languageCode}>
+                    <SelectItem key={t.languageId} value={t.languageId}>
                       {t.languageName} — {t.text}
                     </SelectItem>
                   ))}
@@ -150,7 +150,7 @@ export function SaveToBookDialog({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button onClick={handleSave} loading={saving} disabled={!languageCode}>
+          <Button onClick={handleSave} loading={saving} disabled={!languageId}>
             Save
           </Button>
         </DialogFooter>

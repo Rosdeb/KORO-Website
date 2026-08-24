@@ -115,6 +115,7 @@ export default function ScanPage() {
                       slug: "",
                       name: recognize.data.conceptName ?? recognize.data.detectedLabel,
                       categoryId: "",
+                      categoryName: recognize.data.categoryName ?? "",
                       categorySlug: "",
                       translations: recognize.data.translations,
                     }}

@@ -20,14 +20,14 @@ export default function BookExportPage({ params }: { params: Promise<{ id: strin
   const { data: history, isLoading: historyLoading } = useExportHistory();
   const exportPdf = useExportPdf();
   const { toast } = useToast();
-  const [languageCode, setLanguageCode] = useState("");
+  const [languageId, setLanguageId] = useState("");
 
   const bookHistory = (history ?? []).filter((h) => h.bookId === id);
 
   async function handleExport() {
-    if (!languageCode) return;
+    if (!languageId) return;
     try {
-      const record = await exportPdf.mutateAsync({ collectionId: id, languageCode });
+      const record = await exportPdf.mutateAsync({ collectionId: id, languageId });
       toast({ title: "PDF ready", description: "Your book has been exported.", variant: "success" });
       window.open(record.fileUrl, "_blank", "noopener,noreferrer");
     } catch {
@@ -53,20 +53,20 @@ export default function BookExportPage({ params }: { params: Promise<{ id: strin
         <div className="flex flex-col gap-5 p-6">
           <div>
             <label className="mb-1.5 block text-sm font-medium">Language</label>
-            <Select value={languageCode} onValueChange={setLanguageCode}>
+            <Select value={languageId} onValueChange={setLanguageId}>
               <SelectTrigger>
                 <SelectValue placeholder="Select a language" />
               </SelectTrigger>
               <SelectContent>
                 {(languages ?? []).map((l) => (
-                  <SelectItem key={l.code} value={l.code}>
+                  <SelectItem key={l.id} value={l.id}>
                     {l.name}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
-          <Button onClick={handleExport} loading={exportPdf.isPending} disabled={!languageCode} className="self-start">
+          <Button onClick={handleExport} loading={exportPdf.isPending} disabled={!languageId} className="self-start">
             <FileDown className="size-4" /> Generate PDF
           </Button>
         </div>
@@ -86,7 +86,7 @@ export default function BookExportPage({ params }: { params: Promise<{ id: strin
               {bookHistory.map((record) => (
                 <li key={record.id} className="flex items-center justify-between px-5 py-4">
                   <div>
-                    <p className="text-sm font-medium">{record.languageCode.toUpperCase()}</p>
+                    <p className="text-sm font-medium">{record.fileName}</p>
                     <p className="text-xs text-muted-foreground">{new Date(record.createdAt).toLocaleString()}</p>
                   </div>
                   <a

@@ -35,13 +35,12 @@ export default function HomePage() {
   const { data: categories, isLoading: categoriesLoading } = useCategories();
   const { data: popularConcepts, isLoading: conceptsLoading } = usePopularConcepts();
 
-  const featuredLanguages = (languages ?? []).filter((l) => l.popular).slice(0, 6);
-  const languagesToShow = featuredLanguages.length > 0 ? featuredLanguages : (languages ?? []).slice(0, 6);
+  const languagesToShow = (languages ?? []).slice(0, 6);
 
   return (
     <div>
       {/* Hero */}
-      <section className="relative overflow-hidden border-b border-border bg-gradient-to-b from-primary-50 to-background">
+      <section className="relative overflow-hidden border-b border-border bg-muted/40">
         <div className="container-koro flex flex-col items-center gap-6 py-20 text-center sm:py-28">
           <span className="inline-flex items-center gap-1.5 rounded-full border border-primary-100 bg-primary-50 px-3.5 py-1.5 text-xs font-semibold text-primary-700">
             <Sparkles className="size-3.5" /> Language discovery, made simple

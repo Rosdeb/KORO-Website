@@ -1,28 +1,32 @@
 /**
- * Typed calls onto the Koro backend, grouped by resource. Paths follow the
- * shape documented in the site plan (POST /translations/search, GET
- * /categories, POST /collections/{id}/items, etc). If the backend's actual
- * Swagger contract differs in a field name or nesting, this is the one file
- * to reconcile — nothing above the API layer should need to change.
+ * Typed calls onto the Koro backend, grouped by resource. Paths and payload
+ * shapes are taken directly from the live OpenAPI doc at
+ * http://localhost:8080/v3/api-docs (Koro API 1.0.0) — verified against the
+ * running server, since several response bodies are typed as generic
+ * `object` in the spec itself. All paths here are relative to /api/v1,
+ * which `apiClient` prefixes automatically.
+ *
+ * Return types are the *raw* backend shapes (see ./raw-types), not the
+ * polished view models in @/types — the backend has no slug fields and
+ * only carries languageId/languageName (not the short `code`) on nested
+ * translations. Feature hooks turn these into view models via ./mappers,
+ * joining in the language code where needed.
  */
 import { apiClient } from "./client";
 import type {
-  ActivityEntry,
-  ActivityStatistics,
-  AuthResponse,
-  Book,
-  BookItem,
-  Category,
-  Concept,
-  ExportRecord,
-  Language,
-  Paginated,
-  ScanResult,
-  SearchResults,
-  Submission,
-  Translation,
-  User,
-} from "@/types";
+  RawActivityLog,
+  RawActivityStatistics,
+  RawCategory,
+  RawCollection,
+  RawCollectionItem,
+  RawConcept,
+  RawLanguage,
+  RawPdfExport,
+  RawScanResult,
+  RawSubmission,
+  RawTranslation,
+  RawUser,
+} from "./raw-types";
 
 // Auth calls go through this app's own /api/auth/* route handlers (same
 // origin, not the external API_BASE_URL) so the refresh token can be set as
@@ -46,103 +50,146 @@ async function sameOriginPost<T>(path: string, body?: unknown): Promise<T> {
 
 export const authApi = {
   login: (email: string, password: string) =>
-    sameOriginPost<AuthResponse>("/api/auth/login", { email, password }),
+    sameOriginPost<{ accessToken: string; user: RawUser }>("/api/auth/login", { email, password }),
   register: (name: string, email: string, password: string) =>
-    sameOriginPost<AuthResponse>("/api/auth/register", { name, email, password }),
+    sameOriginPost<{ message: string }>("/api/auth/register", { name, email, password }),
   forgotPassword: (email: string) => sameOriginPost<{ message: string }>("/api/auth/forgot-password", { email }),
   resetPassword: (token: string, password: string) =>
-    sameOriginPost<{ message: string }>("/api/auth/reset-password", { token, password }),
+    sameOriginPost<{ message: string }>("/api/auth/reset-password", { token, newPassword: password }),
   logout: () => sameOriginPost<void>("/api/auth/logout"),
 };
 
 export const languagesApi = {
-  list: () => apiClient.get<Language[]>("/languages"),
-  getByCode: (code: string) => apiClient.get<Language>(`/languages/${code}`),
+  list: () => apiClient.get<RawLanguage[]>("/languages", { auth: true }),
+  getById: (id: string) => apiClient.get<RawLanguage>(`/languages/${id}`, { auth: true }),
 };
 
 export const categoriesApi = {
-  list: () => apiClient.get<Category[]>("/categories"),
+  list: () => apiClient.get<RawCategory[]>("/categories", { auth: true }),
 };
 
 export const conceptsApi = {
-  listByCategory: (categorySlug: string, params?: { q?: string; page?: number }) =>
-    apiClient.get<Paginated<Concept>>(
-      `/categories/${categorySlug}/concepts${toQuery(params)}`,
-    ),
-  getBySlug: (categorySlug: string, conceptSlug: string) =>
-    apiClient.get<Concept>(`/categories/${categorySlug}/concepts/${conceptSlug}`),
-  popular: () => apiClient.get<Concept[]>("/concepts/popular"),
+  list: (categoryId?: string) =>
+    apiClient.get<RawConcept[]>(`/concepts${toQuery({ categoryId })}`, { auth: true }),
+  getById: (id: string) => apiClient.get<RawConcept>(`/concepts/${id}`, { auth: true }),
 };
 
 export const translationsApi = {
-  search: (payload: { query: string; fromLanguage?: string; toLanguage: string }) =>
-    apiClient.post<{ concept: Concept; translation: Translation }[]>("/translations/search", payload),
-};
-
-export const searchApi = {
-  global: (q: string) => apiClient.get<SearchResults>(`/search${toQuery({ q })}`),
+  list: (params?: { conceptId?: string; languageId?: string }) =>
+    apiClient.get<RawTranslation[]>(`/translations${toQuery(params)}`, { auth: true }),
+  search: (payload: { sourceLanguageId?: string; targetLanguageId: string; query: string }) =>
+    apiClient.post<RawTranslation[]>("/translations/search", payload, { auth: true }),
 };
 
 export const collectionsApi = {
-  list: () => apiClient.get<Book[]>("/collections", { auth: true }),
-  create: (title: string, description?: string) =>
-    apiClient.post<Book>("/collections", { title, description }, { auth: true }),
-  getById: (id: string) => apiClient.get<Book>(`/collections/${id}`, { auth: true }),
+  list: () => apiClient.get<RawCollection[]>("/collections", { auth: true }),
+  create: (name: string, description?: string) =>
+    apiClient.post<RawCollection>("/collections", { name, description }, { auth: true }),
+  update: (id: string, name: string, description?: string) =>
+    apiClient.put<RawCollection>(`/collections/${id}`, { name, description }, { auth: true }),
+  remove: (id: string) => apiClient.delete<void>(`/collections/${id}`, { auth: true }),
+  getById: (id: string) => apiClient.get<RawCollection>(`/collections/${id}`, { auth: true }),
   addItem: (
     collectionId: string,
-    payload: { conceptId: string; languageCode: string; chapterId?: string; note?: string },
-  ) => apiClient.post<BookItem>(`/collections/${collectionId}/items`, payload, { auth: true }),
+    payload: { conceptId: string; languageId: string; notes?: string; chapter?: string; displayOrder?: number },
+  ) => apiClient.post<RawCollectionItem>(`/collections/${collectionId}/items`, payload, { auth: true }),
   removeItem: (collectionId: string, itemId: string) =>
     apiClient.delete<void>(`/collections/${collectionId}/items/${itemId}`, { auth: true }),
-  reorderItems: (collectionId: string, orderedItemIds: string[]) =>
-    apiClient.patch<void>(`/collections/${collectionId}/items/reorder`, { orderedItemIds }, { auth: true }),
 };
 
 export const exportApi = {
-  toPdf: (payload: { collectionId: string; languageCode: string }) =>
-    apiClient.post<ExportRecord>("/export/pdf", payload, { auth: true }),
-  history: () => apiClient.get<ExportRecord[]>("/export/history", { auth: true }),
+  toPdf: (payload: { collectionId: string; languageId: string }) =>
+    apiClient.post<RawPdfExport>("/export/pdf", payload, { auth: true }),
+  history: () => apiClient.get<RawPdfExport[]>("/export/history", { auth: true }),
 };
 
 export const imagesApi = {
   recognize: (file: File) => {
     const form = new FormData();
-    form.append("image", file);
-    return apiClient.post<ScanResult>("/images/recognize", form, { auth: true, isFormData: true });
+    form.append("file", file);
+    return apiClient.post<RawScanResult>("/images/recognize", form, { auth: true, isFormData: true });
   },
-  history: () => apiClient.get<ScanResult[]>("/images/history", { auth: true }),
+  history: () => apiClient.get<RawScanResult[]>("/images/history", { auth: true }),
 };
 
 export const submissionsApi = {
   create: (payload: {
     conceptId: string;
-    languageCode: string;
-    suggestedText: string;
+    languageId: string;
+    suggestedTranslation: string;
     pronunciation?: string;
-    note?: string;
-  }) => apiClient.post<Submission>("/submissions", payload, { auth: true }),
-  mine: () => apiClient.get<Submission[]>("/submissions/mine", { auth: true }),
+    notes?: string;
+  }) => apiClient.post<RawSubmission>("/submissions", payload, { auth: true }),
+  // GET /submissions returns the current user's own submissions — there is
+  // no separate "mine" endpoint.
+  mine: () => apiClient.get<RawSubmission[]>("/submissions", { auth: true }),
 };
 
 export const activityApi = {
   list: (params?: { from?: string; to?: string }) =>
-    apiClient.get<ActivityEntry[]>(`/activity${toQuery(params)}`, { auth: true }),
-  statistics: (params?: { from?: string; to?: string }) =>
-    apiClient.get<ActivityStatistics>(`/activity/statistics${toQuery(params)}`, { auth: true }),
+    apiClient.get<RawActivityLog[]>(`/activity${toQuery(params)}`, { auth: true }),
+  statistics: () => apiClient.get<RawActivityStatistics>("/activity/statistics", { auth: true }),
 };
 
 export const profileApi = {
-  me: () => apiClient.get<User>("/users/me", { auth: true }),
-  update: (payload: Partial<Pick<User, "name" | "avatarUrl" | "nativeLanguage" | "preferredLanguage">>) =>
-    apiClient.patch<User>("/users/me", payload, { auth: true }),
+  me: () => apiClient.get<RawUser>("/users/profile", { auth: true }),
+  update: (payload: { name?: string; avatarUrl?: string; nativeLanguage?: string; preferredLanguage?: string }) =>
+    apiClient.put<RawUser>(
+      "/users/profile",
+      {
+        name: payload.name,
+        profileImage: payload.avatarUrl,
+        nativeLanguage: payload.nativeLanguage,
+        preferredLanguage: payload.preferredLanguage,
+      },
+      { auth: true },
+    ),
   changePassword: (currentPassword: string, newPassword: string) =>
-    apiClient.post<void>("/users/me/password", { currentPassword, newPassword }, { auth: true }),
+    apiClient.put<void>("/users/change-password", { oldPassword: currentPassword, newPassword }, { auth: true }),
 };
 
-function toQuery(params?: Record<string, string | number | undefined>) {
+// Admin resource. No UI consumes this yet, but the methods are wired up to
+// the real contract (role-gated: ROLE_ADMIN, returns 403 otherwise) so an
+// admin dashboard can be built directly on top of it.
+export const adminApi = {
+  users: {
+    list: () => apiClient.get<RawUser[]>("/admin/users", { auth: true }),
+    setStatus: (id: string, status: "ACTIVE" | "INACTIVE" | "SUSPENDED") =>
+      apiClient.put<RawUser>(`/admin/users/${id}/status${toQuery({ status })}`, undefined, { auth: true }),
+  },
+  languages: {
+    create: (payload: Partial<RawLanguage>) => apiClient.post<RawLanguage>("/admin/languages", payload, { auth: true }),
+    update: (id: string, payload: Partial<RawLanguage>) =>
+      apiClient.put<RawLanguage>(`/admin/languages/${id}`, payload, { auth: true }),
+    remove: (id: string) => apiClient.delete<void>(`/admin/languages/${id}`, { auth: true }),
+  },
+  categories: {
+    create: (payload: { name: string; description?: string }) =>
+      apiClient.post<RawCategory>("/admin/categories", payload, { auth: true }),
+  },
+  concepts: {
+    create: (payload: { name: string; description?: string; categoryId: string; referenceImage?: string }) =>
+      apiClient.post<RawConcept>("/admin/concepts", payload, { auth: true }),
+  },
+  translations: {
+    create: (payload: { conceptId: string; languageId: string; text: string; pronunciation?: string; notes?: string }) =>
+      apiClient.post<RawTranslation>("/admin/translations", payload, { auth: true }),
+  },
+  submissions: {
+    pending: () => apiClient.get<RawSubmission[]>("/admin/submissions/pending", { auth: true }),
+    getById: (id: string) => apiClient.get<RawSubmission>(`/admin/submissions/${id}`, { auth: true }),
+    approve: (id: string, reviewerNote?: string) =>
+      apiClient.post<RawSubmission>(`/admin/submissions/${id}/approve`, { reviewerNote }, { auth: true }),
+    reject: (id: string, reviewerNote?: string) =>
+      apiClient.post<RawSubmission>(`/admin/submissions/${id}/reject`, { reviewerNote }, { auth: true }),
+  },
+  statistics: () => apiClient.get<Record<string, unknown>>("/admin/statistics", { auth: true }),
+};
+
+function toQuery(params?: Record<string, string | number | boolean | undefined>) {
   if (!params) return "";
   const entries = Object.entries(params).filter(([, v]) => v !== undefined && v !== "");
   if (entries.length === 0) return "";
-  const search = new URLSearchParams(entries as [string, string][]);
+  const search = new URLSearchParams(entries.map(([k, v]) => [k, String(v)]));
   return `?${search.toString()}`;
 }
