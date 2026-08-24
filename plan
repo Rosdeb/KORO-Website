@@ -1,0 +1,1146 @@
+# Koro — User-Only Website Development Prompt
+
+Build the Koro website on top of the existing **Spring Boot + MongoDB backend with JWT authentication**.
+
+This frontend is **ONLY for normal users and public visitors**.
+
+## Important Scope
+
+Do NOT build:
+
+* Admin dashboard
+* Admin pages
+* Admin navigation
+* Admin settings
+* User management
+* Language management
+* Concept management
+* Translation management
+* Submission moderation
+* Reviewer dashboard
+* Admin analytics
+* Admin activity logs
+
+The backend may already contain admin/reviewer APIs, but **do not expose or implement them in this website**.
+
+The website should focus entirely on the public language-discovery experience and normal authenticated user experience.
+
+---
+
+# 1. Main Product Principle
+
+The most important rule is:
+
+> **Explore first. Login only when you want to save or use personal features.**
+
+A visitor must be able to use the public website without creating an account.
+
+### Without Login
+
+Users can:
+
+* Explore Koro
+* Browse languages
+* Search languages
+* Browse dictionary
+* Search concepts
+* View translations
+* View pronunciation
+* View language information
+* Read about Koro
+
+### Login Required
+
+Users must log in to:
+
+* Save words
+* Create books
+* Add words to books
+* Manage books
+* Export books
+* Scan objects
+* View scan history
+* Submit translations
+* View personal submissions
+* View personal activity
+* Manage profile/settings
+
+---
+
+# 2. Website Structure
+
+## Public
+
+```text
+/
+├── /
+├── /languages
+├── /languages/[code]
+├── /dictionary
+├── /dictionary/[category]
+├── /dictionary/[category]/[concept]
+├── /search
+├── /about
+├── /login
+├── /register
+├── /forgot-password
+└── /reset-password
+```
+
+## Authenticated User
+
+```text
+/app
+├── /app
+├── /app/translate
+├── /app/scan
+├── /app/scan/history
+├── /app/books
+├── /app/books/[id]
+├── /app/books/[id]/export
+├── /app/submissions
+├── /app/submissions/new
+├── /app/activity
+└── /app/settings
+```
+
+There is **no `/admin` section** in this frontend.
+
+---
+
+# 3. Homepage
+
+Route:
+
+`/`
+
+The homepage should be simple and welcoming.
+
+## Hero
+
+Headline:
+
+**Discover. Learn. Preserve.**
+
+Description:
+
+**Explore languages, discover words, and build your own collection of language knowledge with Koro.**
+
+Large search box:
+
+```text
+Search languages, words, and concepts...
+```
+
+Buttons:
+
+```text
+Explore Languages
+Explore Dictionary
+```
+
+No login required.
+
+---
+
+# 4. Homepage Sections
+
+### Featured Languages
+
+Display popular/available languages.
+
+Each card:
+
+* Language name
+* Native name
+* Region
+* Number of concepts
+* Explore button
+
+### Dictionary Categories
+
+Example:
+
+```text
+Animals
+Food
+Family
+Nature
+Body
+Transportation
+Objects
+Daily Life
+```
+
+### Popular Concepts
+
+Show useful words/concepts and translations.
+
+### How Koro Works
+
+```text
+Explore
+Discover language knowledge.
+
+Learn
+Understand translations and pronunciation.
+
+Save
+Create your personal language books.
+```
+
+### Community Section
+
+Explain that Koro helps people discover and preserve language knowledge.
+
+### Final CTA
+
+**Start Exploring**
+
+---
+
+# 5. Explore Languages
+
+Route:
+
+`/languages`
+
+No authentication.
+
+Features:
+
+* Search language
+* Popular languages
+* All active languages
+* Native names
+* Region
+* ISO code
+
+Example:
+
+```text
+Languages
+
+[ Search languages... ]
+
+Popular
+
+Bangla
+বাংলা
+
+Chakma
+𑄌𑄋𑄟𑄳𑄦
+
+Marma
+...
+```
+
+---
+
+# 6. Language Details
+
+Route:
+
+`/languages/[code]`
+
+Display:
+
+* Language name
+* Native name
+* Region
+* ISO code
+* Description
+* Available concepts
+* Available translations
+
+Include:
+
+```text
+Search this language
+
+[ Search words and concepts... ]
+```
+
+Then show:
+
+* Categories
+* Popular concepts
+* Words
+* Phrases
+* Translations
+
+Everything should be publicly accessible.
+
+---
+
+# 7. Dictionary
+
+Route:
+
+`/dictionary`
+
+This should be one of the primary features.
+
+Use:
+
+`GET /categories`
+
+Display:
+
+```text
+Dictionary
+
+[ Search concepts... ]
+
+Categories
+
+Animals
+Food
+Family
+Nature
+Body
+Transportation
+Daily Life
+Objects
+```
+
+Visitors can browse without logging in.
+
+---
+
+# 8. Concept / Word Details
+
+When the user selects a concept, show:
+
+```text
+HELLO
+
+Bangla
+হ্যালো
+
+Chakma
+...
+
+Marma
+...
+
+Pronunciation
+...
+
+Example
+...
+```
+
+Add:
+
+**Save to Book**
+
+If the user is not logged in:
+
+```text
+Save this word
+
+Create a free account to save words
+and organize your personal books.
+
+[ Login ]
+[ Create Account ]
+```
+
+Do NOT block the content itself.
+
+---
+
+# 9. Global Search
+
+Search should always be easily accessible.
+
+Header:
+
+```text
+[ Search languages, words, concepts... ]
+```
+
+Search results can show:
+
+### Languages
+
+### Concepts
+
+### Translations
+
+### Categories
+
+Search should work without authentication.
+
+---
+
+# 10. Authentication
+
+Use the existing APIs:
+
+```text
+POST /auth/register
+POST /auth/login
+POST /auth/refresh
+```
+
+Implement:
+
+* Login
+* Register
+* Forgot password
+* Reset password
+* Logout
+* Token refresh
+
+After login, return the user to the page/action they were attempting.
+
+Example:
+
+```text
+Dictionary
+    ↓
+Open Word
+    ↓
+Save
+    ↓
+Login
+    ↓
+Automatically save
+    ↓
+Return to Word
+```
+
+---
+
+# 11. User Dashboard
+
+Route:
+
+`/app`
+
+The dashboard should be simple.
+
+Show:
+
+### Welcome
+
+```text
+Welcome back, Rosdev
+```
+
+### Quick Actions
+
+```text
+Translate
+Scan Object
+My Books
+Suggest Translation
+```
+
+### Recently Saved
+
+Display recently saved words.
+
+### Recent Activity
+
+Show a small summary of the user's recent activity.
+
+### Continue Learning
+
+Show the user's books and recently viewed content.
+
+---
+
+# 12. Translate & Search
+
+Route:
+
+`/app/translate`
+
+Use:
+
+`POST /translations/search`
+
+UI:
+
+```text
+From
+[ English ▼ ]
+
+To
+[ Bangla ▼ ]
+
+[ Search concept... ]
+```
+
+Result:
+
+```text
+Concept:
+Hello
+
+Translation:
+হ্যালো
+
+Pronunciation:
+...
+
+Example:
+...
+
+[ Save to Book ]
+```
+
+---
+
+# 13. My Books
+
+Route:
+
+`/app/books`
+
+Use:
+
+```text
+GET /collections
+POST /collections
+```
+
+Display personal books.
+
+Example:
+
+```text
+My Books
+
+My Travel Words
+42 words
+
+Daily Conversation
+31 words
+
+Important Words
+18 words
+```
+
+Button:
+
+**+ Create Book**
+
+---
+
+# 14. Book Details
+
+Route:
+
+`/app/books/[id]`
+
+Show:
+
+* Book title
+* Chapters
+* Saved words
+* Notes
+* Add word
+* Remove word
+* Reorder items
+
+The book should feel like a personal vocabulary notebook.
+
+---
+
+# 15. Save Word Flow
+
+For logged-in users:
+
+```text
+Save
+ ↓
+Select Book
+ ↓
+Saved
+```
+
+If the user has no book:
+
+```text
+You don't have a book yet.
+
+[ Create Your First Book ]
+```
+
+For visitors:
+
+```text
+Save
+ ↓
+Login/Register
+```
+
+---
+
+# 16. PDF Export
+
+Route:
+
+`/app/books/[id]/export`
+
+Use:
+
+`POST /export/pdf`
+
+Allow users to:
+
+* Select language
+* Generate PDF
+* Download/open PDF
+* View export history
+
+Use:
+
+`GET /export/history`
+
+---
+
+# 17. Scan an Object
+
+Route:
+
+`/app/scan`
+
+Use:
+
+`POST /images/recognize`
+
+Flow:
+
+```text
+Take Photo / Upload
+        ↓
+Recognizing...
+        ↓
+Detected Object
+        ↓
+Matched Concept
+        ↓
+Translations
+        ↓
+Save to Book
+```
+
+Example:
+
+```text
+Detected:
+
+Apple
+
+Confidence: 94%
+
+Bangla:
+আপেল
+
+Chakma:
+...
+
+Marma:
+...
+
+[ Save to Book ]
+```
+
+The scan page should be optimized for mobile.
+
+---
+
+# 18. Scan History
+
+Route:
+
+`/app/scan/history`
+
+Show:
+
+* Image
+* Detected object
+* Concept
+* Confidence
+* Date
+
+Keep the UI simple.
+
+---
+
+# 19. Suggest a Translation
+
+Route:
+
+`/app/submissions/new`
+
+Users can submit:
+
+* Concept
+* Target language
+* Suggested translation
+* Pronunciation
+* Optional note
+
+Use:
+
+`POST /submissions`
+
+After submitting:
+
+```text
+Your suggestion has been submitted.
+
+Status:
+Pending
+```
+
+The user should be able to track their own submission.
+
+---
+
+# 20. My Submissions
+
+Route:
+
+`/app/submissions`
+
+Display:
+
+```text
+My Submissions
+
+Pending
+Approved
+Rejected
+```
+
+For rejected submissions, show the review note if the backend provides one.
+
+Important:
+
+Do not call a pending submission an official translation.
+
+Show:
+
+**Community submission — Pending**
+
+---
+
+# 21. My Activity
+
+Route:
+
+`/app/activity`
+
+Use:
+
+```text
+GET /activity
+GET /activity/statistics
+```
+
+Filters:
+
+* Today
+* Week
+* Month
+* Year
+* Custom range
+
+Show simple charts for:
+
+* Searches
+* Saved words
+* Books
+* Scans
+* Contributions
+
+---
+
+# 22. Profile & Settings
+
+Route:
+
+`/app/settings`
+
+Allow users to manage:
+
+* Name
+* Avatar
+* Native language
+* Preferred language
+* Password
+* Logout
+
+Keep this page simple.
+
+---
+
+# 23. Navigation
+
+## Public Navigation
+
+Desktop:
+
+```text
+Koro
+
+Languages
+Dictionary
+About
+
+Search
+
+Login
+Sign Up
+```
+
+Mobile:
+
+```text
+Home
+Languages
+Dictionary
+Search
+Login
+```
+
+## Authenticated Navigation
+
+Desktop:
+
+```text
+Home
+Translate
+Scan
+Books
+Submissions
+Activity
+Settings
+```
+
+Mobile:
+
+```text
+Home
+Explore
+Search
+Books
+Profile
+```
+
+Do not show admin/reviewer navigation.
+
+---
+
+# 24. User Experience
+
+The application should feel very simple.
+
+A new visitor should be able to do:
+
+```text
+Open Koro
+    ↓
+Search "Hello"
+    ↓
+Choose language
+    ↓
+See translation
+    ↓
+Read pronunciation
+    ↓
+Learn
+    ↓
+Click Save
+    ↓
+Login/Register
+    ↓
+Save to Book
+```
+
+This should be the main experience.
+
+---
+
+# 25. Design Direction
+
+Design Koro as:
+
+* Modern
+* Clean
+* Friendly
+* Community-focused
+* Language-focused
+* Accessible
+* Mobile-first
+
+Avoid:
+
+* Complex SaaS dashboard appearance
+* Too many buttons
+* Too many menus
+* Large forms
+* Unnecessary animations
+* Forced registration
+
+Use:
+
+* Large search bar
+* Language cards
+* Dictionary cards
+* Clean typography
+* Rounded components
+* Clear hierarchy
+* Generous whitespace
+* Accessible colors
+
+---
+
+# 26. Indigenous Language Support
+
+The website must support different writing systems correctly.
+
+Do not assume everything is:
+
+* English
+* Latin
+* Bangla
+
+Support Unicode and appropriate fonts for languages such as:
+
+* Chakma
+* Marma
+* Bangla
+* Other supported indigenous languages
+
+Use appropriate font fallback based on the language.
+
+Never show missing-character boxes.
+
+---
+
+# 27. Low-Bandwidth Support
+
+The website should be optimized for users with slower internet.
+
+Use:
+
+* Lazy loading
+* Image optimization
+* Pagination
+* API caching
+* Skeleton loaders
+* Small JavaScript bundles
+* Minimal animations
+* Optimized fonts
+
+Consider PWA support for saved books so users can access important saved content with limited connectivity.
+
+---
+
+# 28. Recommended Technology
+
+Use:
+
+**Next.js + TypeScript**
+
+with:
+
+* App Router
+* TanStack Query
+* Tailwind CSS
+* Radix UI
+* Recharts
+* next-intl
+
+Architecture:
+
+```text
+src/
+├── app/
+├── components/
+├── features/
+│   ├── auth/
+│   ├── languages/
+│   ├── dictionary/
+│   ├── translations/
+│   ├── books/
+│   ├── scan/
+│   ├── submissions/
+│   ├── activity/
+│   └── profile/
+├── lib/
+│   ├── api/
+│   ├── auth/
+│   └── utils/
+└── types/
+```
+
+Keep API calls separate from UI components.
+
+---
+
+# 29. Authentication Security
+
+Use the existing JWT system.
+
+Implement:
+
+* Access token handling
+* Refresh token handling
+* Automatic refresh
+* Centralized 401 handling
+* Logout on invalid refresh
+* Protected routes
+
+Do not expose tokens unnecessarily in client storage.
+
+The backend remains responsible for authorization.
+
+---
+
+# 30. Error & Loading States
+
+Every API-driven screen should have:
+
+### Loading
+
+Use skeleton UI.
+
+### Empty
+
+Example:
+
+```text
+No saved words yet.
+
+Explore the dictionary and start building
+your first language book.
+
+[ Explore Dictionary ]
+```
+
+### Error
+
+```text
+Something went wrong.
+
+Please try again.
+```
+
+### Offline
+
+```text
+You're offline.
+
+Please check your internet connection.
+```
+
+---
+
+# 31. Development Priority
+
+Build only the user-facing product in this order.
+
+### Phase 1 — Public Experience
+
+```text
+Home
+Languages
+Language Details
+Dictionary
+Concept Details
+Search
+About
+```
+
+### Phase 2 — Authentication
+
+```text
+Login
+Register
+Forgot Password
+Reset Password
+JWT Refresh
+```
+
+### Phase 3 — Core User App
+
+```text
+Dashboard
+Translate
+Profile
+Settings
+```
+
+### Phase 4 — Personal Learning
+
+```text
+Save
+Books
+Book Details
+PDF Export
+```
+
+### Phase 5 — Image Recognition
+
+```text
+Scan
+Scan History
+```
+
+### Phase 6 — Community Contribution
+
+```text
+Suggest Translation
+My Submissions
+```
+
+### Phase 7 — Activity & Polish
+
+```text
+Activity
+Statistics
+PWA
+Offline saved books
+Accessibility
+Indigenous font support
+Performance optimization
+```
+
+---
+
+# 32. Final Requirement
+
+Build a **user-only Koro website**.
+
+The website must have two simple experiences:
+
+### Public
+
+```text
+Explore → Search → Learn
+```
+
+### Authenticated
+
+```text
+Learn → Save → Organize → Practice → Contribute
+```
+
+Do not build any admin or reviewer UI.
+
+Do not force visitors to log in.
+
+The primary purpose of the website is to make Koro's language content **easy to discover and use**, while giving registered users additional personal features such as books, saved words, scanning, submissions, activity, and PDF export.
+
+The most important UX principle is:
+
+> **Anyone can come to Koro and start learning immediately. Create an account only when you want to make Koro personal.**

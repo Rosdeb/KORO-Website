@@ -1,0 +1,159 @@
+@import "tailwindcss";
+
+:root {
+  --background: #fffefb;
+  --foreground: #1b1a17;
+  --card: #ffffff;
+  --card-foreground: #1b1a17;
+  --muted: #f4f2ec;
+  --muted-foreground: #6b675e;
+  --border: #e7e3d9;
+  --input: #e7e3d9;
+  --ring: #0d6b5a;
+
+  --primary: #0d6b5a;
+  --primary-hover: #0a5747;
+  --primary-foreground: #ffffff;
+  --primary-50: #eef8f5;
+  --primary-100: #d3ede4;
+  --primary-500: #14876f;
+  --primary-600: #0d6b5a;
+  --primary-700: #0a5747;
+
+  --accent: #c2703f;
+  --accent-hover: #a75d31;
+  --accent-foreground: #ffffff;
+  --accent-50: #fdf3ec;
+  --accent-100: #f9e0cc;
+
+  --success: #1a7f4e;
+  --warning: #b57b12;
+  --danger: #c23f3f;
+  --danger-foreground: #ffffff;
+
+  --radius: 0.9rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #14140f;
+    --foreground: #f2f0e8;
+    --card: #1c1c16;
+    --card-foreground: #f2f0e8;
+    --muted: #24241c;
+    --muted-foreground: #a6a291;
+    --border: #322f24;
+    --input: #322f24;
+    --ring: #2fa88b;
+
+    --primary: #2fa88b;
+    --primary-hover: #3ec0a0;
+    --primary-foreground: #08130f;
+    --primary-50: #16261f;
+    --primary-100: #1c3129;
+    --primary-500: #2fa88b;
+    --primary-600: #3ec0a0;
+    --primary-700: #63d2b6;
+
+    --accent: #dd9161;
+    --accent-hover: #e6a578;
+    --accent-foreground: #201206;
+    --accent-50: #2a1c10;
+    --accent-100: #3a2716;
+
+    --success: #3fbf85;
+    --warning: #e0ab4e;
+    --danger: #e2685f;
+    --danger-foreground: #1a0505;
+  }
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-50: var(--primary-50);
+  --color-primary-100: var(--primary-100);
+  --color-primary-500: var(--primary-500);
+  --color-primary-600: var(--primary-600);
+  --color-primary-700: var(--primary-700);
+
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent-50: var(--accent-50);
+  --color-accent-100: var(--accent-100);
+
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-danger-foreground: var(--danger-foreground);
+
+  --radius-sm: calc(var(--radius) - 0.4rem);
+  --radius-md: calc(var(--radius) - 0.2rem);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 0.4rem);
+
+  --font-sans: var(--font-ui);
+  --font-bn: var(--font-bn);
+  --font-ccp: var(--font-ccp);
+  --font-mya: var(--font-mya);
+
+  --animate-fade-in: fade-in 0.2s ease-out;
+  --animate-scale-in: scale-in 0.12s ease-out;
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes scale-in {
+    from { opacity: 0; transform: scale(0.97); }
+    to { opacity: 1; transform: scale(1); }
+  }
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans), "Noto Sans Bengali", "Noto Sans", ui-sans-serif, system-ui, sans-serif;
+  }
+  ::selection {
+    background: var(--primary-100);
+    color: var(--primary-700);
+  }
+}
+
+@layer utilities {
+  .script-bn {
+    font-family: var(--font-bn), "Noto Sans Bengali", ui-sans-serif, sans-serif;
+  }
+  .script-ccp {
+    font-family: var(--font-ccp), "Noto Sans Chakma", "Noto Sans Bengali", ui-sans-serif, sans-serif;
+  }
+  .script-mya {
+    font-family: var(--font-mya), "Noto Sans Myanmar", ui-sans-serif, sans-serif;
+  }
+  .container-koro {
+    width: 100%;
+    max-width: 76rem;
+    margin-inline: auto;
+    padding-inline: 1.25rem;
+  }
+}
