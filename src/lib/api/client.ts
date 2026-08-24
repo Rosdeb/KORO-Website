@@ -23,7 +23,10 @@ let refreshPromise: Promise<string | null> | null = null;
 
 async function refreshAccessToken(): Promise<string | null> {
   if (!refreshPromise) {
-    refreshPromise = fetch("/api/auth/refresh", { method: "POST" })
+    // Call our same-origin Next.js proxy. It reads the httpOnly refresh
+    // cookie and forwards { refreshToken } to the backend's
+    // POST /api/v1/auth/refresh endpoint.
+    refreshPromise = fetch("/api/v1/auth/refresh", { method: "POST" })
       .then(async (res) => {
         if (!res.ok) return null;
         const data = (await res.json()) as { accessToken: string };
