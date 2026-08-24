@@ -29,23 +29,30 @@ export default function BookDetailPage({ params }: { params: Promise<{ id: strin
   const chapters = groupByChapter(allItems);
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="mx-auto flex w-full max-w-4xl flex-col gap-6">
       <Link href="/app/books" className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground">
         <ArrowLeft className="size-4" /> My Books
       </Link>
 
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-extrabold sm:text-3xl">{book.title}</h1>
-          {book.description && <p className="mt-1 text-muted-foreground">{book.description}</p>}
-          <p className="mt-1 text-sm text-muted-foreground">{book.wordCount} words</p>
+      <Card className="overflow-hidden">
+        <div className="flex flex-col gap-5 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+          <div className="flex min-w-0 items-start gap-4">
+            <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-primary-50 text-primary">
+              <BookMarked className="size-6" />
+            </div>
+            <div className="min-w-0">
+              <h1 className="break-words text-2xl font-extrabold sm:text-3xl">{book.title}</h1>
+              {book.description && <p className="mt-1 max-w-2xl text-sm leading-6 text-muted-foreground">{book.description}</p>}
+              <p className="mt-2 text-sm font-medium text-muted-foreground">{book.wordCount} words</p>
+            </div>
+          </div>
+          <Button variant="outline" className="shrink-0" asChild>
+            <Link href={`/app/books/${id}/export`}>
+              <Download className="size-4" /> Export as PDF
+            </Link>
+          </Button>
         </div>
-        <Button variant="outline" asChild>
-          <Link href={`/app/books/${id}/export`}>
-            <Download className="size-4" /> Export as PDF
-          </Link>
-        </Button>
-      </div>
+      </Card>
 
       {allItems.length === 0 && (
         <EmptyState
@@ -65,10 +72,10 @@ export default function BookDetailPage({ params }: { params: Promise<{ id: strin
           <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
             {chapterName}
           </h2>
-          <Card>
+          <Card className="overflow-hidden">
             <ul className="divide-y divide-border">
               {items.map((item) => (
-                <li key={item.id} className="flex items-center gap-4 px-5 py-4">
+                <li key={item.id} className="flex items-start gap-4 px-5 py-4 sm:items-center">
                   <div className="min-w-0 flex-1">
                     <p className="font-medium">{item.conceptName}</p>
                     <div className="mt-0.5 flex items-center gap-2 text-sm text-muted-foreground">
