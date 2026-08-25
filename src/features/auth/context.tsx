@@ -11,6 +11,10 @@ interface AuthContextValue {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
+  // A reviewer's extra permissions (the submission review queue) are also
+  // granted to admins, so this covers both roles — see api_documentation.md.
+  isReviewer: boolean;
+  isAdmin: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -79,9 +83,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     router.push("/");
   }, [router]);
 
+  const isAdmin = !!user?.roles.includes("ROLE_ADMIN");
+  const isReviewer = isAdmin || !!user?.roles.includes("ROLE_LANGUAGE_REVIEWER");
+
   return (
     <AuthContext.Provider
-      value={{ user, isLoading, isAuthenticated: !!user, login, register, logout }}
+      value={{ user, isLoading, isAuthenticated: !!user, isReviewer, isAdmin, login, register, logout }}
     >
       {children}
     </AuthContext.Provider>

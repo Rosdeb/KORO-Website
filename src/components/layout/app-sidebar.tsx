@@ -10,8 +10,10 @@ import {
   MessageSquarePlus,
   Activity,
   Settings,
+  ClipboardCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
+import { useAuth } from "@/features/auth/context";
 
 const NAV_ITEMS = [
   { href: "/app", label: "Home", icon: LayoutGrid, exact: true },
@@ -23,13 +25,18 @@ const NAV_ITEMS = [
   { href: "/app/settings", label: "Settings", icon: Settings },
 ];
 
+// Shown only to ROLE_LANGUAGE_REVIEWER / ROLE_ADMIN accounts.
+const REVIEWER_NAV_ITEM = { href: "/app/review", label: "Review Queue", icon: ClipboardCheck, exact: false };
+
 export function AppSidebar() {
   const pathname = usePathname();
+  const { isReviewer } = useAuth();
+  const items = isReviewer ? [...NAV_ITEMS, REVIEWER_NAV_ITEM] : NAV_ITEMS;
 
   return (
     <aside className="sticky top-16 hidden h-[calc(100vh-4rem)] w-60 shrink-0 flex-col border-r border-border py-6 md:flex">
       <nav className="flex flex-col gap-1 px-3">
-        {NAV_ITEMS.map((item) => {
+        {items.map((item) => {
           const active = item.exact ? pathname === item.href : pathname.startsWith(item.href);
           const Icon = item.icon;
           return (

@@ -143,6 +143,9 @@ export function mapSubmission(raw: RawSubmission): Submission {
     id: raw.id,
     conceptId: raw.concept.id,
     conceptName: raw.concept.name,
+    conceptDescription: raw.concept.description,
+    conceptImageUrl: raw.concept.referenceImage ? resolveApiFileUrl(raw.concept.referenceImage) : undefined,
+    categoryName: raw.concept.category?.name,
     languageId: raw.language.id,
     languageCode: raw.language.code,
     languageName: raw.language.name,
@@ -152,6 +155,8 @@ export function mapSubmission(raw: RawSubmission): Submission {
     status: raw.status,
     reviewNote: raw.reviewerNote,
     createdAt: raw.createdAt,
+    submittedByName: raw.submittedBy?.name,
+    submittedByEmail: raw.submittedBy?.email,
   };
 }
 

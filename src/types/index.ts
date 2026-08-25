@@ -103,6 +103,9 @@ export interface Submission {
   id: string;
   conceptId: string;
   conceptName: string;
+  conceptDescription?: string | null;
+  conceptImageUrl?: string;
+  categoryName?: string;
   languageId: string;
   languageCode: string;
   languageName: string;
@@ -112,6 +115,8 @@ export interface Submission {
   status: SubmissionStatus;
   reviewNote?: string | null;
   createdAt: string;
+  submittedByName?: string;
+  submittedByEmail?: string;
 }
 
 export interface ScanResult {

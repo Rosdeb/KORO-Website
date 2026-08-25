@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Compass, Search, BookMarked, User } from "lucide-react";
+import { Home, Compass, Search, BookMarked, User, ClipboardCheck } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
+import { useAuth } from "@/features/auth/context";
 
 const ITEMS = [
   { href: "/app", label: "Home", icon: Home, exact: true },
@@ -13,12 +14,17 @@ const ITEMS = [
   { href: "/app/settings", label: "Profile", icon: User },
 ];
 
+// Shown only to ROLE_LANGUAGE_REVIEWER / ROLE_ADMIN accounts.
+const REVIEWER_ITEM = { href: "/app/review", label: "Review", icon: ClipboardCheck, exact: false };
+
 export function AppMobileNav() {
   const pathname = usePathname();
+  const { isReviewer } = useAuth();
+  const items = isReviewer ? [...ITEMS, REVIEWER_ITEM] : ITEMS;
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-30 flex border-t border-border bg-card/95 backdrop-blur-md md:hidden">
-      {ITEMS.map((item) => {
+      {items.map((item) => {
         const active = item.exact ? pathname === item.href : pathname.startsWith(item.href);
         const Icon = item.icon;
         return (
