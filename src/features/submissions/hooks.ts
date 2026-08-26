@@ -13,11 +13,14 @@ export function useCreateSubmission() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (payload: {
-      conceptId: string;
-      languageId: string;
-      suggestedTranslation: string;
+      categoryId: string;
+      sourceLanguageId: string;
+      sourceWord: string;
+      banglaTranslation: string;
+      englishTranslation: string;
       pronunciation?: string;
-      notes?: string;
+      exampleSentence?: string;
+      note?: string;
     }) => submissionsApi.create(payload),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["submissions", "mine"] }),
   });

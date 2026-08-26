@@ -76,9 +76,17 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
   }
 
   if (!res.ok) {
+    // Most error bodies are `{ message }`, but some (e.g. the submissions
+    // duplicate-word 409) are a bare JSON string — handle both.
     const message = await res
       .json()
-      .then((data: { message?: string }) => data.message)
+      .then((data: unknown) => {
+        if (typeof data === "string") return data;
+        if (data && typeof data === "object" && "message" in data) {
+          return (data as { message?: string }).message;
+        }
+        return undefined;
+      })
       .catch(() => undefined);
     throw new ApiError(message ?? "Something went wrong. Please try again.", res.status);
   }

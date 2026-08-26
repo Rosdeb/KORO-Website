@@ -101,20 +101,22 @@ export type SubmissionStatus = "PENDING" | "APPROVED" | "REJECTED";
 
 export interface Submission {
   id: string;
-  conceptId: string;
-  conceptName: string;
-  conceptDescription?: string | null;
-  conceptImageUrl?: string;
-  categoryName?: string;
-  languageId: string;
-  languageCode: string;
-  languageName: string;
-  suggestedText: string;
+  categoryId: string;
+  categoryName: string;
+  sourceLanguageId: string;
+  sourceLanguageCode: string;
+  sourceLanguageName: string;
+  sourceWord: string;
+  banglaTranslation: string;
+  englishTranslation: string;
   pronunciation?: string | null;
+  exampleSentence?: string | null;
   note?: string | null;
   status: SubmissionStatus;
-  reviewNote?: string | null;
+  reviewerNote?: string | null;
+  rejectionReason?: string | null;
   createdAt: string;
+  reviewedAt?: string | null;
   submittedByName?: string;
   submittedByEmail?: string;
 }

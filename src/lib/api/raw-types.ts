@@ -90,16 +90,28 @@ export interface RawPdfExport {
   createdAt: string;
 }
 
+// A submission is a full dictionary entry — a word in its source language
+// plus the two translations every entry always carries (Bangla, English) —
+// not a suggestion against an existing Concept. On approval the backend
+// publishes it into the Concept/Translation tables itself; the submission
+// record only tracks the review lifecycle.
 export interface RawSubmission {
   id: string;
-  concept: RawConcept;
-  language: RawLanguage;
-  suggestedTranslation: string;
+  // Nullable: submissions created before the source-word model shipped only
+  // ever had pronunciation/notes populated, and the backend still returns
+  // them alongside new-model submissions.
+  category: RawCategory | null;
+  sourceLanguage: RawLanguage | null;
+  sourceWord: string | null;
+  banglaTranslation: string | null;
+  englishTranslation: string | null;
   pronunciation?: string | null;
+  exampleSentence?: string | null;
   notes?: string | null;
   submittedBy?: RawUser;
   status: "PENDING" | "APPROVED" | "REJECTED";
   reviewerNote?: string | null;
+  rejectionReason?: string | null;
   reviewedBy?: RawUser;
   createdAt: string;
   reviewedAt?: string | null;

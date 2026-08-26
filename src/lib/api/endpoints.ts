@@ -113,12 +113,19 @@ export const imagesApi = {
 };
 
 export const submissionsApi = {
+  // A submission is a full dictionary entry — sourceWord in sourceLanguageId,
+  // plus the two translations every entry always carries. The backend
+  // rejects (409) a sourceWord that duplicates an existing dictionary entry
+  // or another non-rejected submission for the same language.
   create: (payload: {
-    conceptId: string;
-    languageId: string;
-    suggestedTranslation: string;
+    categoryId: string;
+    sourceLanguageId: string;
+    sourceWord: string;
+    banglaTranslation: string;
+    englishTranslation: string;
     pronunciation?: string;
-    notes?: string;
+    exampleSentence?: string;
+    note?: string;
   }) => apiClient.post<RawSubmission>("/submissions", payload, { auth: true }),
   // GET /submissions returns the current user's own submissions — there is
   // no separate "mine" endpoint.
@@ -180,8 +187,13 @@ export const adminApi = {
     getById: (id: string) => apiClient.get<RawSubmission>(`/admin/submissions/${id}`, { auth: true }),
     approve: (id: string, reviewerNote?: string) =>
       apiClient.post<RawSubmission>(`/admin/submissions/${id}/approve`, { reviewerNote }, { auth: true }),
-    reject: (id: string, reviewerNote?: string) =>
-      apiClient.post<RawSubmission>(`/admin/submissions/${id}/reject`, { reviewerNote }, { auth: true }),
+    // rejectionReason is required by the backend (400 if missing/blank).
+    reject: (id: string, rejectionReason: string, reviewerNote?: string) =>
+      apiClient.post<RawSubmission>(
+        `/admin/submissions/${id}/reject`,
+        { rejectionReason, reviewerNote },
+        { auth: true },
+      ),
   },
   statistics: () => apiClient.get<Record<string, unknown>>("/admin/statistics", { auth: true }),
 };

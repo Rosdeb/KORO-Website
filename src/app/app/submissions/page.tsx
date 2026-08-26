@@ -87,26 +87,50 @@ export default function SubmissionsPage() {
 function SubmissionCard({ submission }: { submission: Submission }) {
   const status = STATUS_CONFIG[submission.status];
   const Icon = status.icon;
+  // A handful of submissions predate the source-word model and only ever
+  // carried pronunciation/notes — degrade gracefully instead of showing
+  // blank fields for those.
+  const rejectionMessage = submission.rejectionReason ?? submission.reviewerNote;
+
   return (
     <Card>
       <div className="flex flex-col gap-3 p-5">
         <div className="flex flex-wrap items-start justify-between gap-2">
           <div>
-            <p className="font-semibold">{submission.conceptName}</p>
+            <p className="font-semibold">{submission.sourceWord || "Untitled submission"}</p>
             <p className="text-sm text-muted-foreground">
-              {submission.languageName} — {submission.suggestedText}
+              {submission.sourceLanguageName} · {submission.categoryName}
             </p>
           </div>
           <Badge variant={status.variant}>
             <Icon className="size-3" /> {status.label}
           </Badge>
         </div>
+
+        {(submission.banglaTranslation || submission.englishTranslation) && (
+          <div className="flex flex-wrap gap-4 rounded-xl bg-muted/60 px-4 py-2.5 text-sm">
+            {submission.banglaTranslation && (
+              <span>
+                <span className="text-muted-foreground">Bangla: </span>
+                <span className="font-medium">{submission.banglaTranslation}</span>
+              </span>
+            )}
+            {submission.englishTranslation && (
+              <span>
+                <span className="text-muted-foreground">English: </span>
+                <span className="font-medium">{submission.englishTranslation}</span>
+              </span>
+            )}
+          </div>
+        )}
+
         {submission.pronunciation && (
           <p className="text-xs text-muted-foreground">Pronunciation: {submission.pronunciation}</p>
         )}
-        {submission.status === "REJECTED" && submission.reviewNote && (
+        {submission.note && <p className="text-xs text-muted-foreground">Note: {submission.note}</p>}
+        {submission.status === "REJECTED" && rejectionMessage && (
           <p className="rounded-lg bg-danger/5 px-3 py-2 text-sm text-danger">
-            Reviewer note: {submission.reviewNote}
+            Rejection reason: {rejectionMessage}
           </p>
         )}
         <p className="text-xs text-muted-foreground">{new Date(submission.createdAt).toLocaleDateString()}</p>

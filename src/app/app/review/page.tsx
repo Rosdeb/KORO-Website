@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { CheckCircle2, ClipboardList, ImageOff, User, XCircle } from "lucide-react";
+import { CheckCircle2, ClipboardList, Languages, User, XCircle } from "lucide-react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -89,38 +89,51 @@ function ReviewCard({ submission }: { submission: Submission }) {
   return (
     <Card>
       <div className="flex gap-4 p-5 pb-0">
-        <div className="flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-muted">
-          {submission.conceptImageUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element -- backend-hosted, not a next/image-known domain
-            <img src={submission.conceptImageUrl} alt={submission.conceptName} className="size-full object-cover" />
-          ) : (
-            <ImageOff className="size-5 text-muted-foreground" />
-          )}
+        <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-success/10 text-success">
+          <Languages className="size-5" />
         </div>
 
         <CardHeader className="flex-1 p-0">
           <div className="flex flex-wrap items-start justify-between gap-2">
-            <CardTitle>{submission.conceptName}</CardTitle>
+            <CardTitle>{submission.sourceWord || "Untitled submission"}</CardTitle>
             <Badge variant="warning">Pending review</Badge>
           </div>
           <CardDescription>
             {submission.categoryName && <span>{submission.categoryName} · </span>}
-            Suggested translation for <span className="font-medium text-foreground">{submission.languageName}</span>
+            Source word in{" "}
+            <span className="font-medium text-foreground">{submission.sourceLanguageName}</span>
           </CardDescription>
-          {submission.conceptDescription && (
-            <CardDescription className="italic">&quot;{submission.conceptDescription}&quot;</CardDescription>
-          )}
         </CardHeader>
       </div>
 
       <CardContent className="flex flex-col gap-2">
-        <div className="rounded-xl bg-muted/60 px-4 py-3">
-          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Suggested text</p>
-          <p className="mt-0.5 font-semibold">{submission.suggestedText}</p>
-          {submission.pronunciation && (
-            <p className="mt-1 text-sm text-muted-foreground">Pronunciation: {submission.pronunciation}</p>
-          )}
-        </div>
+        {(submission.banglaTranslation || submission.englishTranslation || submission.pronunciation) && (
+          <div className="flex flex-wrap gap-3 rounded-xl bg-muted/60 px-4 py-3">
+            {submission.banglaTranslation && (
+              <div className="min-w-32 flex-1">
+                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Bangla meaning</p>
+                <p className="mt-0.5 font-semibold">{submission.banglaTranslation}</p>
+              </div>
+            )}
+            {submission.englishTranslation && (
+              <div className="min-w-32 flex-1">
+                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">English meaning</p>
+                <p className="mt-0.5 font-semibold">{submission.englishTranslation}</p>
+              </div>
+            )}
+            {submission.pronunciation && (
+              <div className="min-w-32 flex-1">
+                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Pronunciation</p>
+                <p className="mt-0.5 font-semibold">{submission.pronunciation}</p>
+              </div>
+            )}
+          </div>
+        )}
+        {submission.exampleSentence && (
+          <p className="rounded-xl bg-muted/60 px-4 py-3 text-sm text-muted-foreground">
+            Example: &quot;{submission.exampleSentence}&quot;
+          </p>
+        )}
         {submission.note && (
           <p className="rounded-xl bg-muted/60 px-4 py-3 text-sm text-muted-foreground">
             Submitter&apos;s note: {submission.note}
@@ -162,6 +175,8 @@ function ReviewActionDialog({
   onClose: () => void;
 }) {
   const [note, setNote] = useState("");
+  const [rejectionReason, setRejectionReason] = useState("");
+  const [rejectionReasonError, setRejectionReasonError] = useState(false);
   const approve = useApproveSubmission();
   const reject = useRejectSubmission();
 
@@ -170,16 +185,30 @@ function ReviewActionDialog({
   function handleOpenChange(open: boolean) {
     if (!open) {
       setNote("");
+      setRejectionReason("");
+      setRejectionReasonError(false);
       onClose();
     }
   }
 
   function handleConfirm() {
-    if (!action) return;
-    mutation.mutate(
-      { id: submission.id, reviewerNote: note.trim() || undefined },
-      { onSuccess: () => handleOpenChange(false) },
-    );
+    if (action === "approve") {
+      approve.mutate(
+        { id: submission.id, reviewerNote: note.trim() || undefined },
+        { onSuccess: () => handleOpenChange(false) },
+      );
+      return;
+    }
+    if (action === "reject") {
+      if (!rejectionReason.trim()) {
+        setRejectionReasonError(true);
+        return;
+      }
+      reject.mutate(
+        { id: submission.id, rejectionReason: rejectionReason.trim(), reviewerNote: note.trim() || undefined },
+        { onSuccess: () => handleOpenChange(false) },
+      );
+    }
   }
 
   return (
@@ -188,20 +217,43 @@ function ReviewActionDialog({
         <DialogHeader>
           <DialogTitle>{action === "approve" ? "Approve submission" : "Reject submission"}</DialogTitle>
           <DialogDescription>
-            {submission.conceptName} — {submission.languageName}: &quot;{submission.suggestedText}&quot;
+            {submission.sourceWord || "Untitled submission"} — {submission.sourceLanguageName}
+            {submission.englishTranslation && <>: &quot;{submission.englishTranslation}&quot;</>}
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="reviewer-note">Reviewer note (optional)</Label>
-          <Textarea
-            id="reviewer-note"
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-            placeholder={
-              action === "approve" ? "Verified by community linguist." : "Explain why this is being rejected."
-            }
-          />
+        <div className="flex flex-col gap-4">
+          {action === "reject" && (
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="rejection-reason">
+                Rejection reason <span className="text-danger">*</span>
+              </Label>
+              <Textarea
+                id="rejection-reason"
+                value={rejectionReason}
+                onChange={(e) => {
+                  setRejectionReason(e.target.value);
+                  if (e.target.value.trim()) setRejectionReasonError(false);
+                }}
+                placeholder="Explain why this submission is being rejected."
+              />
+              {rejectionReasonError && (
+                <p className="text-xs text-danger">A rejection reason is required.</p>
+              )}
+            </div>
+          )}
+
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="reviewer-note">Reviewer note (optional)</Label>
+            <Textarea
+              id="reviewer-note"
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              placeholder={
+                action === "approve" ? "Verified by community linguist." : "Any extra context for the record."
+              }
+            />
+          </div>
         </div>
 
         <DialogFooter>

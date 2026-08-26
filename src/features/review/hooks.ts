@@ -21,8 +21,8 @@ export function useApproveSubmission() {
 export function useRejectSubmission() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, reviewerNote }: { id: string; reviewerNote?: string }) =>
-      adminApi.submissions.reject(id, reviewerNote),
+    mutationFn: ({ id, rejectionReason, reviewerNote }: { id: string; rejectionReason: string; reviewerNote?: string }) =>
+      adminApi.submissions.reject(id, rejectionReason, reviewerNote),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["review", "pending"] }),
   });
 }
