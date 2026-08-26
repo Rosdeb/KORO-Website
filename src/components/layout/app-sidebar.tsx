@@ -11,6 +11,7 @@ import {
   Activity,
   Settings,
   ClipboardCheck,
+  ArrowLeft,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { useAuth } from "@/features/auth/context";
@@ -54,6 +55,15 @@ export function AppSidebar() {
           );
         })}
       </nav>
+      <div className="mt-auto border-t border-border pt-4 px-3">
+        <Link
+          href="/"
+          className="flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+        >
+          <ArrowLeft className="size-[1.1rem]" />
+          Back to Website
+        </Link>
+      </div>
     </aside>
   );
 }
