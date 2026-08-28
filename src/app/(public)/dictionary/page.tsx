@@ -8,11 +8,18 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/state/empty-state";
 import { ErrorState } from "@/components/state/error-state";
 import { useCategories, usePopularConcepts } from "@/features/dictionary/hooks";
+import { useDictionarySearch } from "@/features/search/hooks";
 
 export default function DictionaryPage() {
   const { data: categories, isLoading, isError, refetch } = useCategories();
   const { data: popularConcepts, isLoading: popularLoading } = usePopularConcepts();
   const [query, setQuery] = useState("");
+  const searching = query.trim().length > 0;
+
+  // Real backend concept search (Bangla, pronunciation and source-language
+  // words — not just the English name), grouped into concept cards.
+  const conceptSearch = useDictionarySearch(query);
+  const conceptResults = conceptSearch.data ?? [];
 
   const filteredCategories = useMemo(() => {
     if (!categories) return [];
@@ -49,10 +56,6 @@ export default function DictionaryPage() {
         </div>
       )}
 
-      {!isLoading && !isError && filteredCategories.length === 0 && (
-        <EmptyState className="mt-10" icon={Shapes} title="No categories found" description="Try a different search term." />
-      )}
-
       {!isLoading && !isError && filteredCategories.length > 0 && (
         <div className="mt-10">
           <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted-foreground">Categories</h2>
@@ -64,21 +67,52 @@ export default function DictionaryPage() {
         </div>
       )}
 
-      <div className="mt-14">
-        <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted-foreground">Popular concepts</h2>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {popularLoading &&
-            Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-32 rounded-2xl" />)}
-          {!popularLoading && (popularConcepts ?? []).length === 0 && (
-            <div className="sm:col-span-2 lg:col-span-3">
-              <EmptyState title="No popular concepts yet" description="Check back soon." />
+      {searching && !isError && (
+        <div className="mt-14">
+          <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted-foreground">Concepts</h2>
+          {conceptSearch.isError ? (
+            <ErrorState onRetry={() => conceptSearch.refetch()} />
+          ) : conceptSearch.isLoading || (!conceptSearch.data && !conceptSearch.isError) ? (
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <Skeleton key={i} className="h-32 rounded-2xl" />
+              ))}
+            </div>
+          ) : conceptResults.length === 0 && filteredCategories.length === 0 ? (
+            <EmptyState
+              icon={Shapes}
+              title={`No results for "${query.trim()}"`}
+              description="Try a different search term."
+            />
+          ) : conceptResults.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No matching words.</p>
+          ) : (
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {conceptResults.map((concept) => (
+                <ConceptCard key={concept.id} concept={concept} />
+              ))}
             </div>
           )}
-          {!popularLoading && (popularConcepts ?? []).slice(0, 6).map((concept) => (
-            <ConceptCard key={concept.id} concept={concept} />
-          ))}
         </div>
-      </div>
+      )}
+
+      {!searching && (
+        <div className="mt-14">
+          <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted-foreground">Popular concepts</h2>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {popularLoading &&
+              Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-32 rounded-2xl" />)}
+            {!popularLoading && (popularConcepts ?? []).length === 0 && (
+              <div className="sm:col-span-2 lg:col-span-3">
+                <EmptyState title="No popular concepts yet" description="Check back soon." />
+              </div>
+            )}
+            {!popularLoading && (popularConcepts ?? []).slice(0, 6).map((concept) => (
+              <ConceptCard key={concept.id} concept={concept} />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

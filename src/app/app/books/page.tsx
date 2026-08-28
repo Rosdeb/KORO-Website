@@ -30,9 +30,16 @@ export default function BooksPage() {
       {isError && <ErrorState onRetry={() => refetch()} />}
 
       {isLoading && !isError && (
-        <div className="grid auto-rows-[13rem] grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-busy="true">
           {Array.from({ length: 3 }).map((_, i) => (
-            <Skeleton key={i} className="h-full rounded-2xl" />
+            <Card key={i} className="h-52 overflow-hidden">
+              <div className="flex h-full flex-col p-5">
+                <Skeleton className="size-10 rounded-xl" />
+                <Skeleton className="mt-3 h-5 w-2/3" />
+                <Skeleton className="mt-2 h-4 w-full" />
+                <Skeleton className="mt-auto h-4 w-20" />
+              </div>
+            </Card>
           ))}
         </div>
       )}
@@ -61,7 +68,9 @@ export default function BooksPage() {
                   ) : (
                     <p className="mt-1 text-sm text-muted-foreground">Personal vocabulary collection</p>
                   )}
-                  <p className="mt-auto pt-3 text-sm font-medium text-muted-foreground">{book.wordCount} words</p>
+                  <p className="mt-auto pt-3 text-sm font-medium text-muted-foreground">
+                    {typeof book.wordCount === "number" ? `${book.wordCount} words` : "Open book →"}
+                  </p>
                 </div>
               </Card>
             </Link>
@@ -69,7 +78,7 @@ export default function BooksPage() {
         </div>
       )}
 
-      <CreateBookDialog open={createOpen} onOpenChange={setCreateOpen} />
+      <CreateBookDialog open={createOpen} onOpenChange={setCreateOpen} redirectOnCreate />
     </div>
   );
 }

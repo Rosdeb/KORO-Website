@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/state/empty-state";
 import { ErrorState } from "@/components/state/error-state";
 import { useCategories, useConceptsByCategory } from "@/features/dictionary/hooks";
+import { useDictionarySearch } from "@/features/search/hooks";
 import { useDebouncedValue } from "@/lib/utils/use-debounced-value";
 
 export default function CategoryPage({ params }: { params: Promise<{ category: string }> }) {
@@ -18,8 +19,21 @@ export default function CategoryPage({ params }: { params: Promise<{ category: s
 
   const [query, setQuery] = useState("");
   const debounced = useDebouncedValue(query, 300);
+  const searching = debounced.trim().length > 0;
 
-  const { data, isLoading, isError, refetch } = useConceptsByCategory(categorySlug, { q: debounced });
+  const browse = useConceptsByCategory(categorySlug);
+  const search = useDictionarySearch(query);
+
+  // While the search box has a value, show backend search results scoped to
+  // this category; otherwise fall back to the full category browse list.
+  const data = searching
+    ? (search.data ?? []).filter((c) => c.categorySlug === categorySlug)
+    : browse.data;
+  const isLoading = searching
+    ? search.isLoading || (!search.data && !search.isError)
+    : browse.isLoading;
+  const isError = searching ? search.isError : browse.isError;
+  const refetch = searching ? search.refetch : browse.refetch;
 
   return (
     <div className="container-koro py-10">

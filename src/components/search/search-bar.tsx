@@ -31,7 +31,9 @@ export function SearchBar({
   const [open, setOpen] = useState(false);
   const [expanded, setExpanded] = useState(!collapsible);
   const debounced = useDebouncedValue(query, 300);
-  const { data, isFetching } = useGlobalSearch(debounced);
+  // useGlobalSearch debounces the backend call itself; pass the raw query so
+  // the cheap language/category substring filters stay instant.
+  const { data, isFetching } = useGlobalSearch(query);
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);

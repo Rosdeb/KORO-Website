@@ -77,8 +77,17 @@ export const conceptsApi = {
 export const translationsApi = {
   list: (params?: { conceptId?: string; languageId?: string }) =>
     apiClient.get<RawTranslation[]>(`/translations${toQuery(params)}`, { auth: true }),
-  search: (payload: { sourceLanguageId?: string; targetLanguageId: string; query: string }) =>
-    apiClient.post<RawTranslation[]>("/translations/search", payload, { auth: true }),
+  // Public endpoint (`permitAll` on /translations/**) — send no auth token so
+  // an anonymous visitor can search. Only `query` is required; the server
+  // Unicode-normalizes it (NFC + trim + strip zero-width joiners) and matches
+  // it, case-insensitively as a substring, against the translation `text`,
+  // the translation `pronunciation`, and the parent concept `name`/`description`.
+  //   - no ids           → global search across every language
+  //   - targetLanguageId → search within that one language
+  //   - both ids         → match in the source language, return the target-language entries
+  // A blank/whitespace query returns 400 ("Query string is empty").
+  search: (payload: { query: string; sourceLanguageId?: string; targetLanguageId?: string }) =>
+    apiClient.post<RawTranslation[]>("/translations/search", payload),
 };
 
 export const collectionsApi = {
@@ -185,8 +194,18 @@ export const adminApi = {
   submissions: {
     pending: () => apiClient.get<RawSubmission[]>("/admin/submissions/pending", { auth: true }),
     getById: (id: string) => apiClient.get<RawSubmission>(`/admin/submissions/${id}`, { auth: true }),
+    // On approval the backend publishes the submission into the Concept /
+    // Translation tables and returns an envelope — the reviewed submission is
+    // at `.submission` (not the top level), plus the new `conceptId` and a
+    // ready-to-display `translationsSaved` list (e.g. ["Bangla: গাছ", "English: Tree"]).
+    // A deleted source language or an unconfigured bn/en language now comes
+    // back as 400 with a plain-string body.
     approve: (id: string, reviewerNote?: string) =>
-      apiClient.post<RawSubmission>(`/admin/submissions/${id}/approve`, { reviewerNote }, { auth: true }),
+      apiClient.post<{ submission: RawSubmission; conceptId: string; translationsSaved: string[] }>(
+        `/admin/submissions/${id}/approve`,
+        { reviewerNote },
+        { auth: true },
+      ),
     // rejectionReason is required by the backend (400 if missing/blank).
     reject: (id: string, rejectionReason: string, reviewerNote?: string) =>
       apiClient.post<RawSubmission>(

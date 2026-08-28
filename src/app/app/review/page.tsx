@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/dialog";
 import { EmptyState } from "@/components/state/empty-state";
 import { ErrorState } from "@/components/state/error-state";
+import { useToast } from "@/components/ui/toast";
 import { useAuth } from "@/features/auth/context";
 import { useApproveSubmission, useRejectSubmission, useReviewQueue } from "@/features/review/hooks";
 import type { Submission } from "@/types";
@@ -179,6 +180,7 @@ function ReviewActionDialog({
   const [rejectionReasonError, setRejectionReasonError] = useState(false);
   const approve = useApproveSubmission();
   const reject = useRejectSubmission();
+  const { toast } = useToast();
 
   const mutation = action === "approve" ? approve : reject;
 
@@ -195,7 +197,26 @@ function ReviewActionDialog({
     if (action === "approve") {
       approve.mutate(
         { id: submission.id, reviewerNote: note.trim() || undefined },
-        { onSuccess: () => handleOpenChange(false) },
+        {
+          onSuccess: (result) => {
+            const saved = result.translationsSaved ?? [];
+            toast({
+              title: "Submission approved",
+              description:
+                saved.length > 0
+                  ? `${saved.length} dictionary ${saved.length === 1 ? "entry" : "entries"} created — ${saved.join(", ")}`
+                  : undefined,
+              variant: "success",
+            });
+            handleOpenChange(false);
+          },
+          onError: (error) =>
+            toast({
+              title: "Couldn't approve this submission",
+              description: error instanceof Error ? error.message : "Please try again.",
+              variant: "error",
+            }),
+        },
       );
       return;
     }
@@ -206,7 +227,18 @@ function ReviewActionDialog({
       }
       reject.mutate(
         { id: submission.id, rejectionReason: rejectionReason.trim(), reviewerNote: note.trim() || undefined },
-        { onSuccess: () => handleOpenChange(false) },
+        {
+          onSuccess: () => {
+            toast({ title: "Submission rejected", variant: "success" });
+            handleOpenChange(false);
+          },
+          onError: (error) =>
+            toast({
+              title: "Couldn't reject this submission",
+              description: error instanceof Error ? error.message : "Please try again.",
+              variant: "error",
+            }),
+        },
       );
     }
   }

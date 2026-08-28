@@ -71,7 +71,10 @@ export interface Book {
   title: string;
   description?: string | null;
   items: BookItem[];
-  wordCount: number;
+  // Undefined when the source endpoint doesn't return items — today
+  // GET /collections (the list) omits them, so counts are only known on the
+  // book detail view. See docs/backend-my-books-gaps.md.
+  wordCount?: number;
   updatedAt: string;
 }
 
@@ -81,10 +84,12 @@ export interface BookItem {
   conceptName: string;
   languageId: string;
   languageCode: string;
+  languageName: string;
   translationText: string;
   pronunciation?: string | null;
   note?: string | null;
   chapter?: string | null;
+  displayOrder?: number | null;
 }
 
 export interface ExportRecord {

@@ -107,7 +107,8 @@ export function SaveToBookDialog({
                 <SelectContent>
                   {books!.map((b) => (
                     <SelectItem key={b.id} value={b.id}>
-                      {b.title} ({b.wordCount} words)
+                      {b.title}
+                      {typeof b.wordCount === "number" ? ` (${b.wordCount} words)` : ""}
                     </SelectItem>
                   ))}
                 </SelectContent>

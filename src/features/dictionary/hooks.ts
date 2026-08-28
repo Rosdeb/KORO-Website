@@ -47,11 +47,13 @@ export function useAllConcepts() {
   });
 }
 
-export function useConceptsByCategory(categorySlug: string, params?: { q?: string }) {
+// Browse list for a category page. Text search is handled separately by
+// useDictionarySearch, which hits the real backend POST /translations/search
+// (matches Bangla, pronunciation and source-language words, not just the
+// English concept name).
+export function useConceptsByCategory(categorySlug: string) {
   const query = useAllConcepts();
-  const filtered = (query.data ?? [])
-    .filter((c) => c.categorySlug === categorySlug)
-    .filter((c) => !params?.q || c.name.toLowerCase().includes(params.q.toLowerCase()));
+  const filtered = (query.data ?? []).filter((c) => c.categorySlug === categorySlug);
   return { ...query, data: filtered };
 }
 

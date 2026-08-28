@@ -107,10 +107,12 @@ export function mapBookItem(raw: RawCollectionItem, languages: LanguageMap): Boo
     conceptName: raw.conceptName,
     languageId: raw.languageId,
     languageCode: languages.get(raw.languageId) ?? "",
+    languageName: raw.languageName,
     translationText: raw.translationText,
     pronunciation: raw.pronunciation,
     note: raw.notes,
     chapter: raw.chapter,
+    displayOrder: raw.displayOrder,
   };
 }
 
@@ -121,7 +123,9 @@ export function mapBook(raw: RawCollection, languages: LanguageMap): Book {
     title: raw.name,
     description: raw.description,
     items,
-    wordCount: items.length,
+    // GET /collections (list) returns no items array; only GET /collections/{id}
+    // does. Leave wordCount undefined when we can't actually count.
+    wordCount: raw.items ? items.length : undefined,
     updatedAt: raw.updatedAt,
   };
 }
