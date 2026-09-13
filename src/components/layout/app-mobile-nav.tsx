@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Compass, Search, BookMarked, User, ClipboardCheck } from "lucide-react";
+import { Home, Compass, Search, BookMarked, User, ClipboardCheck, Trophy } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { useAuth } from "@/features/auth/context";
+import { canViewAdminLeaderboard } from "@/features/leaderboard/api";
 
 const ITEMS = [
   { href: "/app", label: "Home", icon: Home, exact: true },
@@ -19,8 +20,14 @@ const REVIEWER_ITEM = { href: "/app/review", label: "Review", icon: ClipboardChe
 
 export function AppMobileNav() {
   const pathname = usePathname();
-  const { isReviewer } = useAuth();
-  const items = isReviewer ? [...ITEMS, REVIEWER_ITEM] : ITEMS;
+  const { isReviewer, user } = useAuth();
+  const items = [
+    ...ITEMS,
+    ...(isReviewer ? [REVIEWER_ITEM] : []),
+    ...(canViewAdminLeaderboard(user?.roles)
+      ? [{ href: "/app/leaderboard", label: "Ranks", icon: Trophy, exact: false }]
+      : []),
+  ];
 
   return (
     <nav

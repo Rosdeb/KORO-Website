@@ -12,9 +12,12 @@ import {
   Settings,
   ClipboardCheck,
   ArrowLeft,
+  Trophy,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { useAuth } from "@/features/auth/context";
+
+import { canViewAdminLeaderboard } from "@/features/leaderboard/api";
 
 const NAV_ITEMS = [
   { href: "/app", label: "Home", icon: LayoutGrid, exact: true },
@@ -31,8 +34,8 @@ const REVIEWER_NAV_ITEM = { href: "/app/review", label: "Review Queue", icon: Cl
 
 export function AppSidebar() {
   const pathname = usePathname();
-  const { isReviewer } = useAuth();
-  const items = isReviewer ? [...NAV_ITEMS, REVIEWER_NAV_ITEM] : NAV_ITEMS;
+  const { isReviewer, user } = useAuth();
+  const items = [...NAV_ITEMS, ...(isReviewer ? [REVIEWER_NAV_ITEM] : []), ...(canViewAdminLeaderboard(user?.roles) ? [{ href: "/app/leaderboard", label: "Leaderboard", icon: Trophy, exact: false }] : [])];
 
   return (
     <aside className="sticky top-16 hidden h-[calc(100vh-4rem)] w-60 shrink-0 flex-col border-r border-border py-6 md:flex">
