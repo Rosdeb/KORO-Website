@@ -6,6 +6,7 @@ import { Loader2 } from "lucide-react";
 import { AppTopbar } from "@/components/layout/app-topbar";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { AppMobileNav } from "@/components/layout/app-mobile-nav";
+import { ScrollToTop } from "@/components/layout/scroll-to-top";
 import { OfflineBanner } from "@/components/state/offline-banner";
 import { useAuth } from "@/features/auth/context";
 
@@ -37,6 +38,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <main className="min-w-0 flex-1 py-8 pb-24 md:pb-8">{children}</main>
       </div>
       <AppMobileNav />
+      <ScrollToTop />
     </div>
   );
 }

@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { Menu, Search, X, LayoutGrid, LogOut, Settings, BookMarked } from "lucide-react";
 import { Logo } from "@/components/layout/logo";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
@@ -31,6 +32,22 @@ export function SiteHeader() {
   const { user, isAuthenticated, isLoading, logout } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+
+  useEffect(() => {
+    if (!mobileOpen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setMobileOpen(false);
+    };
+    window.addEventListener("keydown", closeOnEscape);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [mobileOpen]);
 
   return (
     <header className="sticky top-0 z-30 border-b border-border bg-background/85 backdrop-blur-md">
@@ -133,9 +150,9 @@ export function SiteHeader() {
         </div>
       )}
 
-      {mobileOpen && (
-        <div className="fixed inset-0 z-40 bg-background md:hidden animate-fade-in">
-          <div className="container-koro flex h-16 items-center justify-between">
+      {mobileOpen && createPortal(
+        <div className="fixed inset-0 z-50 flex h-dvh flex-col bg-background md:hidden animate-fade-in" role="dialog" aria-modal="true" aria-label="Mobile menu">
+          <div className="container-koro flex h-16 shrink-0 items-center justify-between border-b border-border">
             <Logo />
             <div className="flex items-center gap-1">
               <ThemeToggle />
@@ -144,20 +161,23 @@ export function SiteHeader() {
               </button>
             </div>
           </div>
-          <nav className="container-koro flex flex-col gap-1 py-4">
+          <nav className="container-koro flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto py-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))]">
             {NAV_LINKS.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 onClick={() => setMobileOpen(false)}
-                className="rounded-xl px-4 py-3 text-base font-medium hover:bg-muted"
+                className={cn(
+                  "rounded-xl px-4 py-3.5 text-base font-medium transition-colors hover:bg-muted",
+                  pathname === link.href || pathname.startsWith(link.href + "/") ? "bg-muted text-foreground" : "text-muted-foreground",
+                )}
               >
                 {link.label}
               </Link>
             ))}
-            <div className="my-2 h-px bg-border" />
+            <div className="my-4 h-px shrink-0 bg-border" />
             {!isAuthenticated ? (
-              <div className="flex flex-col gap-2 px-1 pt-2">
+              <div className="flex flex-col gap-3 px-1">
                 <Button variant="outline" asChild onClick={() => setMobileOpen(false)}>
                   <Link href="/login">Login</Link>
                 </Button>
@@ -166,7 +186,7 @@ export function SiteHeader() {
                 </Button>
               </div>
             ) : (
-              <div className="flex flex-col gap-2 px-1 pt-2">
+              <div className="flex flex-col gap-3 px-1">
                 <Button variant="primary" asChild onClick={() => setMobileOpen(false)}>
                   <Link href="/app">Go to Dashboard</Link>
                 </Button>
@@ -176,7 +196,8 @@ export function SiteHeader() {
               </div>
             )}
           </nav>
-        </div>
+        </div>,
+        document.body,
       )}
     </header>
   );

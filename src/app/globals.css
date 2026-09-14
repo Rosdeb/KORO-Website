@@ -126,6 +126,7 @@
   }
   html {
     scroll-behavior: smooth;
+    scroll-padding-top: 5rem;
   }
   body {
     background: var(--background);
@@ -135,6 +136,11 @@
   ::selection {
     background: var(--primary-100);
     color: var(--primary-700);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
   }
 }
 

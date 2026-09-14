@@ -7,7 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/state/empty-state";
 import { ErrorState } from "@/components/state/error-state";
 import { cn } from "@/lib/utils/cn";
-import { useActivity, useActivityStatistics } from "@/features/activity/hooks";
+import { useActivity } from "@/features/activity/hooks";
 
 type RangeKey = "today" | "week" | "month" | "year" | "custom";
 
@@ -22,7 +22,10 @@ const RANGE_OPTIONS: { key: RangeKey; label: string }[] = [
 // The backend parses `from`/`to` as a plain LocalDate (yyyy-MM-dd) — a full
 // ISO datetime string 400s.
 function toLocalDate(date: Date) {
-  return date.toISOString().slice(0, 10);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 }
 
 function rangeToDates(range: RangeKey, customFrom?: string, customTo?: string) {
@@ -33,13 +36,13 @@ function rangeToDates(range: RangeKey, customFrom?: string, customTo?: string) {
       from.setHours(0, 0, 0, 0);
       break;
     case "week":
-      from.setDate(from.getDate() - 7);
+      from.setDate(from.getDate() - ((from.getDay() + 6) % 7));
       break;
     case "month":
-      from.setMonth(from.getMonth() - 1);
+      from.setDate(1);
       break;
     case "year":
-      from.setFullYear(from.getFullYear() - 1);
+      from.setMonth(0, 1);
       break;
     case "custom":
       return { from: customFrom, to: customTo };
@@ -53,12 +56,27 @@ export default function ActivityPage() {
   const [customTo, setCustomTo] = useState("");
 
   const { from, to } = rangeToDates(range, customFrom, customTo);
-  const params = range === "custom" && (!customFrom || !customTo) ? undefined : { from, to };
+  const validRange = Boolean(from && to && from <= to);
+  const { data: activity, isLoading: activityLoading, isError: activityError, refetch: refetchActivity } = useActivity(
+    validRange ? { from, to } : undefined,
+    validRange,
+  );
 
-  // The backend's /activity/statistics endpoint returns lifetime totals with
-  // no date-range filter, so the range picker below only scopes the log.
-  const { data: stats, isLoading: statsLoading, isError: statsError, refetch: refetchStats } = useActivityStatistics();
-  const { data: activity, isLoading: activityLoading, isError: activityError, refetch: refetchActivity } = useActivity(params);
+  const filteredActivity = useMemo(
+    () => (activity ?? []).filter((entry) => {
+      const date = new Date(entry.createdAt);
+      return !Number.isNaN(date.getTime()) && toLocalDate(date) >= from! && toLocalDate(date) <= to!;
+    }),
+    [activity, from, to],
+  );
+
+  const stats = useMemo(() => ({
+    totalActivities: filteredActivity.length,
+    translations: filteredActivity.filter((entry) => entry.type === "TRANSLATION").length,
+    savedWords: filteredActivity.filter((entry) => entry.type === "SAVE_WORD").length,
+    imageRecognitions: filteredActivity.filter((entry) => entry.type === "IMAGE_RECOGNITION").length,
+    pdfExports: filteredActivity.filter((entry) => entry.type === "EXPORT_PDF").length,
+  }), [filteredActivity]);
 
   const summaryTiles = useMemo(
     () => [
@@ -111,13 +129,11 @@ export default function ActivityPage() {
         </div>
       )}
 
-      {statsError && <ErrorState onRetry={() => refetchStats()} />}
-
-      {!statsError && (
+      {validRange && !activityError && (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
-          {statsLoading &&
+          {activityLoading &&
             Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-24 rounded-2xl" />)}
-          {!statsLoading &&
+          {!activityLoading &&
             summaryTiles.map((tile) => (
               <Card key={tile.label}>
                 <div className="flex flex-col gap-2 p-4">
@@ -132,21 +148,22 @@ export default function ActivityPage() {
 
       <div>
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">Activity log</h2>
-        {activityError && <ErrorState onRetry={() => refetchActivity()} />}
-        {activityLoading && !activityError && (
+        {!validRange && <p className="text-sm text-muted-foreground">Choose a valid start and end date.</p>}
+        {validRange && activityError && <ErrorState onRetry={() => refetchActivity()} />}
+        {validRange && activityLoading && !activityError && (
           <div className="flex flex-col gap-2">
             {Array.from({ length: 4 }).map((_, i) => (
               <Skeleton key={i} className="h-14 rounded-xl" />
             ))}
           </div>
         )}
-        {!activityLoading && !activityError && (activity ?? []).length === 0 && (
+        {validRange && !activityLoading && !activityError && filteredActivity.length === 0 && (
           <EmptyState title="No activity in this range" description="Try a different time period." />
         )}
-        {!activityLoading && !activityError && (activity ?? []).length > 0 && (
+        {validRange && !activityLoading && !activityError && filteredActivity.length > 0 && (
           <Card>
             <ul className="divide-y divide-border">
-              {activity!.map((entry) => (
+              {filteredActivity.map((entry) => (
                 <li key={entry.id} className="flex items-center gap-3 px-4 py-3 text-sm">
                   <Clock className="size-4 shrink-0 text-muted-foreground" />
                   <span className="flex-1">{entry.description}</span>

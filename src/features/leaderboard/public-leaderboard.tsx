@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { resolveApiFileUrl } from "@/lib/api/client";
 import { canViewAdminLeaderboard, leaderboardApi, type LeaderboardEntry, type LeaderboardPeriod, type LeaderboardType } from "./api";
 
-export const filterClass = "mt-1 block rounded-xl border border-border bg-background px-3 py-2 text-sm";
+export const filterClass = "mt-1 block h-11 w-full min-w-0 rounded-xl border border-border bg-background px-3 text-sm";
 
 function RankMark({ rank }: { rank: number }) {
   if (rank === 1) return <Trophy className="size-5 text-warning" aria-label="First place" />;
@@ -23,7 +23,7 @@ function RankMark({ rank }: { rank: number }) {
 
 function Contributor({ entry, current = false, featured = false }: { entry: LeaderboardEntry; current?: boolean; featured?: boolean }) {
   return (
-    <div className={`relative flex flex-col gap-3 ${featured ? "md:flex-row md:items-center md:justify-between" : "px-4 py-3 transition-colors hover:bg-muted/50 md:flex-row md:items-center"} ${current ? "bg-primary-50/50" : ""}`}>
+    <div className={`relative flex flex-col gap-4 ${featured ? "md:flex-row md:items-center md:justify-between" : "px-3 py-4 transition-colors hover:bg-muted/50 sm:px-4 md:flex-row md:items-center"} ${current ? "bg-primary-50/50" : ""}`}>
       <div className="flex min-w-0 items-center gap-3">
         {!featured && <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-muted"><RankMark rank={entry.rank} /></div>}
         <div className="relative shrink-0">
@@ -35,16 +35,16 @@ function Contributor({ entry, current = false, featured = false }: { entry: Lead
         </div>
         <div className="min-w-0 flex-1">
           {featured && <span className="inline-flex rounded-full bg-amber-500/10 px-2.5 py-0.5 text-xs font-semibold text-amber-600 dark:text-amber-400">Featured Contributor · #{entry.rank}</span>}
-          <h3 className={featured ? "mt-0.5 text-base font-semibold" : "text-sm font-semibold"}>{entry.name}{current && <span className="ml-2 text-xs text-muted-foreground">You</span>}</h3>
+          <h3 className={featured ? "mt-0.5 break-words text-base font-semibold" : "break-words text-sm font-semibold"}>{entry.name}{current && <span className="ml-2 text-xs text-muted-foreground">You</span>}</h3>
           <div className="mt-1 flex flex-wrap gap-1.5">
             {entry.nativeLanguage && <Badge className="bg-muted/80 px-2.5 py-0.5 text-xs font-medium">{entry.nativeLanguage}</Badge>}
             {entry.badge && <Badge>{entry.badge}</Badge>}
           </div>
         </div>
       </div>
-      <dl className="grid shrink-0 grid-cols-3 gap-4 text-center md:ml-auto">
+      <dl className="grid min-w-0 grid-cols-3 gap-1 rounded-xl bg-muted/50 px-1 py-2 text-center sm:gap-4 md:ml-auto md:bg-transparent md:p-0">
         {([["Submissions", entry.submissionsCount], ["Translations", entry.translationsCount], ["Score", entry.score]] as const).map(([label, value]) => (
-          <div key={label} className="flex min-w-16 flex-col"><dt className="text-[10px] text-muted-foreground">{label}</dt><dd className="order-first [&>p]:text-base [&>p]:font-semibold"><AnimatedStat value={value} /></dd></div>
+          <div key={label} className="flex min-w-0 flex-col"><dt className="text-[10px] text-muted-foreground">{label}</dt><dd className="order-first [&>p]:text-base [&>p]:font-semibold"><AnimatedStat value={value} /></dd></div>
         ))}
       </dl>
     </div>
@@ -71,24 +71,24 @@ export function PublicLeaderboard() {
   return (
     <div>
       <section className="border-b border-border bg-primary-50/60">
-        <div className="container-koro py-14 sm:py-16">
+        <div className="container-koro py-10 sm:py-16">
           <div className="mx-auto max-w-2xl text-center">
             <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-semibold text-primary shadow-sm"><Trophy className="size-3.5" /> Community leaderboard</div>
-            <h1 className="mt-4 text-3xl font-extrabold tracking-tight sm:text-4xl">The people behind the words</h1>
-            <p className="mt-3 text-base leading-7 text-muted-foreground">A public portfolio of the community members who help document, translate, and preserve language knowledge on Koro.</p>
+            <h1 className="mt-4 text-2xl font-extrabold tracking-tight sm:text-4xl">The people behind the words</h1>
+            <p className="mt-3 text-sm leading-6 text-muted-foreground sm:text-base sm:leading-7">A public portfolio of the community members who help document, translate, and preserve language knowledge on Koro.</p>
           </div>
-          <div className="mx-auto mt-10 grid max-w-3xl grid-cols-1 divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card shadow-sm sm:grid-cols-3 sm:divide-x sm:divide-y-0">
-            {impact.map(({ icon: Icon, value, label }) => <div key={label} className="flex items-center justify-center gap-3 px-5 py-5 text-center sm:flex-col sm:gap-1"><Icon className="size-5 text-primary" /><div>{data ? <AnimatedStat value={value} /> : <p className="text-xl font-extrabold" aria-label="Not available">—</p>}<p className="text-xs text-muted-foreground">{label}</p></div></div>)}
+          <div className="mx-auto mt-8 grid max-w-3xl grid-cols-3 divide-x divide-border overflow-hidden rounded-2xl border border-border bg-card shadow-sm sm:mt-10">
+            {impact.map(({ icon: Icon, value, label }) => <div key={label} className="flex min-w-0 flex-col items-center justify-center gap-1 px-1.5 py-4 text-center sm:px-5 sm:py-5"><Icon className="size-4 shrink-0 text-primary sm:size-5" /><div className="min-w-0">{data ? <AnimatedStat value={value} /> : <p className="text-xl font-extrabold" aria-label="Not available">—</p>}<p className="text-[10px] leading-tight text-muted-foreground sm:text-xs">{label}</p></div></div>)}
           </div>
           <p className="mt-3 text-center text-xs text-muted-foreground">Totals for the contributors shown in the selected ranking and period.</p>
         </div>
       </section>
-      <main className="container-koro space-y-8 py-12 sm:py-16">
-        <div className="flex flex-wrap items-end gap-4">
-          <label className="text-sm font-medium">Ranking<select className={filterClass} value={type} onChange={e => setType(e.target.value as LeaderboardType)}><option value="OVERALL">Overall</option><option value="SUBMISSIONS">Submissions</option><option value="TRANSLATIONS">Translations</option></select></label>
-          <label className="text-sm font-medium">Period<select className={filterClass} value={period} onChange={e => setPeriod(e.target.value as LeaderboardPeriod)}><option value="ALL_TIME">All time</option><option value="MONTHLY">Monthly</option><option value="WEEKLY">Weekly</option></select></label>
-          <label className="text-sm font-medium">Show<select className={filterClass} value={limit} onChange={e => setLimit(Number(e.target.value))}>{[20, 50, 100].map(n => <option key={n} value={n}>Top {n}</option>)}</select></label>
-          {canViewAdminLeaderboard(user?.roles) && <Button asChild variant="outline"><Link href="/app/leaderboard">Contributor administration</Link></Button>}
+      <main className="container-koro space-y-8 py-8 sm:py-16">
+        <div className="grid grid-cols-2 gap-3 sm:flex sm:flex-wrap sm:items-end sm:gap-4">
+          <label className="min-w-0 text-sm font-medium sm:min-w-36">Ranking<select className={filterClass} value={type} onChange={e => setType(e.target.value as LeaderboardType)}><option value="OVERALL">Overall</option><option value="SUBMISSIONS">Submissions</option><option value="TRANSLATIONS">Translations</option></select></label>
+          <label className="min-w-0 text-sm font-medium sm:min-w-36">Period<select className={filterClass} value={period} onChange={e => setPeriod(e.target.value as LeaderboardPeriod)}><option value="ALL_TIME">All time</option><option value="MONTHLY">Monthly</option><option value="WEEKLY">Weekly</option></select></label>
+          <label className="min-w-0 text-sm font-medium sm:min-w-28">Show<select className={filterClass} value={limit} onChange={e => setLimit(Number(e.target.value))}>{[20, 50, 100].map(n => <option key={n} value={n}>Top {n}</option>)}</select></label>
+          {canViewAdminLeaderboard(user?.roles) && <Button className="col-span-2 self-end sm:w-auto" asChild variant="outline"><Link href="/app/leaderboard">Contributor administration</Link></Button>}
         </div>
         {isLoading || query.isPending ? <p role="status">Loading rankings…</p> : query.isError ? (
           <div role="alert" className="space-y-3"><p>Unable to load rankings. {query.error.message}</p><Button onClick={() => query.refetch()}>Try again</Button></div>

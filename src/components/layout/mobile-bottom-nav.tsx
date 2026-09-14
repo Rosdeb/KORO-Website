@@ -86,8 +86,8 @@ export function MobileBottomNav() {
             More
           </button>
         </DialogTrigger>
-        <DialogContent className="inset-x-0 bottom-0 left-0 top-auto max-w-none translate-x-0 translate-y-0 rounded-b-none rounded-t-2xl border-x-0 border-b-0 p-0 pb-[env(safe-area-inset-bottom)]">
-          <div className="mx-auto w-full max-w-md p-4">
+        <DialogContent className="inset-x-0 bottom-0 top-auto max-h-[85dvh] w-full max-w-none translate-x-0 translate-y-0 overflow-y-auto overscroll-contain rounded-b-none rounded-t-2xl border-x-0 border-b-0 p-0 pb-[env(safe-area-inset-bottom)] animate-none">
+          <div className="mx-auto w-full max-w-md px-4 pb-4 pt-3">
             <div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-border" />
             <DialogTitle className="px-1.5 pb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               More

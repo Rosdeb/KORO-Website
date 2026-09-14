@@ -161,21 +161,23 @@ export default function HomePage() {
       </section>
 
       {/* How Koro Works */}
-      <section className="border-y border-border bg-primary-50/60 py-16 sm:py-20">
+      <section className="border-y border-border bg-primary-50/60 py-12 sm:py-20">
         <div className="container-koro">
           <SectionHeading title="How Koro works" center />
-          <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-3">
+          <div className="mt-8 grid grid-cols-1 divide-y divide-border sm:mt-10 sm:grid-cols-3 sm:gap-6 sm:divide-y-0">
             {STEPS.map((step, i) => (
-              <div key={step.title} className="flex flex-col items-center gap-3 text-center">
-                <div className="flex size-14 items-center justify-center rounded-2xl bg-card shadow-sm">
-                  <step.icon className="size-6 text-primary" />
+              <div key={step.title} className="flex items-center gap-4 py-5 first:pt-0 last:pb-0 sm:flex-col sm:gap-3 sm:py-0 sm:text-center">
+                <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-card shadow-sm sm:size-14">
+                  <step.icon className="size-5 text-primary sm:size-6" />
                 </div>
-                <div className="flex items-center gap-2 text-sm font-semibold text-primary-700">
-                  <span>{i + 1}</span>
-                  <span className="h-1 w-1 rounded-full bg-primary-700" />
-                  <span>{step.title}</span>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 text-sm font-semibold text-primary-700 sm:justify-center">
+                    <span>{i + 1}</span>
+                    <span className="h-1 w-1 rounded-full bg-primary-700" />
+                    <span>{step.title}</span>
+                  </div>
+                  <p className="mt-1 text-sm leading-6 text-muted-foreground">{step.description}</p>
                 </div>
-                <p className="text-sm text-muted-foreground">{step.description}</p>
               </div>
             ))}
           </div>
@@ -232,7 +234,7 @@ function SectionHeading({
   center?: boolean;
 }) {
   return (
-    <div className={`flex items-end justify-between gap-4 ${center ? "flex-col text-center" : ""}`}>
+    <div className={`flex gap-4 ${center ? "flex-col items-center justify-center text-center" : "items-end justify-between"}`}>
       <div>
         {eyebrow && <p className="text-xs font-semibold uppercase tracking-wide text-primary">{eyebrow}</p>}
         <h2 className="mt-1 text-2xl font-bold sm:text-3xl">{title}</h2>

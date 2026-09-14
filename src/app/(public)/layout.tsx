@@ -1,6 +1,7 @@
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { MobileBottomNav } from "@/components/layout/mobile-bottom-nav";
+import { ScrollToTop } from "@/components/layout/scroll-to-top";
 import { OfflineBanner } from "@/components/state/offline-banner";
 
 export default function PublicLayout({ children }: { children: React.ReactNode }) {
@@ -11,6 +12,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
       <main className="flex-1">{children}</main>
       <SiteFooter />
       <MobileBottomNav />
+      <ScrollToTop />
     </div>
   );
 }
