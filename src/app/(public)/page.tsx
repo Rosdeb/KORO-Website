@@ -45,7 +45,7 @@ export default function HomePage() {
     {/* Hero Content */}
     <div>
       <div className="inline-flex items-center rounded-full border border-border bg-background px-3 py-1 text-xs font-medium text-primary shadow-sm">
-        Koro Language Dictionary
+        Korot Language Dictionary
       </div>
 
      <h1 className="mt-4 max-w-2xl text-3xl font-bold tracking-tight sm:text-3xl">
@@ -71,7 +71,7 @@ export default function HomePage() {
     {/* Quick Links */}
     <div className="lg:border-l lg:border-border lg:pl-12">
       <p className="text-sm font-semibold text-foreground">
-        Explore Koro
+        Explore Korot
       </p>
 
       <p className="mt-1 text-sm leading-6 text-muted-foreground">
@@ -93,7 +93,7 @@ export default function HomePage() {
 
         <QuickLink
           href="/about"
-          title="Learn about Koro"
+          title="Learn about Korot"
           description="See how the project works"
         />
       </div>
@@ -160,10 +160,10 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* How Koro Works */}
+      {/* How Korot Works */}
       <section className="border-y border-border bg-primary-50/60 py-12 sm:py-20">
         <div className="container-koro">
-          <SectionHeading title="How Koro works" center />
+          <SectionHeading title="How Korot works" center />
           <div className="mt-8 grid grid-cols-1 divide-y divide-border sm:mt-10 sm:grid-cols-3 sm:gap-6 sm:divide-y-0">
             {STEPS.map((step, i) => (
               <div key={step.title} className="flex items-center gap-4 py-5 first:pt-0 last:pb-0 sm:flex-col sm:gap-3 sm:py-0 sm:text-center">
@@ -191,7 +191,7 @@ export default function HomePage() {
             <span className="text-xs font-semibold uppercase tracking-wide text-accent">Community</span>
             <h2 className="mt-2 text-2xl font-bold sm:text-3xl">Built with communities, for communities</h2>
             <p className="mt-3 text-muted-foreground">
-              Koro helps people discover, learn, and preserve indigenous language knowledge —
+              Korot helps people discover, learn, and preserve indigenous language knowledge —
               one word, one translation, one contribution at a time.
             </p>
           </div>

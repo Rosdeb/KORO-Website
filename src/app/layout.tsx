@@ -30,11 +30,11 @@ const fontMya = Noto_Sans_Myanmar({
 
 export const metadata: Metadata = {
   title: {
-    default: "Koro — Discover. Learn. Preserve.",
-    template: "%s · Koro",
+    default: "Korot — Discover. Learn. Preserve.",
+    template: "%s · Korot",
   },
   description:
-    "Explore languages, discover words, and build your own collection of language knowledge with Koro.",
+    "Explore languages, discover words, and build your own collection of language knowledge with Korot.",
 };
 
 export const viewport: Viewport = {

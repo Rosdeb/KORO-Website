@@ -100,7 +100,7 @@ message string.
 ### 4a. Non-Latin scripts do not render at all
 Every font is `FontFactory.getFont(FontFactory.HELVETICA…)` — a standard PDF Type1
 font with **no Unicode support**. Bangla, Chakma, and every other indigenous script
-in Koro will export as blank boxes or dropped glyphs. For a multilingual dictionary
+in Korot will export as blank boxes or dropped glyphs. For a multilingual dictionary
 this is the headline bug.
 
 **Asked for:** embed a Unicode TTF (e.g. Noto Sans + Noto Sans Bengali / Noto Sans

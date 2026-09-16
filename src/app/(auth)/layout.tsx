@@ -10,7 +10,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           href="/"
           className="ml-auto text-sm font-medium text-muted-foreground hover:text-foreground"
         >
-          Back to Koro
+          Back to Korot
         </Link>
       </header>
       <main className="flex flex-1 items-center justify-center px-4 py-10">

@@ -28,7 +28,7 @@ export default function DashboardPage() {
     <div className="flex flex-col gap-10">
       <div>
         <h1 className="text-2xl font-extrabold sm:text-3xl">Welcome back, {user?.name?.split(" ")[0] ?? "there"}</h1>
-        <p className="mt-1 text-muted-foreground">Here&apos;s what&apos;s happening in your Koro learning space.</p>
+        <p className="mt-1 text-muted-foreground">Here&apos;s what&apos;s happening in your Korot learning space.</p>
       </div>
 
       <div>
@@ -103,7 +103,7 @@ export default function DashboardPage() {
             </div>
           )}
           {!activityLoading && recentActivity.length === 0 && (
-            <EmptyState title="No activity yet" description="Your recent actions on Koro will show up here." />
+            <EmptyState title="No activity yet" description="Your recent actions on Korot will show up here." />
           )}
           {!activityLoading && recentActivity.length > 0 && (
             <Card>

@@ -48,7 +48,7 @@ export default function BooksPage() {
         <EmptyState
           icon={BookMarked}
           title="No books yet"
-          description="Create your first book to start saving words as you explore Koro."
+          description="Create your first book to start saving words as you explore Korot."
           action={<Button onClick={() => setCreateOpen(true)}>Create Your First Book</Button>}
         />
       )}

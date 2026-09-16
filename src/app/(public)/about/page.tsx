@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 
 export const metadata = {
   title: "About",
-  description: "Why Koro exists and how it helps discover, learn, and preserve language knowledge.",
+  description: "Why Korot exists and how it helps discover, learn, and preserve language knowledge.",
 };
 
 const VALUES = [
@@ -12,7 +12,7 @@ const VALUES = [
     icon: Globe2,
     title: "Every language matters",
     description:
-      "From widely spoken languages to indigenous languages with few remaining speakers, Koro treats every language as worth discovering and preserving.",
+      "From widely spoken languages to indigenous languages with few remaining speakers, Korot treats every language as worth discovering and preserving.",
   },
   {
     icon: Users,
@@ -39,9 +39,9 @@ export default function AboutPage() {
     <div>
       <section className="border-b border-border bg-primary-50/60">
         <div className="container-koro flex flex-col items-center gap-4 py-16 text-center">
-          <h1 className="text-3xl font-extrabold sm:text-4xl">About Koro</h1>
+          <h1 className="text-3xl font-extrabold sm:text-4xl">About Korot</h1>
           <p className="max-w-xl text-muted-foreground">
-            Koro is a home for discovering, learning, and preserving language knowledge —
+            Korot is a home for discovering, learning, and preserving language knowledge —
             starting with the languages and communities that need it most.
           </p>
         </div>

@@ -29,7 +29,7 @@ export default function LanguagesPage() {
       <div className="mx-auto max-w-2xl text-center">
         <h1 className="text-3xl font-extrabold sm:text-4xl">Languages</h1>
         <p className="mt-2 text-muted-foreground">
-          Browse every language available on Koro — native names, regions, and ISO codes.
+          Browse every language available on Korot — native names, regions, and ISO codes.
         </p>
         <div className="relative mt-6">
           <Search className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />

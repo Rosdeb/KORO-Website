@@ -1,6 +1,6 @@
-# Koro
+# Korot
 
-The public-facing Koro website — a language-discovery experience for visitors and normal
+The public-facing Korot website — a language-discovery experience for visitors and normal
 authenticated users, built on top of the existing Spring Boot + MongoDB + JWT backend. No admin
 or reviewer UI is implemented here by design (see `plan` / `website-plan` at the repo root).
 

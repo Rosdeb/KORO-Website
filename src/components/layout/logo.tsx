@@ -16,7 +16,7 @@ export function Logo({ className, href = "/" }: { className?: string; href?: str
           <path d="M8 11.5H16" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
         </svg>
       </span>
-      <span className="text-lg">Koro</span>
+      <span className="text-lg">Korot</span>
     </Link>
   );
 }

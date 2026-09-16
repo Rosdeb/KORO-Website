@@ -75,7 +75,7 @@ export function PublicLeaderboard() {
           <div className="mx-auto max-w-2xl text-center">
             <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-semibold text-primary shadow-sm"><Trophy className="size-3.5" /> Community leaderboard</div>
             <h1 className="mt-4 text-2xl font-extrabold tracking-tight sm:text-4xl">The people behind the words</h1>
-            <p className="mt-3 text-sm leading-6 text-muted-foreground sm:text-base sm:leading-7">A public portfolio of the community members who help document, translate, and preserve language knowledge on Koro.</p>
+            <p className="mt-3 text-sm leading-6 text-muted-foreground sm:text-base sm:leading-7">A public portfolio of the community members who help document, translate, and preserve language knowledge on Korot.</p>
           </div>
           <div className="mx-auto mt-8 grid max-w-3xl grid-cols-3 divide-x divide-border overflow-hidden rounded-2xl border border-border bg-card shadow-sm sm:mt-10">
             {impact.map(({ icon: Icon, value, label }) => <div key={label} className="flex min-w-0 flex-col items-center justify-center gap-1 px-1.5 py-4 text-center sm:px-5 sm:py-5"><Icon className="size-4 shrink-0 text-primary sm:size-5" /><div className="min-w-0">{data ? <AnimatedStat value={value} /> : <p className="text-xl font-extrabold" aria-label="Not available">—</p>}<p className="text-[10px] leading-tight text-muted-foreground sm:text-xs">{label}</p></div></div>)}

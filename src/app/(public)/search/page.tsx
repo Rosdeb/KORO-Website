@@ -41,7 +41,7 @@ function SearchPageInner() {
       </form>
 
       {!initialQuery && (
-        <EmptyState className="mt-10" icon={SearchIcon} title="Search Koro" description="Try searching for a language, a word, or a category." />
+        <EmptyState className="mt-10" icon={SearchIcon} title="Search Korot" description="Try searching for a language, a word, or a category." />
       )}
 
       {initialQuery && isError && <ErrorState className="mt-10" onRetry={() => refetch()} />}

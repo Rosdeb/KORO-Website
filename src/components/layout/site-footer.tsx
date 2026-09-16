@@ -11,7 +11,7 @@ const COLUMNS = [
     ],
   },
   {
-    title: "Koro",
+    title: "Korot",
     links: [
       { href: "/about", label: "About" },
       { href: "/register", label: "Create an account" },
@@ -47,7 +47,7 @@ export function SiteFooter() {
         ))}
       </div>
       <div className="container-koro border-t border-border py-5 text-xs text-muted-foreground">
-        © {new Date().getFullYear()} Koro. Built to discover, learn, and preserve language knowledge.
+        © {new Date().getFullYear()} Korot. Built to discover, learn, and preserve language knowledge.
       </div>
     </footer>
   );

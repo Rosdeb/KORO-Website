@@ -93,7 +93,7 @@ export default function ActivityPage() {
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-2xl font-extrabold sm:text-3xl">My Activity</h1>
-        <p className="mt-1 text-muted-foreground">See how you&apos;ve been using Koro.</p>
+        <p className="mt-1 text-muted-foreground">See how you&apos;ve been using Korot.</p>
       </div>
 
       <div className="flex flex-wrap items-center gap-2">

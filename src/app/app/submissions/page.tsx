@@ -30,7 +30,7 @@ export default function SubmissionsPage() {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-extrabold sm:text-3xl">My Submissions</h1>
-          <p className="mt-1 text-muted-foreground">Track the translations you&apos;ve suggested to Koro.</p>
+          <p className="mt-1 text-muted-foreground">Track the translations you&apos;ve suggested to Korot.</p>
         </div>
         <Button asChild>
           <Link href="/app/submissions/new">
@@ -62,7 +62,7 @@ export default function SubmissionsPage() {
             <EmptyState
               icon={MessageSquarePlus}
               title="No submissions here"
-              description="Suggest a translation to help grow Koro's dictionary."
+              description="Suggest a translation to help grow Korot's dictionary."
               action={
                 <Link href="/app/submissions/new" className="text-sm font-medium text-primary hover:underline">
                   Suggest a Translation
