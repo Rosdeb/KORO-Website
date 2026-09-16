@@ -144,6 +144,18 @@
       "namedRegex": "^/app/books(?:/)?$"
     },
     {
+      "page": "/app/leaderboard",
+      "regex": "^/app/leaderboard(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/app/leaderboard(?:/)?$"
+    },
+    {
+      "page": "/app/review",
+      "regex": "^/app/review(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/app/review(?:/)?$"
+    },
+    {
       "page": "/app/scan",
       "regex": "^/app/scan(?:/)?$",
       "routeKeys": {},
@@ -202,6 +214,12 @@
       "regex": "^/languages(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/languages(?:/)?$"
+    },
+    {
+      "page": "/leaderboard",
+      "regex": "^/leaderboard(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/leaderboard(?:/)?$"
     },
     {
       "page": "/login",
