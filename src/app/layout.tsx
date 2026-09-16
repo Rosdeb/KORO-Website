@@ -35,6 +35,10 @@ export const metadata: Metadata = {
   },
   description:
     "Explore languages, discover words, and build your own collection of language knowledge with Korot.",
+  icons: {
+    icon: "/korot-logo.png",
+    apple: "/korot-logo.png",
+  },
 };
 
 export const viewport: Viewport = {
