@@ -32,6 +32,6 @@
   "/app/submissions/new/page": "/app/submissions/new",
   "/app/submissions/page": "/app/submissions",
   "/app/translate/page": "/app/translate",
-  "/(public)/leaderboard/page": "/leaderboard",
-  "/(public)/about/page": "/about"
+  "/(public)/about/page": "/about",
+  "/(public)/leaderboard/page": "/leaderboard"
 }

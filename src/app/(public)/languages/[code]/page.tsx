@@ -96,7 +96,7 @@ export default function LanguageDetailPage({ params }: { params: Promise<{ code:
               {search.data.map(({ concept, translation }) => (
                 <Link
                   key={concept.id}
-                  href={`/dictionary/${concept.categorySlug}/${concept.slug}`}
+                  href={`/dictionary/${concept.categorySlug}/${concept.id}`}
                   className="flex items-center justify-between rounded-xl px-3 py-2.5 hover:bg-muted"
                 >
                   <span className="text-sm font-medium">{concept.name}</span>
@@ -128,7 +128,7 @@ export default function LanguageDetailPage({ params }: { params: Promise<{ code:
           {popularInThisLanguage.map(({ concept, translation }) => (
             <Link
               key={concept.id}
-              href={`/dictionary/${concept.categorySlug}/${concept.slug}`}
+              href={`/dictionary/${concept.categorySlug}/${concept.id}`}
               className="flex items-center justify-between rounded-2xl border border-border bg-card p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
             >
               <span className="font-medium">{concept.name}</span>

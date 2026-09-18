@@ -67,7 +67,7 @@ export interface User {
   nativeLanguage?: string;
   preferredLanguage?: string;
   roles: string[];
-  status?: "ACTIVE" | "INACTIVE" | "SUSPENDED";
+  status?: "ACTIVE" | "INACTIVE" | "BANNED" | "SUSPENDED";
 }
 
 export interface AuthResponse {

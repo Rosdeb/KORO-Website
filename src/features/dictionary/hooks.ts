@@ -52,28 +52,21 @@ export function useConceptsByCategory(categorySlug: string, page = 0, size = 20)
   return { ...query, data: query.data?.content ?? [], page: query.data };
 }
 
-export function useConcept(categorySlug: string, conceptSlug: string) {
+export function useConcept(conceptId: string) {
   const qc = useQueryClient();
-  const categories = useCategories();
-  const categoryId = categories.data?.find((category) => category.slug === categorySlug)?.id;
   const query = useQuery({
-    queryKey: ["concepts", "detail", categoryId, conceptSlug],
+    queryKey: ["concepts", "detail", conceptId],
     queryFn: async () => {
-      const firstPage = await fetchConceptPage(qc, { categoryId, page: 0, size: 20 });
-      let concept = firstPage.content.find((item) => item.slug === conceptSlug);
-      for (let page = 1; !concept && page < firstPage.totalPages; page += 1) {
-        const nextPage = await fetchConceptPage(qc, { categoryId, page, size: 20 });
-        concept = nextPage.content.find((item) => item.slug === conceptSlug);
-      }
-      if (!concept) return undefined;
-      const [languages, rawTranslations] = await Promise.all([
+      const [languages, rawConcept] = await Promise.all([
         qc.ensureQueryData({ queryKey: ["languages"], queryFn: fetchLanguages, staleTime: 5 * 60 * 1000 }),
-        translationsApi.list({ conceptId: concept.id }),
+        conceptsApi.getById(conceptId),
       ]);
       const languageMap = toLanguageMap(languages);
+      const concept = mapConcept(rawConcept, [], languageMap);
+      const rawTranslations = await translationsApi.list({ conceptId: concept.id });
       return { ...concept, translations: rawTranslations.map((translation) => mapTranslation(translation, languageMap)) };
     },
-    enabled: !!categoryId,
+    enabled: !!conceptId,
     staleTime: 2 * 60 * 1000,
   });
   return { ...query, data: query.data };

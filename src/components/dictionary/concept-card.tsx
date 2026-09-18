@@ -6,7 +6,7 @@ import type { Concept } from "@/types";
 export function ConceptCard({ concept }: { concept: Concept }) {
   const preview = concept.translations.slice(0, 2);
   return (
-    <Link href={`/dictionary/${concept.categorySlug}/${concept.slug}`} className="group block">
+    <Link href={`/dictionary/${concept.categorySlug}/${concept.id}`} className="group block">
       <Card className="h-full transition-all group-hover:-translate-y-0.5 group-hover:shadow-md">
         <div className="flex flex-col gap-3 p-5">
           <p className="font-semibold">{concept.name}</p>

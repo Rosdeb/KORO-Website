@@ -15,8 +15,8 @@ export default function ConceptDetailPage({
 }: {
   params: Promise<{ category: string; concept: string }>;
 }) {
-  const { category, concept: conceptSlug } = use(params);
-  const { data: concept, isLoading, isError, refetch } = useConcept(category, conceptSlug);
+  const { category, concept: conceptId } = use(params);
+  const { data: concept, isLoading, isError, refetch } = useConcept(conceptId);
 
   if (isLoading) {
     return (
