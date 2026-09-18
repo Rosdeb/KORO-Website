@@ -3890,7 +3890,7 @@
       "format": "cjs"
     },
     ".open-next/server-functions/default/node_modules/next/dist/server/load-manifest.external.js": {
-      "bytes": 310429,
+      "bytes": 310282,
       "imports": [
         {
           "path": "path",
@@ -4472,7 +4472,7 @@
       "format": "cjs"
     },
     ".open-next/server-functions/default/.next/server/chunks/3463.js": {
-      "bytes": 11836,
+      "bytes": 11634,
       "imports": [],
       "format": "cjs"
     },
@@ -4497,7 +4497,7 @@
       "format": "cjs"
     },
     ".open-next/server-functions/default/.next/server/chunks/4448.js": {
-      "bytes": 14082,
+      "bytes": 14101,
       "imports": [],
       "format": "cjs"
     },
@@ -4628,7 +4628,7 @@
       "format": "cjs"
     },
     ".open-next/server-functions/default/.next/server/app/(public)/dictionary/[category]/[concept]/page.js": {
-      "bytes": 9652,
+      "bytes": 9650,
       "imports": [
         {
           "path": ".open-next/server-functions/default/node_modules/next/dist/server/app-render/after-task-async-storage.external.js",
@@ -4694,7 +4694,7 @@
       "format": "cjs"
     },
     ".open-next/server-functions/default/.next/server/app/(public)/dictionary/[category]/page.js": {
-      "bytes": 11852,
+      "bytes": 11850,
       "imports": [
         {
           "path": ".open-next/server-functions/default/node_modules/next/dist/server/app-render/after-task-async-storage.external.js",
@@ -4957,7 +4957,7 @@
       "format": "cjs"
     },
     ".open-next/server-functions/default/.next/server/app/(public)/languages/[code]/page.js": {
-      "bytes": 16820,
+      "bytes": 16816,
       "imports": [
         {
           "path": ".open-next/server-functions/default/node_modules/next/dist/server/app-render/after-task-async-storage.external.js",
@@ -5343,7 +5343,7 @@
       "format": "cjs"
     },
     ".open-next/server-functions/default/.next/server/app/(public)/dictionary/page.js": {
-      "bytes": 12598,
+      "bytes": 12596,
       "imports": [
         {
           "path": ".open-next/server-functions/default/node_modules/next/dist/server/app-render/after-task-async-storage.external.js",
@@ -5897,7 +5897,7 @@
       "format": "cjs"
     },
     ".open-next/server-functions/default/.next/server/app/(public)/search/page.js": {
-      "bytes": 13449,
+      "bytes": 13447,
       "imports": [
         {
           "path": ".open-next/server-functions/default/node_modules/next/dist/server/app-render/after-task-async-storage.external.js",
@@ -6811,7 +6811,7 @@
       "format": "cjs"
     },
     ".open-next/server-functions/default/.next/server/app/(public)/page.js": {
-      "bytes": 18813,
+      "bytes": 18811,
       "imports": [
         {
           "path": ".open-next/server-functions/default/node_modules/next/dist/server/app-render/after-task-async-storage.external.js",
@@ -10280,7 +10280,7 @@
           "bytesInOutput": 508
         },
         ".open-next/server-functions/default/node_modules/next/dist/server/load-manifest.external.js": {
-          "bytesInOutput": 267359
+          "bytesInOutput": 267212
         },
         ".open-next/server-functions/default/node_modules/next/dist/lib/interop-default.js": {
           "bytesInOutput": 363
@@ -10373,7 +10373,7 @@
           "bytesInOutput": 186561
         },
         ".open-next/server-functions/default/.next/server/chunks/3463.js": {
-          "bytesInOutput": 12253
+          "bytesInOutput": 12027
         },
         ".open-next/server-functions/default/.next/server/chunks/3633.js": {
           "bytesInOutput": 8856
@@ -10388,7 +10388,7 @@
           "bytesInOutput": 10634
         },
         ".open-next/server-functions/default/.next/server/chunks/4448.js": {
-          "bytesInOutput": 14599
+          "bytesInOutput": 14619
         },
         ".open-next/server-functions/default/.next/server/chunks/4849.js": {
           "bytesInOutput": 40965
@@ -10409,10 +10409,10 @@
           "bytesInOutput": 2368
         },
         ".open-next/server-functions/default/.next/server/app/(public)/dictionary/[category]/[concept]/page.js": {
-          "bytesInOutput": 9758
+          "bytesInOutput": 9755
         },
         ".open-next/server-functions/default/.next/server/app/(public)/dictionary/[category]/page.js": {
-          "bytesInOutput": 12042
+          "bytesInOutput": 12040
         },
         ".open-next/server-functions/default/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js": {
           "bytesInOutput": 197077
@@ -10421,7 +10421,7 @@
           "bytesInOutput": 8647
         },
         ".open-next/server-functions/default/.next/server/app/(public)/languages/[code]/page.js": {
-          "bytesInOutput": 17152
+          "bytesInOutput": 17148
         },
         ".open-next/server-functions/default/.next/server/app/api/auth/reset-password/route.js": {
           "bytesInOutput": 8607
@@ -10439,7 +10439,7 @@
           "bytesInOutput": 24675
         },
         ".open-next/server-functions/default/.next/server/app/(public)/dictionary/page.js": {
-          "bytesInOutput": 12793
+          "bytesInOutput": 12791
         },
         ".open-next/server-functions/default/.next/server/app/app/submissions/new/page.js": {
           "bytesInOutput": 35029
@@ -10466,7 +10466,7 @@
           "bytesInOutput": 11382
         },
         ".open-next/server-functions/default/.next/server/app/(public)/search/page.js": {
-          "bytesInOutput": 13665
+          "bytesInOutput": 13663
         },
         ".open-next/server-functions/default/.next/server/app/app/leaderboard/page.js": {
           "bytesInOutput": 20216
@@ -10508,7 +10508,7 @@
           "bytesInOutput": 13656
         },
         ".open-next/server-functions/default/.next/server/app/(public)/page.js": {
-          "bytesInOutput": 19072
+          "bytesInOutput": 19070
         },
         ".open-next/server-functions/default/.next/server/app/app/scan/page.js": {
           "bytesInOutput": 11904
@@ -10673,7 +10673,7 @@
           "bytesInOutput": 72232
         }
       },
-      "bytes": 4314889
+      "bytes": 4314521
     }
   }
 }

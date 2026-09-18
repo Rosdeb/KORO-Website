@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { categoriesApi, conceptsApi, translationsApi } from "@/lib/api/endpoints";
-import { mapCategory, mapConceptPage, mapTranslation, toLanguageMap } from "@/lib/api/mappers";
+import { mapCategory, mapConcept, mapConceptPage, mapTranslation, toLanguageMap } from "@/lib/api/mappers";
 import { fetchLanguages } from "@/features/languages/hooks";
 import { slugify } from "@/lib/utils/slugify";
 import type { QueryClient } from "@tanstack/react-query";
