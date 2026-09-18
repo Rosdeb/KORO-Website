@@ -63,7 +63,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }
 
   for (const concept of concepts) {
-    const categorySlug = slugify(concept.category.name);
+    const categorySlug = slugify(concept.category?.name ?? "");
     const conceptSlug = slugify(concept.name);
 
     if (categorySlug && conceptSlug) {
