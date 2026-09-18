@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { Languages, BookmarkPlus, Camera, FileDown, Clock } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/state/empty-state";
 import { ErrorState } from "@/components/state/error-state";
@@ -54,16 +55,18 @@ export default function ActivityPage() {
   const [range, setRange] = useState<RangeKey>("week");
   const [customFrom, setCustomFrom] = useState("");
   const [customTo, setCustomTo] = useState("");
+  const [page, setPage] = useState(0);
 
   const { from, to } = rangeToDates(range, customFrom, customTo);
   const validRange = Boolean(from && to && from <= to);
-  const { data: activity, isLoading: activityLoading, isError: activityError, refetch: refetchActivity } = useActivity(
-    validRange ? { from, to } : undefined,
+  const { data: activityPage, isLoading: activityLoading, isError: activityError, refetch: refetchActivity } = useActivity(
+    validRange ? { from, to, page, size: 10 } : undefined,
     validRange,
   );
+  const activity = activityPage?.content ?? [];
 
   const filteredActivity = useMemo(
-    () => (activity ?? []).filter((entry) => {
+    () => activity.filter((entry) => {
       const date = new Date(entry.createdAt);
       return !Number.isNaN(date.getTime()) && toLocalDate(date) >= from! && toLocalDate(date) <= to!;
     }),
@@ -100,7 +103,7 @@ export default function ActivityPage() {
         {RANGE_OPTIONS.map((opt) => (
           <button
             key={opt.key}
-            onClick={() => setRange(opt.key)}
+            onClick={() => { setRange(opt.key); setPage(0); }}
             className={cn(
               "rounded-full px-4 py-2 text-sm font-medium transition-colors",
               range === opt.key ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground",
@@ -116,14 +119,14 @@ export default function ActivityPage() {
           <input
             type="date"
             value={customFrom}
-            onChange={(e) => setCustomFrom(e.target.value)}
+            onChange={(e) => { setCustomFrom(e.target.value); setPage(0); }}
             className="h-10 rounded-xl border border-input bg-card px-3 text-sm"
           />
           <span className="text-sm text-muted-foreground">to</span>
           <input
             type="date"
             value={customTo}
-            onChange={(e) => setCustomTo(e.target.value)}
+            onChange={(e) => { setCustomTo(e.target.value); setPage(0); }}
             className="h-10 rounded-xl border border-input bg-card px-3 text-sm"
           />
         </div>
@@ -161,17 +164,30 @@ export default function ActivityPage() {
           <EmptyState title="No activity in this range" description="Try a different time period." />
         )}
         {validRange && !activityLoading && !activityError && filteredActivity.length > 0 && (
-          <Card>
-            <ul className="divide-y divide-border">
-              {filteredActivity.map((entry) => (
-                <li key={entry.id} className="flex items-center gap-3 px-4 py-3 text-sm">
-                  <Clock className="size-4 shrink-0 text-muted-foreground" />
-                  <span className="flex-1">{entry.description}</span>
-                  <span className="text-xs text-muted-foreground">{new Date(entry.createdAt).toLocaleString()}</span>
-                </li>
-              ))}
-            </ul>
-          </Card>
+          <div className="flex flex-col gap-4">
+            <Card>
+              <ul className="divide-y divide-border">
+                {filteredActivity.map((entry) => (
+                  <li key={entry.id} className="flex items-center gap-3 px-4 py-3 text-sm">
+                    <Clock className="size-4 shrink-0 text-muted-foreground" />
+                    <span className="flex-1">{entry.description}</span>
+                    <span className="text-xs text-muted-foreground">{new Date(entry.createdAt).toLocaleString()}</span>
+                  </li>
+                ))}
+              </ul>
+            </Card>
+            {activityPage && activityPage.totalPages > 1 && (
+              <div className="flex items-center justify-between gap-3">
+                <Button variant="outline" size="sm" disabled={!activityPage.hasPrevious} onClick={() => setPage((current) => current - 1)}>
+                  Previous
+                </Button>
+                <span className="text-sm text-muted-foreground">Page {activityPage.page + 1} of {activityPage.totalPages}</span>
+                <Button variant="outline" size="sm" disabled={!activityPage.hasNext} onClick={() => setPage((current) => current + 1)}>
+                  Next
+                </Button>
+              </div>
+            )}
+          </div>
         )}
       </div>
     </div>

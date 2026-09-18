@@ -1,0 +1,1 @@
+globalThis.__RSC_MANIFEST=(globalThis.__RSC_MANIFEST||{});globalThis.__RSC_MANIFEST["/api/auth/forgot-password/route"]={"moduleLoading":{"prefix":"/_next/"},"ssrModuleMapping":{},"edgeSSRModuleMapping":{},"clientModules":{},"entryCSSFiles":{"D:\\Shadat\\KORO-Website\\src\\app\\api\\auth\\forgot-password\\route":[]},"rscModuleMapping":{},"edgeRscModuleMapping":{}};

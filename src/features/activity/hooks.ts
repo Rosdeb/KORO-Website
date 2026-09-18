@@ -1,11 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { activityApi } from "@/lib/api/endpoints";
-import { mapActivityEntry } from "@/lib/api/mappers";
+import { mapActivityPage } from "@/lib/api/mappers";
 
-export function useActivity(params?: { from?: string; to?: string }, enabled = true) {
+export function useActivity(params?: { from?: string; to?: string; page?: number; size?: number }, enabled = true) {
   return useQuery({
     queryKey: ["activity", params],
-    queryFn: async () => (await activityApi.list(params)).map(mapActivityEntry),
+    queryFn: async () => mapActivityPage(await activityApi.list(params)),
     enabled,
   });
 }

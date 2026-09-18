@@ -1,11 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { adminApi } from "@/lib/api/endpoints";
-import { mapSubmission } from "@/lib/api/mappers";
+import { mapSubmissionPage } from "@/lib/api/mappers";
 
-export function useReviewQueue() {
+export function useReviewQueue(page = 0, size = 20) {
   return useQuery({
-    queryKey: ["review", "pending"],
-    queryFn: async () => (await adminApi.submissions.pending()).map(mapSubmission),
+    queryKey: ["review", "pending", page, size],
+    queryFn: async () => mapSubmissionPage(await adminApi.submissions.pending(page, size)),
   });
 }
 

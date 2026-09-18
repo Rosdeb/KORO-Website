@@ -20,10 +20,11 @@ const STATUS_CONFIG: Record<SubmissionStatus, { label: string; variant: "warning
 };
 
 export default function SubmissionsPage() {
-  const { data: submissions, isLoading, isError, refetch } = useMySubmissions();
+  const [page, setPage] = useState(0);
+  const { data: submissionPage, isLoading, isError, refetch } = useMySubmissions(page, 20);
   const [tab, setTab] = useState<"ALL" | SubmissionStatus>("ALL");
 
-  const filtered = (submissions ?? []).filter((s) => tab === "ALL" || s.status === tab);
+  const filtered = (submissionPage?.content ?? []).filter((s) => tab === "ALL" || s.status === tab);
 
   return (
     <div className="flex flex-col gap-6">
@@ -39,7 +40,7 @@ export default function SubmissionsPage() {
         </Button>
       </div>
 
-      <Tabs value={tab} onValueChange={(v) => setTab(v as typeof tab)}>
+      <Tabs value={tab} onValueChange={(v) => { setTab(v as typeof tab); setPage(0); }}>
         <TabsList>
           <TabsTrigger value="ALL">All</TabsTrigger>
           <TabsTrigger value="PENDING">Pending</TabsTrigger>
@@ -72,10 +73,25 @@ export default function SubmissionsPage() {
           )}
 
           {!isLoading && !isError && filtered.length > 0 && (
-            <div className="flex flex-col gap-3">
-              {filtered.map((s) => (
-                <SubmissionCard key={s.id} submission={s} />
-              ))}
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-3">
+                {filtered.map((s) => (
+                  <SubmissionCard key={s.id} submission={s} />
+                ))}
+              </div>
+              {submissionPage && submissionPage.totalPages > 1 && (
+                <div className="flex items-center justify-between gap-3">
+                  <Button variant="outline" size="sm" disabled={!submissionPage.hasPrevious} onClick={() => setPage((current) => current - 1)}>
+                    Previous
+                  </Button>
+                  <span className="text-sm text-muted-foreground">
+                    Page {submissionPage.page + 1} of {submissionPage.totalPages}
+                  </span>
+                  <Button variant="outline" size="sm" disabled={!submissionPage.hasNext} onClick={() => setPage((current) => current + 1)}>
+                    Next
+                  </Button>
+                </div>
+              )}
             </div>
           )}
         </TabsContent>

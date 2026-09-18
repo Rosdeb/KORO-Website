@@ -1,11 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { submissionsApi } from "@/lib/api/endpoints";
-import { mapSubmission } from "@/lib/api/mappers";
+import { mapSubmissionPage } from "@/lib/api/mappers";
 
-export function useMySubmissions() {
+export function useMySubmissions(page = 0, size = 20) {
   return useQuery({
-    queryKey: ["submissions", "mine"],
-    queryFn: async () => (await submissionsApi.mine()).map(mapSubmission),
+    queryKey: ["submissions", "mine", page, size],
+    queryFn: async () => mapSubmissionPage(await submissionsApi.mine(page, size)),
   });
 }
 

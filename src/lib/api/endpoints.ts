@@ -15,15 +15,20 @@
 import { apiClient } from "./client";
 import type {
   RawActivityLog,
+  RawActivityPage,
   RawActivityStatistics,
+  RawAdminStatistics,
   RawCategory,
   RawCollection,
   RawCollectionItem,
   RawConcept,
+  RawConceptPage,
   RawLanguage,
+  RawLeaderboardEntry,
   RawPdfExport,
   RawScanResult,
   RawSubmission,
+  RawSubmissionPage,
   RawTranslation,
   RawUser,
 } from "./raw-types";
@@ -69,14 +74,15 @@ export const categoriesApi = {
 };
 
 export const conceptsApi = {
-  list: (categoryId?: string) =>
-    apiClient.get<RawConcept[]>(`/concepts${toQuery({ categoryId })}`, { auth: true }),
+  list: (params?: { categoryId?: string; page?: number; size?: number }) =>
+    apiClient.get<RawConceptPage>(`/concepts${toQuery(params)}`, { auth: true }),
   getById: (id: string) => apiClient.get<RawConcept>(`/concepts/${id}`, { auth: true }),
 };
 
 export const translationsApi = {
-  list: (params?: { conceptId?: string; languageId?: string }) =>
+  list: (params?: { conceptId?: string; languageId?: string; page?: number; size?: number }) =>
     apiClient.get<RawTranslation[]>(`/translations${toQuery(params)}`, { auth: true }),
+  count: () => apiClient.get<number>("/translations/count"),
   // Public endpoint (`permitAll` on /translations/**) — send no auth token so
   // an anonymous visitor can search. Only `query` is required; the server
   // Unicode-normalizes it (NFC + trim + strip zero-width joiners) and matches
@@ -138,12 +144,12 @@ export const submissionsApi = {
   }) => apiClient.post<RawSubmission>("/submissions", payload, { auth: true }),
   // GET /submissions returns the current user's own submissions — there is
   // no separate "mine" endpoint.
-  mine: () => apiClient.get<RawSubmission[]>("/submissions", { auth: true }),
+  mine: (page = 0, size = 20) => apiClient.get<RawSubmissionPage>(`/submissions?page=${page}&size=${size}`, { auth: true }),
 };
 
 export const activityApi = {
-  list: (params?: { from?: string; to?: string }) =>
-    apiClient.get<RawActivityLog[]>(`/activity${toQuery(params)}`, { auth: true }),
+  list: (params?: { from?: string; to?: string; page?: number; size?: number }) =>
+    apiClient.get<RawActivityPage>(`/activity${toQuery(params)}`, { auth: true }),
   statistics: () => apiClient.get<RawActivityStatistics>("/activity/statistics", { auth: true }),
 };
 
@@ -170,8 +176,10 @@ export const profileApi = {
 export const adminApi = {
   users: {
     list: () => apiClient.get<RawUser[]>("/admin/users", { auth: true }),
-    setStatus: (id: string, status: "ACTIVE" | "INACTIVE" | "SUSPENDED") =>
+    setStatus: (id: string, status: "ACTIVE" | "INACTIVE" | "BANNED" | "SUSPENDED") =>
       apiClient.put<RawUser>(`/admin/users/${id}/status${toQuery({ status })}`, undefined, { auth: true }),
+    setRoles: (id: string, roles: string[]) =>
+      apiClient.put<RawUser>(`/admin/users/${id}/roles`, roles, { auth: true }),
   },
   languages: {
     create: (payload: Partial<RawLanguage>) => apiClient.post<RawLanguage>("/admin/languages", payload, { auth: true }),
@@ -192,7 +200,7 @@ export const adminApi = {
       apiClient.post<RawTranslation>("/admin/translations", payload, { auth: true }),
   },
   submissions: {
-    pending: () => apiClient.get<RawSubmission[]>("/admin/submissions/pending", { auth: true }),
+    pending: (page = 0, size = 20) => apiClient.get<RawSubmissionPage>(`/admin/submissions/pending?page=${page}&size=${size}`, { auth: true }),
     getById: (id: string) => apiClient.get<RawSubmission>(`/admin/submissions/${id}`, { auth: true }),
     // On approval the backend publishes the submission into the Concept /
     // Translation tables and returns an envelope — the reviewed submission is
@@ -213,8 +221,10 @@ export const adminApi = {
         { rejectionReason, reviewerNote },
         { auth: true },
       ),
+    approveAll: () => apiClient.post<{ message: string }>("/admin/submissions/approve-all", undefined, { auth: true }),
   },
-  statistics: () => apiClient.get<Record<string, unknown>>("/admin/statistics", { auth: true }),
+  statistics: () => apiClient.get<RawAdminStatistics>("/admin/statistics", { auth: true }),
+  leaderboard: () => apiClient.get<RawLeaderboardEntry[]>("/admin/leaderboard", { auth: true }),
 };
 
 function toQuery(params?: Record<string, string | number | boolean | undefined>) {

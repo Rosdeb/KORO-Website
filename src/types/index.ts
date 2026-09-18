@@ -49,6 +49,16 @@ export interface Concept {
   translations: Translation[];
 }
 
+export interface ConceptPage {
+  content: Concept[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
+}
+
 export interface User {
   id: string;
   name: string;
@@ -126,6 +136,16 @@ export interface Submission {
   submittedByEmail?: string;
 }
 
+export interface SubmissionPage {
+  content: Submission[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
+}
+
 export interface ScanResult {
   id: string;
   imageUrl: string;
@@ -158,6 +178,16 @@ export interface ActivityEntry {
   type: ActivityType;
   description: string;
   createdAt: string;
+}
+
+export interface ActivityPage {
+  content: ActivityEntry[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
 }
 
 export interface ActivityStatistics {

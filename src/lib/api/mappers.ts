@@ -2,27 +2,33 @@ import { resolveApiFileUrl } from "./client";
 import { slugify } from "@/lib/utils/slugify";
 import type {
   ActivityEntry,
+  ActivityPage,
   Book,
   BookItem,
   Category,
   Concept,
+  ConceptPage,
   ExportRecord,
   Language,
   ScanResult,
   Submission,
+  SubmissionPage,
   Translation,
   User,
 } from "@/types";
 import type {
   RawActivityLog,
+  RawActivityPage,
   RawCategory,
   RawCollection,
   RawCollectionItem,
   RawConcept,
+  RawConceptPage,
   RawLanguage,
   RawPdfExport,
   RawScanResult,
   RawSubmission,
+  RawSubmissionPage,
   RawTranslation,
   RawUser,
 } from "./raw-types";
@@ -74,16 +80,25 @@ export function mapTranslation(raw: RawTranslation, languages: LanguageMap): Tra
 }
 
 export function mapConcept(raw: RawConcept, translations: RawTranslation[], languages: LanguageMap): Concept {
+  const categoryId = raw.category?.id ?? raw.categoryId ?? "";
+  const categoryName = raw.category?.name ?? raw.categoryName ?? "Uncategorized";
   return {
     id: raw.id,
     slug: slugify(raw.name),
     name: raw.name,
     description: raw.description,
-    categoryId: raw.category.id,
-    categoryName: raw.category.name,
-    categorySlug: slugify(raw.category.name),
+    categoryId,
+    categoryName,
+    categorySlug: slugify(categoryName),
     imageUrl: raw.referenceImage,
     translations: translations.map((t) => mapTranslation(t, languages)),
+  };
+}
+
+export function mapConceptPage(raw: RawConceptPage, languages: LanguageMap): ConceptPage {
+  return {
+    ...raw,
+    content: raw.content.map((concept) => mapConcept(concept, [], languages)),
   };
 }
 
@@ -166,6 +181,13 @@ export function mapSubmission(raw: RawSubmission): Submission {
   };
 }
 
+export function mapSubmissionPage(raw: RawSubmissionPage): SubmissionPage {
+  return {
+    ...raw,
+    content: raw.content.map(mapSubmission),
+  };
+}
+
 export function mapScanResult(raw: RawScanResult, languages: LanguageMap): ScanResult {
   return {
     id: raw.id,
@@ -186,5 +208,12 @@ export function mapActivityEntry(raw: RawActivityLog): ActivityEntry {
     type: raw.activityType,
     description: raw.description,
     createdAt: raw.createdAt,
+  };
+}
+
+export function mapActivityPage(raw: RawActivityPage): ActivityPage {
+  return {
+    ...raw,
+    content: raw.content.map(mapActivityEntry),
   };
 }

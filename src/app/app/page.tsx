@@ -21,8 +21,9 @@ export default function DashboardPage() {
   const { data: books, isLoading: booksLoading } = useBooks();
   const { data: activity, isLoading: activityLoading } = useActivity();
 
-  const savedActivity = (activity ?? []).filter((a) => a.type === "SAVE_WORD").slice(0, 5);
-  const recentActivity = (activity ?? []).slice(0, 6);
+  const activityEntries = activity?.content ?? [];
+  const savedActivity = activityEntries.filter((a) => a.type === "SAVE_WORD").slice(0, 5);
+  const recentActivity = activityEntries.slice(0, 6);
 
   return (
     <div className="flex flex-col gap-10">

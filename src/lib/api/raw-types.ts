@@ -24,8 +24,22 @@ export interface RawConcept {
   id: string;
   name: string;
   description?: string | null;
-  category: RawCategory;
+  category?: RawCategory;
+  categoryId?: string;
+  categoryName?: string;
   referenceImage?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface RawConceptPage {
+  content: RawConcept[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
 }
 
 export interface RawTranslation {
@@ -49,7 +63,7 @@ export interface RawUser {
   nativeLanguage?: string | null;
   preferredLanguage?: string | null;
   roles: string[];
-  status?: "ACTIVE" | "INACTIVE" | "SUSPENDED";
+  status?: "ACTIVE" | "INACTIVE" | "BANNED" | "SUSPENDED";
   createdAt?: string;
   updatedAt?: string;
   lastLoginAt?: string;
@@ -117,6 +131,16 @@ export interface RawSubmission {
   reviewedAt?: string | null;
 }
 
+export interface RawSubmissionPage {
+  content: RawSubmission[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
+}
+
 export interface RawScanResult {
   id: string;
   imageUrl: string;
@@ -154,10 +178,37 @@ export interface RawActivityLog {
   createdAt: string;
 }
 
+export interface RawActivityPage {
+  content: RawActivityLog[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
+}
+
 export interface RawActivityStatistics {
   totalActivities: number;
   translations: number;
   imageRecognitions: number;
   pdfExports: number;
   savedWords: number;
+}
+
+export interface RawLeaderboardEntry {
+  userId: string;
+  userName: string;
+  approvedSubmissions: number;
+  pendingSubmissions: number;
+  rejectedSubmissions: number;
+}
+
+export interface RawAdminStatistics {
+  totalUsers: number;
+  totalLanguages: number;
+  totalConcepts: number;
+  totalTranslations: number;
+  pendingApprovals: number;
+  todayActivities: number;
 }

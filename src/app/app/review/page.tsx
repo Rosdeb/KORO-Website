@@ -41,7 +41,9 @@ export default function ReviewQueuePage() {
 }
 
 function ReviewQueue() {
-  const { data: submissions, isLoading, isError, refetch } = useReviewQueue();
+  const [page, setPage] = useState(0);
+  const { data: submissionPage, isLoading, isError, refetch } = useReviewQueue(page, 20);
+  const submissions = submissionPage?.content ?? [];
 
   return (
     <div className="flex flex-col gap-6">
@@ -74,10 +76,25 @@ function ReviewQueue() {
       )}
 
       {!isLoading && !isError && (submissions ?? []).length > 0 && (
-        <div className="flex flex-col gap-3">
-          {submissions!.map((s) => (
-            <ReviewCard key={s.id} submission={s} />
-          ))}
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-3">
+            {submissions.map((s) => (
+              <ReviewCard key={s.id} submission={s} />
+            ))}
+          </div>
+          {submissionPage && submissionPage.totalPages > 1 && (
+            <div className="flex items-center justify-between gap-3">
+              <Button variant="outline" size="sm" disabled={!submissionPage.hasPrevious} onClick={() => setPage((current) => current - 1)}>
+                Previous
+              </Button>
+              <span className="text-sm text-muted-foreground">
+                Page {submissionPage.page + 1} of {submissionPage.totalPages}
+              </span>
+              <Button variant="outline" size="sm" disabled={!submissionPage.hasNext} onClick={() => setPage((current) => current + 1)}>
+                Next
+              </Button>
+            </div>
+          )}
         </div>
       )}
     </div>

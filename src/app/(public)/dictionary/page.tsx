@@ -7,12 +7,13 @@ import { ConceptCard } from "@/components/dictionary/concept-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/state/empty-state";
 import { ErrorState } from "@/components/state/error-state";
-import { useCategories, usePopularConcepts } from "@/features/dictionary/hooks";
+import { useCategories, usePopularConcepts, useTranslationsCount } from "@/features/dictionary/hooks";
 import { useDictionarySearch } from "@/features/search/hooks";
 
 export default function DictionaryPage() {
   const { data: categories, isLoading, isError, refetch } = useCategories();
   const { data: popularConcepts, isLoading: popularLoading } = usePopularConcepts();
+  const { data: translationsCount } = useTranslationsCount();
   const [query, setQuery] = useState("");
   const searching = query.trim().length > 0;
 
@@ -34,6 +35,7 @@ export default function DictionaryPage() {
         <h1 className="text-3xl font-extrabold sm:text-4xl">Dictionary</h1>
         <p className="mt-2 text-muted-foreground">
           Browse concepts by category and see translations across every language on Korot.
+          {translationsCount !== undefined ? ` Over ${translationsCount} translations available.` : ""}
         </p>
         <div className="relative mt-6">
           <Search className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />

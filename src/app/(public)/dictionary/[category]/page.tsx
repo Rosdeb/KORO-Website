@@ -21,7 +21,8 @@ export default function CategoryPage({ params }: { params: Promise<{ category: s
   const debounced = useDebouncedValue(query, 300);
   const searching = debounced.trim().length > 0;
 
-  const browse = useConceptsByCategory(categorySlug);
+  const [page, setPage] = useState(0);
+  const browse = useConceptsByCategory(categorySlug, page, 20);
   const search = useDictionarySearch(query);
 
   // While the search box has a value, show backend search results scoped to
@@ -78,10 +79,23 @@ export default function CategoryPage({ params }: { params: Promise<{ category: s
       )}
 
       {!isLoading && !isError && data.length > 0 && (
-        <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {data.map((concept) => (
-            <ConceptCard key={concept.id} concept={concept} />
-          ))}
+        <div className="mt-8 flex flex-col gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {data.map((concept) => (
+              <ConceptCard key={concept.id} concept={concept} />
+            ))}
+          </div>
+          {browse.page && browse.page.totalPages > 1 && (
+            <div className="flex items-center justify-between gap-3">
+              <button className="rounded-xl border border-border px-3 py-2 text-sm disabled:opacity-50" disabled={!browse.page.hasPrevious} onClick={() => setPage((current) => current - 1)}>
+                Previous
+              </button>
+              <span className="text-sm text-muted-foreground">Page {browse.page.page + 1} of {browse.page.totalPages}</span>
+              <button className="rounded-xl border border-border px-3 py-2 text-sm disabled:opacity-50" disabled={!browse.page.hasNext} onClick={() => setPage((current) => current + 1)}>
+                Next
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>
