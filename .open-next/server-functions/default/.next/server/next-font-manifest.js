@@ -1,1 +1,1 @@
-self.__NEXT_FONT_MANIFEST='{"pages":{},"app":{},"appUsingSizeAdjust":false,"pagesUsingSizeAdjust":false}';
+self.__NEXT_FONT_MANIFEST='{"pages":{},"app":{"/Users/rosdebkoch/All_Project/KORO-Website/src/app/layout":["static/media/a3a053d5ba3eaf5e-s.p.woff2","static/media/4a8ec996bde42e68-s.p.woff2","static/media/2557c914f0f7aa5b-s.p.woff2","static/media/636a5ac981f94f8b-s.p.woff2"]},"appUsingSizeAdjust":true,"pagesUsingSizeAdjust":false}';

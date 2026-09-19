@@ -32,7 +32,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     async function bootstrap() {
       try {
-        const res = await fetch("/api/auth/refresh", { method: "POST" });
+        const res = await fetch("/api/auth/refresh", { method: "POST", signal: AbortSignal.timeout(15_000) });
         if (!res.ok) throw new Error("no session");
         const { accessToken } = await res.json();
         setAccessToken(accessToken);

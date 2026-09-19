@@ -39,6 +39,7 @@ import type {
 async function sameOriginPost<T>(path: string, body?: unknown): Promise<T> {
   const res = await fetch(path, {
     method: "POST",
+    signal: AbortSignal.timeout(30_000),
     headers: { "Content-Type": "application/json" },
     body: body === undefined ? undefined : JSON.stringify(body),
   });
@@ -74,14 +75,14 @@ export const categoriesApi = {
 };
 
 export const conceptsApi = {
-  list: (params?: { categoryId?: string; page?: number; size?: number }) =>
-    apiClient.get<RawConceptPage>(`/concepts${toQuery(params)}`, { auth: true }),
-  getById: (id: string) => apiClient.get<RawConcept>(`/concepts/${id}`, { auth: true }),
+  list: (params?: { categoryId?: string; page?: number; size?: number }, signal?: AbortSignal) =>
+    apiClient.get<RawConceptPage>(`/concepts${toQuery(params)}`, { auth: true, signal }),
+  getById: (id: string, signal?: AbortSignal) => apiClient.get<RawConcept>(`/concepts/${id}`, { auth: true, signal }),
 };
 
 export const translationsApi = {
-  list: (params?: { conceptId?: string; languageId?: string; page?: number; size?: number }) =>
-    apiClient.get<RawTranslation[]>(`/translations${toQuery(params)}`, { auth: true }),
+  list: (params?: { conceptId?: string; languageId?: string; page?: number; size?: number }, signal?: AbortSignal) =>
+    apiClient.get<RawTranslation[]>(`/translations${toQuery(params)}`, { auth: true, signal }),
   count: () => apiClient.get<number>("/translations/count"),
   // Public endpoint (`permitAll` on /translations/**) — send no auth token so
   // an anonymous visitor can search. Only `query` is required; the server
@@ -92,8 +93,8 @@ export const translationsApi = {
   //   - targetLanguageId → search within that one language
   //   - both ids         → match in the source language, return the target-language entries
   // A blank/whitespace query returns 400 ("Query string is empty").
-  search: (payload: { query: string; sourceLanguageId?: string; targetLanguageId?: string }) =>
-    apiClient.post<RawTranslation[]>("/translations/search", payload),
+  search: (payload: { query: string; sourceLanguageId?: string; targetLanguageId?: string }, signal?: AbortSignal) =>
+    apiClient.post<RawTranslation[]>("/translations/search", payload, { signal }),
 };
 
 export const collectionsApi = {
@@ -148,8 +149,8 @@ export const submissionsApi = {
 };
 
 export const activityApi = {
-  list: (params?: { from?: string; to?: string; page?: number; size?: number }) =>
-    apiClient.get<RawActivityPage>(`/activity${toQuery(params)}`, { auth: true }),
+  list: (params?: { from?: string; to?: string; page?: number; size?: number }, signal?: AbortSignal) =>
+    apiClient.get<RawActivityLog[] | RawActivityPage>(`/activity${toQuery(params)}`, { auth: true, signal }),
   statistics: () => apiClient.get<RawActivityStatistics>("/activity/statistics", { auth: true }),
 };
 

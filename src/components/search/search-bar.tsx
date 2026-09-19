@@ -178,7 +178,7 @@ export function SearchBar({
               {data.concepts.slice(0, 5).map((c) => (
                 <Link
                   key={c.id}
-                  href={`/dictionary/${c.categorySlug}/${c.slug}`}
+                  href={`/dictionary/${c.categorySlug}/${c.id}`}
                   onClick={handleNavigated}
                   className="flex items-center px-4 py-2.5 text-sm hover:bg-muted"
                 >

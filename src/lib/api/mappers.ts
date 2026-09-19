@@ -211,7 +211,21 @@ export function mapActivityEntry(raw: RawActivityLog): ActivityEntry {
   };
 }
 
-export function mapActivityPage(raw: RawActivityPage): ActivityPage {
+export function mapActivityPage(raw: RawActivityLog[] | RawActivityPage): ActivityPage {
+  // The activity endpoint also returns an unpaginated array. Keep every
+  // entry and expose it as one page without inventing server pagination.
+  if (Array.isArray(raw)) {
+    return {
+      content: raw.map(mapActivityEntry),
+      page: 0,
+      size: raw.length,
+      totalElements: raw.length,
+      totalPages: raw.length > 0 ? 1 : 0,
+      hasNext: false,
+      hasPrevious: false,
+    };
+  }
+
   return {
     ...raw,
     content: raw.content.map(mapActivityEntry),

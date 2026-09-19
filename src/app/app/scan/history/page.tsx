@@ -46,6 +46,10 @@ export default function ScanHistoryPage() {
                 <img
                   src={scan.imageUrl}
                   alt={scan.detectedLabel}
+                  loading="lazy"
+                  decoding="async"
+                  width={64}
+                  height={64}
                   className="size-16 shrink-0 rounded-xl object-cover"
                 />
                 <div className="min-w-0 flex-1">

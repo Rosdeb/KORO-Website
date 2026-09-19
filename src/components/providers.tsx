@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "next-themes";
 import { AuthProvider } from "@/features/auth/context";
 import { ToastProvider } from "@/components/ui/toast";
+import { shouldRetryQuery } from "@/lib/api/client";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -13,7 +14,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
         defaultOptions: {
           queries: {
             staleTime: 60 * 1000,
-            retry: 1,
+            retry: shouldRetryQuery,
             refetchOnWindowFocus: false,
           },
         },

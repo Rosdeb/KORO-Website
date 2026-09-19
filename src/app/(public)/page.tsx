@@ -9,6 +9,7 @@ import { CategoryCard } from "@/components/dictionary/category-card";
 import { ConceptCard } from "@/components/dictionary/concept-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/state/empty-state";
+import { ErrorState } from "@/components/state/error-state";
 import { useLanguages } from "@/features/languages/hooks";
 import { useCategories, usePopularConcepts } from "@/features/dictionary/hooks";
 
@@ -31,9 +32,9 @@ const STEPS = [
 ];
 
 export default function HomePage() {
-  const { data: languages, isLoading: languagesLoading } = useLanguages();
-  const { data: categories, isLoading: categoriesLoading } = useCategories();
-  const { data: popularConcepts, isLoading: conceptsLoading } = usePopularConcepts();
+  const { data: languages, isLoading: languagesLoading, isError: languagesError, refetch: retryLanguages } = useLanguages();
+  const { data: categories, isLoading: categoriesLoading, isError: categoriesError, refetch: retryCategories } = useCategories();
+  const { data: popularConcepts, isLoading: conceptsLoading, isError: conceptsError, refetch: retryConcepts } = usePopularConcepts();
 
   const languagesToShow = (languages ?? []).slice(0, 6);
 
@@ -111,7 +112,8 @@ export default function HomePage() {
         <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {languagesLoading &&
             Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-40 rounded-2xl" />)}
-          {!languagesLoading && languagesToShow.length === 0 && (
+          {languagesError && <div className="sm:col-span-2 lg:col-span-3"><ErrorState title="Languages couldn't load." onRetry={() => retryLanguages()} /></div>}
+          {!languagesLoading && !languagesError && languagesToShow.length === 0 && (
             <div className="sm:col-span-2 lg:col-span-3">
               <EmptyState title="No languages available yet" description="Check back soon." />
             </div>
@@ -131,7 +133,8 @@ export default function HomePage() {
           <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
             {categoriesLoading &&
               Array.from({ length: 8 }).map((_, i) => <Skeleton key={i} className="h-32 rounded-2xl" />)}
-            {!categoriesLoading && (categories ?? []).length === 0 && (
+            {categoriesError && <div className="col-span-2 sm:col-span-3 lg:col-span-4"><ErrorState title="Categories couldn't load." onRetry={() => retryCategories()} /></div>}
+            {!categoriesLoading && !categoriesError && (categories ?? []).length === 0 && (
               <div className="col-span-2 sm:col-span-3 lg:col-span-4">
                 <EmptyState title="No categories available yet" description="Check back soon." />
               </div>
@@ -149,7 +152,8 @@ export default function HomePage() {
         <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {conceptsLoading &&
             Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-32 rounded-2xl" />)}
-          {!conceptsLoading && (popularConcepts ?? []).length === 0 && (
+          {conceptsError && <div className="sm:col-span-2 lg:col-span-3"><ErrorState title="Words couldn't load." onRetry={() => retryConcepts()} /></div>}
+          {!conceptsLoading && !conceptsError && (popularConcepts ?? []).length === 0 && (
             <div className="sm:col-span-2 lg:col-span-3">
               <EmptyState title="No popular concepts yet" description="Start exploring the dictionary." />
             </div>

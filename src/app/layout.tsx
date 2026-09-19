@@ -12,6 +12,7 @@ const fontUI = Plus_Jakarta_Sans({
 const fontBn = Noto_Sans_Bengali({
   variable: "--font-bn",
   subsets: ["bengali"],
+  preload: false,
   display: "swap",
 });
 
@@ -19,12 +20,14 @@ const fontCcp = Noto_Sans_Chakma({
   variable: "--font-ccp",
   weight: "400",
   subsets: ["chakma"],
+  preload: false,
   display: "swap",
 });
 
 const fontMya = Noto_Sans_Myanmar({
   variable: "--font-mya",
   subsets: ["myanmar"],
+  preload: false,
   display: "swap",
 });
 

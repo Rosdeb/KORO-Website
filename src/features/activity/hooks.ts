@@ -5,7 +5,7 @@ import { mapActivityPage } from "@/lib/api/mappers";
 export function useActivity(params?: { from?: string; to?: string; page?: number; size?: number }, enabled = true) {
   return useQuery({
     queryKey: ["activity", params],
-    queryFn: async () => mapActivityPage(await activityApi.list(params)),
+    queryFn: async ({ signal }) => mapActivityPage(await activityApi.list(params, signal)),
     enabled,
   });
 }

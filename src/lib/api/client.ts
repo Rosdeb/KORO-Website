@@ -12,6 +12,12 @@ export class ApiError extends Error {
   }
 }
 
+export function shouldRetryQuery(failureCount: number, error: Error): boolean {
+  if (failureCount >= 1 || error.name === "AbortError") return false;
+  // Repeating validation, permission, or missing-resource requests cannot help.
+  return !(error instanceof ApiError) || error.status === 408 || error.status >= 500;
+}
+
 interface RequestOptions extends Omit<RequestInit, "body"> {
   body?: unknown;
   auth?: boolean;
@@ -26,7 +32,7 @@ async function refreshAccessToken(): Promise<string | null> {
     // Call our same-origin Next.js proxy (src/app/api/auth/refresh/route.ts).
     // It reads the httpOnly refresh cookie and forwards { refreshToken } to
     // the backend's POST /api/v1/auth/refresh endpoint.
-    refreshPromise = fetch("/api/auth/refresh", { method: "POST" })
+    refreshPromise = fetch("/api/auth/refresh", { method: "POST", signal: AbortSignal.timeout(15_000) })
       .then(async (res) => {
         if (!res.ok) return null;
         const data = (await res.json()) as { accessToken: string };
@@ -42,10 +48,30 @@ async function refreshAccessToken(): Promise<string | null> {
 }
 
 async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
+  const controller = new AbortController();
+  const abort = () => controller.abort(options.signal?.reason);
+  if (options.signal?.aborted) abort();
+  else options.signal?.addEventListener("abort", abort, { once: true });
+  // Allow uploads and generated exports more time than ordinary reads.
+  const timeout = setTimeout(() => controller.abort(), options.method === "GET" ? 30_000 : 120_000);
+  try {
+    return await performRequest<T>(path, { ...options, signal: controller.signal });
+  } catch (error) {
+    if (controller.signal.aborted && !options.signal?.aborted) {
+      throw new ApiError("The request took too long. Please try again.", 408);
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeout);
+    options.signal?.removeEventListener("abort", abort);
+  }
+}
+
+async function performRequest<T>(path: string, options: RequestOptions): Promise<T> {
   const { body, auth = false, isFormData = false, skipRetryOn401 = false, headers, ...rest } = options;
 
   const finalHeaders = new Headers(headers);
-  if (!isFormData) {
+  if (body !== undefined && !isFormData && !finalHeaders.has("Content-Type")) {
     finalHeaders.set("Content-Type", "application/json");
   }
   // The backend requires a bearer token on nearly every endpoint (see
@@ -66,8 +92,9 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
     // endpoint that requires login, not an expired session.
     if (auth && token && !skipRetryOn401) {
       const newToken = await refreshAccessToken();
+      options.signal?.throwIfAborted();
       if (newToken) {
-        return request<T>(path, { ...options, skipRetryOn401: true });
+        return performRequest<T>(path, { ...options, skipRetryOn401: true });
       }
       broadcastLoggedOut();
       throw new ApiError("Session expired. Please log in again.", 401);

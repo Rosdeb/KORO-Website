@@ -7,10 +7,11 @@ export async function fetchLanguages() {
   return raw.map(mapLanguage);
 }
 
-export function useLanguages() {
+export function useLanguages(enabled = true) {
   return useQuery({
     queryKey: ["languages"],
     queryFn: fetchLanguages,
+    enabled,
     staleTime: 5 * 60 * 1000,
   });
 }

@@ -42,6 +42,7 @@ async function runDictionarySearch(
   qc: QueryClient,
   query: string,
   opts: { sourceLanguageId?: string; targetLanguageId?: string },
+  signal: AbortSignal,
 ): Promise<Concept[]> {
   const [languages, rows] = await Promise.all([
     qc.ensureQueryData({ queryKey: ["languages"], queryFn: fetchLanguages, staleTime: 5 * 60 * 1000 }),
@@ -49,7 +50,7 @@ async function runDictionarySearch(
       query,
       ...(opts.sourceLanguageId ? { sourceLanguageId: opts.sourceLanguageId } : {}),
       ...(opts.targetLanguageId ? { targetLanguageId: opts.targetLanguageId } : {}),
-    }),
+    }, signal),
   ]);
   return groupByConcept(rows, toLanguageMap(languages));
 }
@@ -73,8 +74,8 @@ export function useDictionarySearch(
 
   return useQuery({
     queryKey: ["translations", "search", trimmed, targetLanguageId ?? null, sourceLanguageId ?? null],
-    queryFn: () => runDictionarySearch(qc, trimmed, { sourceLanguageId, targetLanguageId }),
-    enabled: trimmed.length > 0,
+    queryFn: ({ signal }) => runDictionarySearch(qc, trimmed, { sourceLanguageId, targetLanguageId }, signal),
+    enabled: query.trim().length > 0 && trimmed.length > 0,
     staleTime: 60 * 1000,
     // Keep the last results on screen while the next query runs, so refining a
     // search doesn't flash an empty list. `isFetching` still signals the load.
@@ -87,8 +88,9 @@ export function useDictionarySearch(
 // Concepts & translations now go through useDictionarySearch (the real backend
 // search) instead of downloading every concept and filtering in the browser.
 export function useGlobalSearch(query: string) {
-  const languages = useLanguages();
-  const categories = useCategories();
+  const hasQuery = query.trim().length > 0;
+  const languages = useLanguages(hasQuery);
+  const categories = useCategories(hasQuery);
   const conceptSearch = useDictionarySearch(query);
 
   const q = query.trim().toLowerCase();
