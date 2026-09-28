@@ -13,7 +13,7 @@ React Hook Form + Zod · Recharts
 
 ```bash
 npm install
-cp .env.example .env.local   # point NEXT_PUBLIC_API_BASE_URL at your backend
+cp .env.example .env.local   # uses https://api.korot.site
 npm run dev
 ```
 
@@ -62,8 +62,10 @@ If the live Swagger contract differs in a path or field name, that file — plus
 — are the only places that should need reconciling; nothing above the API layer depends on the
 specific shape.
 
-Set `NEXT_PUBLIC_API_BASE_URL` (and optionally a server-only `API_BASE_URL` if the Next.js server
-reaches the backend over a different internal address) in `.env.local`.
+The default API base URL is `https://api.korot.site`; API endpoints use `/api/v1`.
+To override it, set `NEXT_PUBLIC_API_BASE_URL` (and optionally a server-only `API_BASE_URL` if the
+Next.js server reaches the backend over a different internal address) in `.env.local`.
+Set the public variable before building, because Next.js embeds it in the browser bundle.
 
 ## Indigenous script support
 

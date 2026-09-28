@@ -1,7 +1,7 @@
 /**
  * Typed calls onto the Koro backend, grouped by resource. Paths and payload
  * shapes are taken directly from the live OpenAPI doc at
- * http://localhost:8080/v3/api-docs (Koro API 1.0.0) — verified against the
+ * https://api.korot.site/v3/api-docs (Koro API 1.0.0) — verified against the
  * running server, since several response bodies are typed as generic
  * `object` in the spec itself. All paths here are relative to /api/v1,
  * which `apiClient` prefixes automatically.

@@ -11,7 +11,7 @@ async function publicRecords<T>(resource: string): Promise<T[]> {
   const apiUrl =
     process.env.API_BASE_URL ??
     process.env.NEXT_PUBLIC_API_BASE_URL ??
-    "http://localhost:8080";
+    "https://api.korot.site";
 
   try {
     const response = await fetch(

@@ -3,7 +3,7 @@ import type { NextResponse } from "next/server";
 export const REFRESH_COOKIE = "koro_refresh_token";
 
 export function backendBaseUrl() {
-  return process.env.API_BASE_URL ?? process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080";
+  return process.env.API_BASE_URL ?? process.env.NEXT_PUBLIC_API_BASE_URL ?? "https://api.korot.site";
 }
 
 export function setRefreshCookie(res: NextResponse, token: string) {

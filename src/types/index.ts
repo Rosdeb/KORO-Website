@@ -1,5 +1,5 @@
 /**
- * Shapes mirror the live backend contract at http://localhost:8080/v3/api-docs
+ * Shapes mirror the live backend contract at https://api.korot.site/v3/api-docs
  * (Koro API 1.0.0). Fields the backend doesn't return (slugs, language codes
  * on nested translations, chapter grouping) are computed client-side in the
  * feature hooks and marked below.
