@@ -33,11 +33,11 @@ const fontMya = Noto_Sans_Myanmar({
 
 export const metadata: Metadata = {
   title: {
-    default: "Korot — Discover. Learn. Preserve.",
+    default: "Indigenous Language preserved and discovered",
     template: "%s · Korot",
   },
   description:
-    "Explore languages, discover words, and build your own collection of language knowledge with Korot.",
+    "Explore Indigenous languages, discover words, and build your own collection of language knowledge with Korot.",
   icons: {
     icon: "/korot-logo.png",
     apple: "/korot-logo.png",
