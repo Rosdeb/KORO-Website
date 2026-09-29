@@ -23,7 +23,7 @@ import { cn } from "@/lib/utils/cn";
 const NAV_LINKS = [
   { href: "/languages", label: "Languages" },
   { href: "/dictionary", label: "Dictionary" },
-  { href: "/leaderboard", label: "Leaderboard" },
+  { href: "/leaderboard", label: "Top contributors" },
   { href: "/about", label: "About" },
 ];
 

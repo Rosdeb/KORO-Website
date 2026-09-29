@@ -33,7 +33,7 @@ export default function AdminLeaderboardPage() {
   if (isLoading) return <p role="status">Loading…</p>;
   if (!allowed) return <p role="alert">Contributor administration is available to admins and moderators only.</p>;
   return <div className="space-y-6">
-    <div><h1 className="text-3xl font-bold">Contributor leaderboard</h1><p className="mt-2 text-muted-foreground">Review submission counts, translation activity, and contributor audits.</p></div>
+    <div><h1 className="text-2xl font-bold sm:text-3xl">Contributor activity</h1><p className="mt-2 text-muted-foreground">Submission counts and translation activity.</p></div>
     <div className="flex flex-wrap gap-4">
       <label className="text-sm font-medium">Submission status<select className={control} value={filters.status ?? ""} onChange={e => updateFilters({ status: (e.target.value || undefined) as SubmissionStatus | undefined })}><option value="">All statuses</option><option value="APPROVED">Approved</option><option value="PENDING">Pending</option><option value="REJECTED">Rejected</option></select></label>
       <label className="text-sm font-medium">From<input className={control} type="date" value={filters.from ?? ""} max={filters.to} onChange={e => updateFilters({ from: e.target.value || undefined })} /></label>
@@ -54,7 +54,7 @@ export default function AdminLeaderboardPage() {
     </div>}
     {selected && <section aria-labelledby="audit-heading" aria-live="polite" className="rounded-2xl border border-border bg-card p-6">
       <div className="flex items-center justify-between gap-3"><h2 id="audit-heading" className="text-xl font-bold">Contributor audit</h2><Button variant="ghost" size="sm" onClick={() => setSelected(null)}>Close</Button></div>
-      <p className="mt-1 text-sm text-muted-foreground">Full user breakdown; list filters do not apply to this audit.</p>
+      <p className="mt-1 text-sm text-muted-foreground">All-time activity. Filters above do not apply.</p>
       {audit.isPending ? <p role="status" className="mt-4">Loading audit…</p> : audit.isError ? <div role="alert"><p>{audit.error.message}</p><Button onClick={() => audit.refetch()}>Try again</Button></div> : audit.data && <>
         <h3 className="mt-5 font-semibold">{audit.data.name}</h3><p className="text-sm text-muted-foreground">{audit.data.email}</p>
         <dl className="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-3">{[["Total submissions", audit.data.totalSubmissions], ["Approved", audit.data.approvedSubmissions], ["Pending", audit.data.pendingSubmissions], ["Rejected", audit.data.rejectedSubmissions], ["Calculated score", audit.data.calculatedScore]].map(([label, value]) => <div key={label}><dt className="text-sm text-muted-foreground">{label}</dt><dd className="text-lg font-bold">{value.toLocaleString()}</dd></div>)}</dl>

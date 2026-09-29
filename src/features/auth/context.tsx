@@ -3,8 +3,9 @@
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { authApi, profileApi } from "@/lib/api/endpoints";
+import { restoreAccessToken } from "@/lib/api/client";
 import { mapUser } from "@/lib/api/mappers";
-import { AUTH_LOGOUT_EVENT, setAccessToken } from "@/lib/auth/token-store";
+import { AUTH_LOGOUT_EVENT, getAccessToken, setAccessToken } from "@/lib/auth/token-store";
 import type { User } from "@/types";
 
 interface AuthContextValue {
@@ -32,12 +33,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     async function bootstrap() {
       try {
-        const res = await fetch("/api/auth/refresh", { method: "POST", signal: AbortSignal.timeout(15_000) });
-        if (!res.ok) throw new Error("no session");
-        const { accessToken } = await res.json();
-        setAccessToken(accessToken);
+        const accessToken = await restoreAccessToken();
+        if (!accessToken || cancelled) return;
         const me = await profileApi.me();
-        if (!cancelled) setUser(mapUser(me));
+        if (!cancelled && getAccessToken() === accessToken) setUser(mapUser(me));
       } catch {
         if (!cancelled) setUser(null);
       } finally {
@@ -77,9 +76,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 
   const logout = useCallback(async () => {
-    await authApi.logout().catch(() => undefined);
     setAccessToken(null);
     setUser(null);
+    await authApi.logout().catch(() => undefined);
     router.push("/");
   }, [router]);
 

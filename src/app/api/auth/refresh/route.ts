@@ -10,17 +10,28 @@ export async function POST() {
     return NextResponse.json({ message: "No active session." }, { status: 401 });
   }
 
-  const backendRes = await fetch(`${backendBaseUrl()}/api/v1/auth/refresh`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ refreshToken }),
-  });
+  let backendRes: Response;
+  try {
+    backendRes = await fetch(`${backendBaseUrl()}/api/v1/auth/refresh`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ refreshToken }),
+      cache: "no-store",
+      signal: AbortSignal.timeout(10_000),
+    });
+  } catch {
+    return NextResponse.json({ message: "Session service unavailable." }, { status: 503, headers: { "Cache-Control": "private, no-store" } });
+  }
 
   const data = await backendRes.json().catch(() => ({}));
 
   if (!backendRes.ok) {
-    const res = NextResponse.json({ message: "Session expired." }, { status: 401 });
-    clearRefreshCookie(res);
+    const expired = backendRes.status === 401 || backendRes.status === 403;
+    const res = NextResponse.json(
+      { message: expired ? "Session expired." : "Session service unavailable." },
+      { status: expired ? 401 : backendRes.status, headers: { "Cache-Control": "private, no-store" } },
+    );
+    if (expired) clearRefreshCookie(res);
     return res;
   }
 
@@ -29,7 +40,10 @@ export async function POST() {
   const accessToken = data.accessToken;
   const newRefreshToken = data.refreshToken;
 
-  const res = NextResponse.json({ accessToken });
+  if (typeof accessToken !== "string" || !accessToken) {
+    return NextResponse.json({ message: "Invalid session response." }, { status: 502, headers: { "Cache-Control": "private, no-store" } });
+  }
+  const res = NextResponse.json({ accessToken }, { headers: { "Cache-Control": "private, no-store" } });
   if (newRefreshToken) setRefreshCookie(res, newRefreshToken);
   return res;
 }

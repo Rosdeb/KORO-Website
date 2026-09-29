@@ -5,6 +5,11 @@
  * handlers and only ever read server-side when refreshing.
  */
 let accessToken: string | null = null;
+let authVersion = 0;
+
+export function getAuthVersion() {
+  return authVersion;
+}
 
 type Listener = (token: string | null) => void;
 const listeners = new Set<Listener>();
@@ -14,6 +19,7 @@ export function getAccessToken() {
 }
 
 export function setAccessToken(token: string | null) {
+  authVersion += 1;
   accessToken = token;
   listeners.forEach((listener) => listener(token));
 }

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Compass, Search, BookMarked, User, ClipboardCheck, Trophy } from "lucide-react";
+import { Home, Compass, Search, BookMarked, User, ClipboardCheck, Users } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { useAuth } from "@/features/auth/context";
 import { canViewAdminLeaderboard } from "@/features/leaderboard/api";
@@ -25,7 +25,7 @@ export function AppMobileNav() {
     ...ITEMS,
     ...(isReviewer ? [REVIEWER_ITEM] : []),
     ...(canViewAdminLeaderboard(user?.roles)
-      ? [{ href: "/app/leaderboard", label: "Ranks", icon: Trophy, exact: false }]
+      ? [{ href: "/app/leaderboard", label: "Activity", icon: Users, exact: false }]
       : []),
   ];
 

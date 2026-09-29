@@ -1,4 +1,4 @@
-import { broadcastLoggedOut, getAccessToken, setAccessToken } from "@/lib/auth/token-store";
+import { broadcastLoggedOut, getAccessToken, getAuthVersion, setAccessToken } from "@/lib/auth/token-store";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "https://api.korot.site";
 const API_PREFIX = "/api/v1";
@@ -26,23 +26,48 @@ interface RequestOptions extends Omit<RequestInit, "body"> {
 }
 
 let refreshPromise: Promise<string | null> | null = null;
+let sessionPromise: Promise<string | null> | null = null;
+
+export function restoreAccessToken(): Promise<string | null> {
+  const token = getAccessToken();
+  if (token) return Promise.resolve(token);
+  if (!sessionPromise) {
+    const version = getAuthVersion();
+    sessionPromise = (async () => {
+      const res = await fetch("/api/auth/session", {
+        cache: "no-store",
+        signal: AbortSignal.timeout(15_000),
+      });
+      if (!res.ok) throw new ApiError("Unable to check session.", res.status);
+      const { hasSession } = await res.json();
+      if (getAuthVersion() !== version) return getAccessToken();
+      return hasSession ? refreshAccessToken() : null;
+    })().finally(() => { sessionPromise = null; });
+  }
+  return sessionPromise;
+}
 
 async function refreshAccessToken(): Promise<string | null> {
   if (!refreshPromise) {
-    // Call our same-origin Next.js proxy (src/app/api/auth/refresh/route.ts).
-    // It reads the httpOnly refresh cookie and forwards { refreshToken } to
-    // the backend's POST /api/v1/auth/refresh endpoint.
-    refreshPromise = fetch("/api/auth/refresh", { method: "POST", signal: AbortSignal.timeout(15_000) })
+    const version = getAuthVersion();
+    refreshPromise = fetch("/api/auth/refresh", { method: "POST", cache: "no-store", signal: AbortSignal.timeout(15_000) })
       .then(async (res) => {
-        if (!res.ok) return null;
-        const data = (await res.json()) as { accessToken: string };
+        // A login/logout that completed during this request takes precedence.
+        if (getAuthVersion() !== version) return getAccessToken();
+        if (res.status === 401) {
+          broadcastLoggedOut();
+          return null;
+        }
+        if (!res.ok) throw new ApiError("Unable to refresh session. Please try again.", res.status);
+        const data = await res.json();
+        if (getAuthVersion() !== version) return getAccessToken();
+        if (typeof data.accessToken !== "string" || !data.accessToken) {
+          throw new ApiError("Invalid session response.", 502);
+        }
         setAccessToken(data.accessToken);
         return data.accessToken;
       })
-      .catch(() => null)
-      .finally(() => {
-        refreshPromise = null;
-      });
+      .finally(() => { refreshPromise = null; });
   }
   return refreshPromise;
 }
@@ -91,12 +116,13 @@ async function performRequest<T>(path: string, options: RequestOptions): Promise
     // begin with — otherwise it's just an anonymous visitor hitting an
     // endpoint that requires login, not an expired session.
     if (auth && token && !skipRetryOn401) {
-      const newToken = await refreshAccessToken();
+      // Another request may already have refreshed or ended this session.
+      const currentToken = getAccessToken();
+      const newToken = currentToken !== token ? currentToken : await refreshAccessToken();
       options.signal?.throwIfAborted();
       if (newToken) {
         return performRequest<T>(path, { ...options, skipRetryOn401: true });
       }
-      broadcastLoggedOut();
       throw new ApiError("Session expired. Please log in again.", 401);
     }
     throw new ApiError("Please log in to continue.", 401);

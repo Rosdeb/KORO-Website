@@ -14,6 +14,7 @@ const COLUMNS = [
     title: "Korot",
     links: [
       { href: "/about", label: "About" },
+      { href: "/contact", label: "Contact" },
       { href: "/register", label: "Create an account" },
       { href: "/login", label: "Login" },
     ],
