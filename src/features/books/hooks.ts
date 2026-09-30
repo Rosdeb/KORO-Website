@@ -10,10 +10,11 @@ async function withLanguageMap(qc: QueryClient) {
   return toLanguageMap(languages);
 }
 
-export function useBooks() {
+export function useBooks(enabled = true) {
   const qc = useQueryClient();
   return useQuery({
     queryKey: ["books"],
+    enabled,
     queryFn: async () => {
       const [raw, languageMap] = await Promise.all([collectionsApi.list(), withLanguageMap(qc)]);
       return raw.map((c) => mapBook(c, languageMap));

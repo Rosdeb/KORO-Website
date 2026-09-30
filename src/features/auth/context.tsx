@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { authApi, profileApi } from "@/lib/api/endpoints";
 import { restoreAccessToken } from "@/lib/api/client";
 import { mapUser } from "@/lib/api/mappers";
@@ -25,10 +25,16 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [sessionChecked, setSessionChecked] = useState(false);
+  const pathname = usePathname();
+  const requiresSession = pathname === "/app" || pathname.startsWith("/app/");
+  // Public pages render immediately without session/profile requests. Derive
+  // this before effects run so entering /app cannot redirect prematurely.
+  const isLoading = requiresSession && !user && !sessionChecked;
   const router = useRouter();
 
   useEffect(() => {
+    if (!requiresSession || user || sessionChecked) return;
     let cancelled = false;
 
     async function bootstrap() {
@@ -40,7 +46,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } catch {
         if (!cancelled) setUser(null);
       } finally {
-        if (!cancelled) setIsLoading(false);
+        if (!cancelled) setSessionChecked(true);
       }
     }
 
@@ -48,7 +54,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [requiresSession, user, sessionChecked]);
 
   useEffect(() => {
     function handleForceLogout() {

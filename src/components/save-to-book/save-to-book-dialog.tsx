@@ -32,7 +32,7 @@ export function SaveToBookDialog({
   defaultLanguageId,
   onSaved,
 }: SaveToBookDialogProps) {
-  const { data: books, isLoading } = useBooks();
+  const { data: books, isLoading } = useBooks(open);
   const createBook = useCreateBook();
   const addItem = useAddBookItem();
   const { toast } = useToast();
