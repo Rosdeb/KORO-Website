@@ -1,4 +1,4 @@
-import { apiClient } from "@/lib/api/client";
+import { ApiError, apiClient } from "@/lib/api/client";
 
 export type LeaderboardType = "OVERALL" | "SUBMISSIONS" | "TRANSLATIONS";
 export type LeaderboardPeriod = "ALL_TIME" | "MONTHLY" | "WEEKLY";
@@ -63,12 +63,16 @@ export const leaderboardApi = {
     if (type === "OVERALL") query.set("type", type);
     return apiClient.get<LeaderboardResponse>(`${path}?${query}`, { auth: true, signal });
   },
-  contributors(filters: AdminFilters, signal?: AbortSignal) {
+  async contributors(filters: AdminFilters, signal?: AbortSignal) {
     const query = new URLSearchParams({ limit: String(Math.min(500, Math.max(1, filters.limit))) });
     for (const key of ["status", "from", "to"] as const) {
       if (filters[key]) query.set(key, filters[key]);
     }
-    return apiClient.get<AdminContributor[]>(`/admin/leaderboard?${query}`, { auth: true, signal });
+    const data = await apiClient.get<AdminContributor[]>(`/admin/leaderboard?${query}`, { auth: true, signal });
+    if (!Array.isArray(data) || data.some(entry => !entry || typeof entry.userId !== "string")) {
+      throw new ApiError("The contributor service returned an invalid response. Please try again.", 502);
+    }
+    return data;
   },
   audit(userId: string, signal?: AbortSignal) {
     return apiClient.get<ContributorAudit>(`/admin/leaderboard/users/${encodeURIComponent(userId)}`, { auth: true, signal });

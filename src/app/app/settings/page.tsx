@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -33,6 +34,7 @@ type PasswordValues = z.infer<typeof passwordSchema>;
 
 export default function SettingsPage() {
   const { user, logout } = useAuth();
+  const [passwordOpen, setPasswordOpen] = useState(false);
   const { data: languages } = useLanguages();
   const { toast } = useToast();
 
@@ -74,6 +76,7 @@ export default function SettingsPage() {
       await changePassword.mutateAsync(values);
       toast({ title: "Password changed", variant: "success" });
       resetPasswordForm();
+      setPasswordOpen(false);
     } catch {
       toast({ title: "Couldn't change password", description: "Check your current password and try again.", variant: "error" });
     }
@@ -163,28 +166,43 @@ export default function SettingsPage() {
       </Card>
 
       <Card>
-        <CardHeader>
-          <CardTitle>Password</CardTitle>
-          <CardDescription>Change your account password.</CardDescription>
+        <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-1.5">
+            <CardTitle>Password</CardTitle>
+            <CardDescription>Change your account password.</CardDescription>
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            aria-expanded={passwordOpen}
+            aria-controls="password-form"
+            disabled={passwordSubmitting}
+            onClick={() => {
+              resetPasswordForm();
+              setPasswordOpen(open => !open);
+            }}
+          >
+            {passwordOpen ? "Cancel" : "Change password"}
+          </Button>
         </CardHeader>
-        <CardContent>
-          <form onSubmit={handlePasswordSubmit(onPasswordSubmit)} className="flex flex-col gap-4">
+        <CardContent id="password-form" hidden={!passwordOpen}>
+          {passwordOpen && <form onSubmit={handlePasswordSubmit(onPasswordSubmit)} className="flex flex-col gap-4">
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="currentPassword">Current password</Label>
-              <Input id="currentPassword" type="password" {...registerPassword("currentPassword")} />
+              <Input id="currentPassword" type="password" autoComplete="current-password" {...registerPassword("currentPassword")} />
               {passwordErrors.currentPassword && (
                 <p className="text-xs text-danger">{passwordErrors.currentPassword.message}</p>
               )}
             </div>
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="newPassword">New password</Label>
-              <Input id="newPassword" type="password" {...registerPassword("newPassword")} />
+              <Input id="newPassword" type="password" autoComplete="new-password" {...registerPassword("newPassword")} />
               {passwordErrors.newPassword && <p className="text-xs text-danger">{passwordErrors.newPassword.message}</p>}
             </div>
             <Button type="submit" variant="outline" loading={passwordSubmitting} className="self-start">
-              Change Password
+              Update password
             </Button>
-          </form>
+          </form>}
         </CardContent>
       </Card>
 

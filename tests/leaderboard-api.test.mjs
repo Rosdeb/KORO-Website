@@ -6,7 +6,7 @@ import ts from 'typescript';
 import vm from 'node:vm';
 
 // Exercise the actual TypeScript API module without a browser or backend.
-function setup() {
+function setup(response = []) {
   const calls = [];
   const exports = {};
   const source = readFileSync(fileURLToPath(new URL('../src/features/leaderboard/api.ts', import.meta.url)), 'utf8');
@@ -14,7 +14,7 @@ function setup() {
     compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 },
   }).outputText, {
     exports, URLSearchParams,
-    require: () => ({ apiClient: { get: (path, options) => { calls.push({ path, options }); return Promise.resolve({}); } } }),
+    require: () => ({ ApiError: class extends Error { constructor(message, status) { super(message); this.status = status; } }, apiClient: { get: (path, options) => { calls.push({ path, options }); return Promise.resolve(response); } } }),
   });
   return { ...exports, calls };
 }
@@ -68,4 +68,19 @@ test('only documented admin and moderator roles can open the admin view', () => 
   assert.equal(canViewAdminLeaderboard(['ROLE_LANGUAGE_REVIEWER']), false);
   assert.equal(canViewAdminLeaderboard(['ROLE_ADMIN']), true);
   assert.equal(canViewAdminLeaderboard(['ROLE_USER', 'ROLE_MODERATOR']), true);
+});
+
+
+test('admin list rejects malformed responses with a useful error instead of crashing the page', async () => {
+  for (const response of [null, {}, { entries: [] }, [null], [{ name: 'Missing ID' }]]) {
+    const { leaderboardApi } = setup(response);
+    await assert.rejects(leaderboardApi.contributors({ limit: 50 }), error => error.status === 502 && /invalid response/.test(error.message));
+  }
+});
+
+test('admin list preserves valid contributor records and empty results', async () => {
+  for (const response of [[], [{ userId: 'user-1', roles: null, createdAt: null }]]) {
+    const { leaderboardApi } = setup(response);
+    assert.equal(await leaderboardApi.contributors({ limit: 50 }), response);
+  }
 });
