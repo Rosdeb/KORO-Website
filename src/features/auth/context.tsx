@@ -40,7 +40,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
-    if (!requiresSession || user || sessionChecked) return;
+    const hasStoredToken = !!getAccessToken();
+    if ((!requiresSession && !hasStoredToken) || user || sessionChecked) return;
     let cancelled = false;
 
     async function bootstrap() {

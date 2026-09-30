@@ -20,7 +20,10 @@ export async function POST() {
       signal: AbortSignal.timeout(10_000),
     });
   } catch {
-    return NextResponse.json({ message: "Session service unavailable." }, { status: 503, headers: { "Cache-Control": "private, no-store" } });
+    return NextResponse.json(
+      { message: "Session service unavailable." },
+      { status: 503, headers: { "Cache-Control": "private, no-store" } },
+    );
   }
 
   const data = await backendRes.json().catch(() => ({}));
@@ -35,13 +38,23 @@ export async function POST() {
     return res;
   }
 
-  // /api/v1/auth/refresh returns a flat { accessToken, refreshToken,
-  // tokenType } — a different shape than login's nested `token` object.
-  const accessToken = data.accessToken;
-  const newRefreshToken = data.refreshToken;
+  const accessToken =
+    data.accessToken ??
+    data.access_token ??
+    data.token?.access_token ??
+    data.token?.accessToken;
+
+  const newRefreshToken =
+    data.refreshToken ??
+    data.refresh_token ??
+    data.token?.refresh_token ??
+    data.token?.refreshToken;
 
   if (typeof accessToken !== "string" || !accessToken) {
-    return NextResponse.json({ message: "Invalid session response." }, { status: 502, headers: { "Cache-Control": "private, no-store" } });
+    return NextResponse.json(
+      { message: "Invalid session response." },
+      { status: 502, headers: { "Cache-Control": "private, no-store" } },
+    );
   }
   const res = NextResponse.json({ accessToken }, { headers: { "Cache-Control": "private, no-store" } });
   if (newRefreshToken) setRefreshCookie(res, newRefreshToken);

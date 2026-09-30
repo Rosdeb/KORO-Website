@@ -9,7 +9,8 @@ function load(path, imports = {}, globals = {}) {
   vm.runInNewContext(ts.transpileModule(readFileSync(new URL(path, import.meta.url), 'utf8'), {
     compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 },
   }).outputText, {
-    exports, Headers, AbortController, AbortSignal, setTimeout, clearTimeout,
+    exports, Headers, AbortController, AbortSignal, setTimeout, clearTimeout, Buffer,
+    atob: (str) => Buffer.from(str, 'base64').toString('binary'),
     process: { env: {} }, require: name => {
       assert.ok(name in imports, `Unexpected import: ${name}`);
       return imports[name];
@@ -115,3 +116,41 @@ test('missing cookie never reaches the backend', async () => {
   assert.equal((await route.POST()).status, 401);
   assert.equal(route.upstreamCalls(), 0);
 });
+
+test('isTokenExpired correctly validates JWT expiration', () => {
+  const store = load('../src/lib/auth/token-store.ts');
+  const futureExp = Math.floor(Date.now() / 1000) + 3600; // 1 hour in future
+  const pastExp = Math.floor(Date.now() / 1000) - 3600; // 1 hour in past
+
+  const makeJwt = (exp) => {
+    const header = Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64url');
+    const payload = Buffer.from(JSON.stringify({ sub: 'user123', exp })).toString('base64url');
+    return `${header}.${payload}.mockSignature`;
+  };
+
+  assert.equal(store.isTokenExpired(null), true);
+  assert.equal(store.isTokenExpired(''), true);
+  assert.equal(store.isTokenExpired(makeJwt(futureExp)), false);
+  assert.equal(store.isTokenExpired(makeJwt(pastExp)), true);
+});
+
+test('getAccessToken retrieves valid stored token from localStorage', () => {
+  const futureExp = Math.floor(Date.now() / 1000) + 3600;
+  const header = Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64url');
+  const payload = Buffer.from(JSON.stringify({ sub: 'user123', exp: futureExp })).toString('base64url');
+  const validJwt = `${header}.${payload}.mockSignature`;
+
+  const storage = new Map([['koro_access_token', validJwt]]);
+  const windowMock = {
+    localStorage: {
+      getItem: (key) => storage.get(key) ?? null,
+      setItem: (key, val) => storage.set(key, val),
+      removeItem: (key) => storage.delete(key),
+    },
+    dispatchEvent: () => {},
+  };
+
+  const store = load('../src/lib/auth/token-store.ts', {}, { window: windowMock, atob: (str) => Buffer.from(str, 'base64').toString('binary') });
+  assert.equal(store.getAccessToken(), validJwt);
+});
+
