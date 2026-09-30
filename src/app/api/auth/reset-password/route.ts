@@ -14,10 +14,13 @@ export async function POST(req: Request) {
 
   if (!backendRes.ok) {
     return NextResponse.json(
-      { message: data?.message ?? "This reset link is invalid or has expired." },
+      { message: data?.message ?? "This reset code is invalid or has expired." },
       { status: backendRes.status },
     );
   }
 
-  return NextResponse.json({ message: "Your password has been reset." });
+  return NextResponse.json(
+    { message: data?.message ?? "Your password has been reset." },
+    { status: backendRes.status },
+  );
 }

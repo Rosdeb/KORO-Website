@@ -54,14 +54,38 @@ async function sameOriginPost<T>(path: string, body?: unknown): Promise<T> {
   return res.json() as Promise<T>;
 }
 
+export interface RegisterPayload {
+  name: string;
+  email: string;
+  password: string;
+  nativeLanguage?: string;
+  preferredLanguage?: string;
+}
+
 export const authApi = {
   login: (email: string, password: string) =>
     sameOriginPost<{ accessToken: string; user: RawUser }>("/api/auth/login", { email, password }),
-  register: (name: string, email: string, password: string) =>
-    sameOriginPost<{ message: string }>("/api/auth/register", { name, email, password }),
-  forgotPassword: (email: string) => sameOriginPost<{ message: string }>("/api/auth/forgot-password", { email }),
-  resetPassword: (token: string, password: string) =>
-    sameOriginPost<{ message: string }>("/api/auth/reset-password", { token, newPassword: password }),
+  register: (
+    nameOrPayload: string | RegisterPayload,
+    email?: string,
+    password?: string,
+    nativeLanguage?: string,
+    preferredLanguage?: string,
+  ) => {
+    const payload =
+      typeof nameOrPayload === "string"
+        ? { name: nameOrPayload, email: email!, password: password!, nativeLanguage, preferredLanguage }
+        : nameOrPayload;
+    return sameOriginPost<{ message: string }>("/api/auth/register", payload);
+  },
+  verifyEmail: (email: string, otp: string) =>
+    sameOriginPost<{ message: string }>("/api/auth/verify-email", { email, otp }),
+  resendVerification: (email: string) =>
+    sameOriginPost<{ message: string }>("/api/auth/resend-verification", { email }),
+  forgotPassword: (email: string) =>
+    sameOriginPost<{ message: string }>("/api/auth/forgot-password", { email }),
+  resetPassword: (email: string, otp: string, newPassword: string) =>
+    sameOriginPost<{ message: string }>("/api/auth/reset-password", { email, otp, newPassword }),
   logout: () => sameOriginPost<void>("/api/auth/logout"),
 };
 

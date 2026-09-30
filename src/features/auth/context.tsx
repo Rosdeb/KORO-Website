@@ -17,7 +17,13 @@ interface AuthContextValue {
   isReviewer: boolean;
   isAdmin: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string) => Promise<void>;
+  register: (
+    nameOrPayload: string | { name: string; email: string; password: string; nativeLanguage?: string; preferredLanguage?: string },
+    email?: string,
+    password?: string,
+    nativeLanguage?: string,
+    preferredLanguage?: string,
+  ) => Promise<{ message: string }>;
   logout: () => Promise<void>;
 }
 
@@ -72,13 +78,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const register = useCallback(
-    async (name: string, email: string, password: string) => {
-      // Registration only returns a confirmation message, not tokens, so
-      // sign the new account in immediately after for a one-step signup.
-      await authApi.register(name, email, password);
-      await login(email, password);
+    async (
+      nameOrPayload: string | { name: string; email: string; password: string; nativeLanguage?: string; preferredLanguage?: string },
+      email?: string,
+      password?: string,
+      nativeLanguage?: string,
+      preferredLanguage?: string,
+    ) => {
+      return authApi.register(nameOrPayload, email, password, nativeLanguage, preferredLanguage);
     },
-    [login],
+    [],
   );
 
   const logout = useCallback(async () => {

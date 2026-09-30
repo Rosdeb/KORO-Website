@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, KeyRound } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,7 +20,8 @@ const schema = z.object({
 type FormValues = z.infer<typeof schema>;
 
 export default function ForgotPasswordPage() {
-  const [sent, setSent] = useState(false);
+  const router = useRouter();
+  const [submittedEmail, setSubmittedEmail] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
 
   const {
@@ -31,25 +33,38 @@ export default function ForgotPasswordPage() {
   async function onSubmit(values: FormValues) {
     setFormError(null);
     try {
-      await authApi.forgotPassword(values.email);
-      setSent(true);
-    } catch {
-      setFormError("Something went wrong. Please try again.");
+      const formattedEmail = values.email.trim().toLowerCase();
+      await authApi.forgotPassword(formattedEmail);
+      setSubmittedEmail(formattedEmail);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Something went wrong. Please try again.";
+      setFormError(message);
     }
   }
 
-  if (sent) {
+  if (submittedEmail) {
     return (
       <Card>
         <CardContent className="flex flex-col items-center gap-3 pt-6 text-center">
           <div className="flex size-12 items-center justify-center rounded-full bg-success/10">
             <CheckCircle2 className="size-6 text-success" />
           </div>
-          <h2 className="text-lg font-semibold">Check your email</h2>
+          <h2 className="text-xl font-semibold">Check your email</h2>
           <p className="text-sm text-muted-foreground">
-            If an account exists for that email, we&apos;ve sent a link to reset your password.
+            If an account exists for <span className="font-semibold text-foreground">{submittedEmail}</span>, we&apos;ve sent a 6-digit recovery code.
           </p>
-          <Link href="/login" className="mt-2 text-sm font-medium text-primary hover:underline">
+          <div className="mt-4 flex w-full flex-col gap-2">
+            <Button
+              className="w-full"
+              onClick={() => router.push(`/reset-password?email=${encodeURIComponent(submittedEmail)}`)}
+            >
+              Enter verification code
+            </Button>
+            <Button variant="outline" className="w-full" onClick={() => setSubmittedEmail(null)}>
+              Try another email
+            </Button>
+          </div>
+          <Link href="/login" className="mt-2 text-xs font-medium text-muted-foreground hover:text-foreground hover:underline">
             Back to login
           </Link>
         </CardContent>
@@ -60,8 +75,11 @@ export default function ForgotPasswordPage() {
   return (
     <Card>
       <CardHeader className="items-center text-center">
-        <CardTitle className="text-2xl">Forgot your password?</CardTitle>
-        <CardDescription>Enter your email and we&apos;ll send you a reset link.</CardDescription>
+        <div className="mb-1 flex size-11 items-center justify-center rounded-full bg-primary/10 text-primary">
+          <KeyRound className="size-5" />
+        </div>
+        <CardTitle className="text-2xl">Forgot password?</CardTitle>
+        <CardDescription>Enter your email to receive a 6-digit password reset code.</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
@@ -74,11 +92,12 @@ export default function ForgotPasswordPage() {
           {formError && <p className="text-sm text-danger">{formError}</p>}
 
           <Button type="submit" loading={isSubmitting} className="mt-2">
-            Send reset link
+            Send Reset Code
           </Button>
         </form>
 
         <p className="mt-6 text-center text-sm text-muted-foreground">
+          Remember your password?{" "}
           <Link href="/login" className="font-medium text-primary hover:underline">
             Back to login
           </Link>

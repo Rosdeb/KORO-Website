@@ -1,11 +1,12 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { CheckCircle2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,22 +24,39 @@ function LoginForm() {
   const { login } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const emailParam = searchParams.get("email") ?? "";
+  const isVerified = searchParams.get("verified") === "true";
+  const isReset = searchParams.get("reset") === "true";
+
   const [formError, setFormError] = useState<string | null>(null);
 
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors, isSubmitting },
-  } = useForm<FormValues>({ resolver: zodResolver(schema) });
+  } = useForm<FormValues>({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      email: emailParam,
+    },
+  });
+
+  useEffect(() => {
+    if (emailParam) {
+      setValue("email", emailParam);
+    }
+  }, [emailParam, setValue]);
 
   async function onSubmit(values: FormValues) {
     setFormError(null);
     try {
-      await login(values.email, values.password);
+      await login(values.email.trim().toLowerCase(), values.password);
       const returnTo = searchParams.get("returnTo");
       router.push(returnTo ? decodeURIComponent(returnTo) : "/app");
-    } catch {
-      setFormError("Invalid email or password. Please try again.");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Invalid email or password. Please try again.";
+      setFormError(message);
     }
   }
 
@@ -49,6 +67,20 @@ function LoginForm() {
         <CardDescription>Log in to save words and access your books.</CardDescription>
       </CardHeader>
       <CardContent>
+        {isVerified && (
+          <div className="mb-4 flex items-center gap-2.5 rounded-lg border border-success/30 bg-success/10 p-3 text-sm text-success">
+            <CheckCircle2 className="size-4 shrink-0" />
+            <span>Email verified successfully! You can now log in.</span>
+          </div>
+        )}
+
+        {isReset && (
+          <div className="mb-4 flex items-center gap-2.5 rounded-lg border border-success/30 bg-success/10 p-3 text-sm text-success">
+            <CheckCircle2 className="size-4 shrink-0" />
+            <span>Password reset successfully! Please log in with your new password.</span>
+          </div>
+        )}
+
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="email">Email</Label>
@@ -73,12 +105,20 @@ function LoginForm() {
           </Button>
         </form>
 
-        <p className="mt-6 text-center text-sm text-muted-foreground">
-          Don&apos;t have an account?{" "}
-          <Link href="/register" className="font-medium text-primary hover:underline">
-            Create one
-          </Link>
-        </p>
+        <div className="mt-6 flex flex-col items-center gap-2 text-center text-sm text-muted-foreground">
+          <p>
+            Don&apos;t have an account?{" "}
+            <Link href="/register" className="font-medium text-primary hover:underline">
+              Create one
+            </Link>
+          </p>
+          <p className="text-xs">
+            Have a pending verification code?{" "}
+            <Link href="/verify-email" className="font-medium text-primary hover:underline">
+              Verify email
+            </Link>
+          </p>
+        </div>
       </CardContent>
     </Card>
   );

@@ -19,5 +19,8 @@ export async function POST(req: Request) {
     );
   }
 
-  return NextResponse.json({ message: "If an account exists for that email, a reset link has been sent." });
+  return NextResponse.json(
+    { message: data?.message ?? "If an account exists for that email, a verification code has been sent." },
+    { status: backendRes.status },
+  );
 }
