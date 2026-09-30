@@ -31,7 +31,7 @@ export default function TranslatePage() {
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <h1 className="text-2xl font-extrabold sm:text-3xl">Translate & Search</h1>
+        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Translate & Search</h1>
         <p className="mt-1 text-muted-foreground">Look up any concept and see it translated instantly.</p>
       </div>
 

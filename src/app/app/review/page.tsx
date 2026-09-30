@@ -49,7 +49,7 @@ function ReviewQueue() {
     <div className="flex flex-col gap-6">
       <div>
         <div className="flex items-center gap-2">
-          <h1 className="text-2xl font-extrabold sm:text-3xl">Review Queue</h1>
+          <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Review Queue</h1>
           <Badge variant="accent">Reviewer</Badge>
         </div>
         <p className="mt-1 text-muted-foreground">

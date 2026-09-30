@@ -54,7 +54,7 @@ export default function BookExportPage({ params }: { params: Promise<{ id: strin
       </Link>
 
       <div>
-        <h1 className="text-2xl font-extrabold sm:text-3xl">Export as PDF</h1>
+        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Export as PDF</h1>
         <p className="mt-1 text-muted-foreground">
           {bookLoading ? (
             "Loading book…"

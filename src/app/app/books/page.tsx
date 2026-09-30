@@ -19,7 +19,7 @@ export default function BooksPage() {
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-extrabold sm:text-3xl">My Books</h1>
+          <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">My Books</h1>
           <p className="mt-1 text-muted-foreground">Your personal vocabulary collections.</p>
         </div>
         <Button onClick={() => setCreateOpen(true)}>

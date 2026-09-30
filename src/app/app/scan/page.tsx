@@ -32,7 +32,7 @@ export default function ScanPage() {
     <div className="mx-auto flex max-w-lg flex-col gap-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-extrabold sm:text-3xl">Scan an Object</h1>
+          <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Scan an Object</h1>
           <p className="mt-1 text-muted-foreground">Point your camera at an object to see its translation.</p>
         </div>
         <Link href="/app/scan/history" className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline">

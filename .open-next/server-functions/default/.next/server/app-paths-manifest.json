@@ -38,7 +38,7 @@
   "/app/submissions/new/page": "app/app/submissions/new/page.js",
   "/app/submissions/page": "app/app/submissions/page.js",
   "/app/translate/page": "app/app/translate/page.js",
-  "/(public)/about/page": "app/(public)/about/page.js",
   "/(public)/contact/page": "app/(public)/contact/page.js",
+  "/(public)/about/page": "app/(public)/about/page.js",
   "/(public)/leaderboard/page": "app/(public)/leaderboard/page.js"
 }

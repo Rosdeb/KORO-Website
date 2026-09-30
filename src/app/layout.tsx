@@ -1,9 +1,9 @@
 import type { Metadata, Viewport } from "next";
-import { Plus_Jakarta_Sans, Noto_Sans_Bengali, Noto_Sans_Chakma, Noto_Sans_Myanmar } from "next/font/google";
+import { Inter, Noto_Sans_Bengali, Noto_Sans_Chakma, Noto_Sans_Myanmar } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 
-const fontUI = Plus_Jakarta_Sans({
+const fontUI = Inter({
   variable: "--font-ui",
   subsets: ["latin"],
   display: "swap",

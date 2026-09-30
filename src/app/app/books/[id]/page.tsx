@@ -91,7 +91,7 @@ export default function BookDetailPage({ params }: { params: Promise<{ id: strin
                 <BookMarked className="size-6" />
               </div>
               <div className="min-w-0">
-                <h1 className="break-words text-2xl font-extrabold sm:text-3xl">{book.title}</h1>
+                <h1 className="break-words text-2xl font-semibold tracking-tight sm:text-3xl">{book.title}</h1>
                 {book.description && (
                   <p className="mt-1 max-w-2xl text-sm leading-6 text-muted-foreground">{book.description}</p>
                 )}

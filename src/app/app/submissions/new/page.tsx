@@ -120,7 +120,7 @@ export default function NewSubmissionPage() {
       </Link>
 
       <div>
-        <h1 className="text-2xl font-extrabold sm:text-3xl">Suggest a Translation</h1>
+        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Suggest a Translation</h1>
         <p className="mt-1 text-muted-foreground">
           Help grow Korot&apos;s dictionary. Every suggestion is reviewed before it becomes official.
         </p>

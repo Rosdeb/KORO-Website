@@ -39,7 +39,7 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-col gap-9">
       <div>
-        <h1 className="text-2xl font-extrabold sm:text-3xl">Welcome back, {user?.name?.split(" ")[0] ?? "there"}</h1>
+        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Welcome back, {user?.name?.split(" ")[0] ?? "there"}</h1>
         <p className="mt-1 text-sm text-muted-foreground">Here&apos;s what&apos;s happening in your Korot learning space.</p>
       </div>
 

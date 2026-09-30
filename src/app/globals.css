@@ -102,7 +102,7 @@
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 0.4rem);
 
-  --font-sans: var(--font-ui);
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "SF Pro", var(--font-ui), "Helvetica Neue", Helvetica, Arial, sans-serif;
   --font-bn: var(--font-bn);
   --font-ccp: var(--font-ccp);
   --font-mya: var(--font-mya);
@@ -127,11 +127,20 @@
   html {
     scroll-behavior: smooth;
     scroll-padding-top: 5rem;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
   body {
     background: var(--background);
     color: var(--foreground);
-    font-family: var(--font-sans), "Noto Sans Bengali", "Noto Sans", ui-sans-serif, system-ui, sans-serif;
+    font-family: var(--font-sans), "Noto Sans Bengali", "Noto Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
+    letter-spacing: -0.011em;
+    font-weight: 400;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    letter-spacing: -0.025em;
+    font-weight: 600;
   }
   ::selection {
     background: var(--primary-100);

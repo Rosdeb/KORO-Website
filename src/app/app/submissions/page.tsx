@@ -30,7 +30,7 @@ export default function SubmissionsPage() {
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-extrabold sm:text-3xl">My Submissions</h1>
+          <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">My Submissions</h1>
           <p className="mt-1 text-muted-foreground">Track the translations you&apos;ve suggested to Korot.</p>
         </div>
         <Button asChild>
