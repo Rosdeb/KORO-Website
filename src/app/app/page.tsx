@@ -1,8 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { Languages, Camera, BookMarked, MessageSquarePlus, ArrowRight, Clock } from "lucide-react";
+import {
+  Languages,
+  Camera,
+  BookMarked,
+  MessageSquarePlus,
+  ArrowRight,
+  Clock,
+  Bookmark,
+  Sparkles,
+  BookOpen,
+} from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/state/empty-state";
 import { useAuth } from "@/features/auth/context";
@@ -26,61 +37,72 @@ export default function DashboardPage() {
   const recentActivity = activityEntries.slice(0, 6);
 
   return (
-    <div className="flex flex-col gap-10">
+    <div className="flex flex-col gap-9">
       <div>
         <h1 className="text-2xl font-extrabold sm:text-3xl">Welcome back, {user?.name?.split(" ")[0] ?? "there"}</h1>
-        <p className="mt-1 text-muted-foreground">Here&apos;s what&apos;s happening in your Korot learning space.</p>
+        <p className="mt-1 text-sm text-muted-foreground">Here&apos;s what&apos;s happening in your Korot learning space.</p>
       </div>
 
       <div>
-        <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted-foreground">Quick actions</h2>
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <h2 className="mb-3.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Quick actions</h2>
+        <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-4">
           {QUICK_ACTIONS.map((action) => (
-            <Link key={action.href} href={action.href}>
-              <Card className="flex h-full flex-col items-center gap-2.5 p-5 text-center transition-all hover:-translate-y-0.5 hover:shadow-md">
-                <div className="flex size-11 items-center justify-center rounded-xl bg-primary-50 text-primary">
-                  <action.icon className="size-5" />
+            <Link key={action.href} href={action.href} className="group">
+              <Card className="flex h-full flex-col items-center justify-center gap-3 p-5 text-center transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md">
+                <div className="flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary transition-transform group-hover:scale-105">
+                  <action.icon className="size-6" />
                 </div>
-                <span className="text-sm font-medium">{action.label}</span>
+                <span className="text-sm font-semibold text-foreground transition-colors group-hover:text-primary">
+                  {action.label}
+                </span>
               </Card>
             </Link>
           ))}
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-        <div>
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Recently saved</h2>
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        {/* Recently Saved Column */}
+        <div className="flex flex-col">
+          <div className="mb-3 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Bookmark className="size-4 text-primary" />
+              <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Recently saved</h2>
+            </div>
             <Link href="/app/activity" className="text-xs font-medium text-primary hover:underline">
               View all
             </Link>
           </div>
+
           {activityLoading && (
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-1 flex-col gap-2.5">
               {Array.from({ length: 3 }).map((_, i) => (
-                <Skeleton key={i} className="h-14 rounded-xl" />
+                <Skeleton key={i} className="h-16 rounded-xl" />
               ))}
             </div>
           )}
+
           {!activityLoading && savedActivity.length === 0 && (
             <EmptyState
+              className="flex-1 min-h-[220px]"
+              icon={Bookmark}
               title="No saved words yet"
-              description="Explore the dictionary and start building your first language book."
+              description="Explore the dictionary and start collecting words to build your language books."
               action={
-                <Link href="/dictionary" className="text-sm font-medium text-primary hover:underline">
-                  Explore Dictionary
-                </Link>
+                <Button variant="outline" size="sm" asChild>
+                  <Link href="/dictionary">Explore Dictionary</Link>
+                </Button>
               }
             />
           )}
+
           {!activityLoading && savedActivity.length > 0 && (
-            <Card>
+            <Card className="flex-1">
               <ul className="divide-y divide-border">
                 {savedActivity.map((entry) => (
-                  <li key={entry.id} className="flex items-center gap-3 px-4 py-3 text-sm">
+                  <li key={entry.id} className="flex items-center gap-3 px-4 py-3.5 text-sm">
                     <Clock className="size-4 shrink-0 text-muted-foreground" />
-                    <span className="flex-1">{entry.description}</span>
+                    <span className="flex-1 font-medium">{entry.description}</span>
                     <span className="text-xs text-muted-foreground">{formatRelative(entry.createdAt)}</span>
                   </li>
                 ))}
@@ -89,30 +111,47 @@ export default function DashboardPage() {
           )}
         </div>
 
-        <div>
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Recent activity</h2>
+        {/* Recent Activity Column */}
+        <div className="flex flex-col">
+          <div className="mb-3 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Sparkles className="size-4 text-primary" />
+              <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Recent activity</h2>
+            </div>
             <Link href="/app/activity" className="text-xs font-medium text-primary hover:underline">
               View all
             </Link>
           </div>
+
           {activityLoading && (
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-1 flex-col gap-2.5">
               {Array.from({ length: 3 }).map((_, i) => (
-                <Skeleton key={i} className="h-14 rounded-xl" />
+                <Skeleton key={i} className="h-16 rounded-xl" />
               ))}
             </div>
           )}
+
           {!activityLoading && recentActivity.length === 0 && (
-            <EmptyState title="No activity yet" description="Your recent actions on Korot will show up here." />
+            <EmptyState
+              className="flex-1 min-h-[220px]"
+              icon={Sparkles}
+              title="No activity yet"
+              description="Your translation history, word saves, and book updates will appear here."
+              action={
+                <Button variant="outline" size="sm" asChild>
+                  <Link href="/app/translate">Start Translating</Link>
+                </Button>
+              }
+            />
           )}
+
           {!activityLoading && recentActivity.length > 0 && (
-            <Card>
+            <Card className="flex-1">
               <ul className="divide-y divide-border">
                 {recentActivity.map((entry) => (
-                  <li key={entry.id} className="flex items-center gap-3 px-4 py-3 text-sm">
+                  <li key={entry.id} className="flex items-center gap-3 px-4 py-3.5 text-sm">
                     <Clock className="size-4 shrink-0 text-muted-foreground" />
-                    <span className="flex-1">{entry.description}</span>
+                    <span className="flex-1 font-medium">{entry.description}</span>
                     <span className="text-xs text-muted-foreground">{formatRelative(entry.createdAt)}</span>
                   </li>
                 ))}
@@ -123,12 +162,16 @@ export default function DashboardPage() {
       </div>
 
       <div>
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Continue learning</h2>
+        <div className="mb-3.5 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <BookOpen className="size-4 text-primary" />
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Continue learning</h2>
+          </div>
           <Link href="/app/books" className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline">
             My Books <ArrowRight className="size-3" />
           </Link>
         </div>
+
         {booksLoading && (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             {Array.from({ length: 3 }).map((_, i) => (
@@ -136,24 +179,39 @@ export default function DashboardPage() {
             ))}
           </div>
         )}
+
         {!booksLoading && (books ?? []).length === 0 && (
           <EmptyState
+            icon={BookMarked}
             title="No books yet"
-            description="Create your first book to start saving words as you explore."
+            description="Create your first book to organize vocabulary by topic, chapter, or theme."
             action={
-              <Link href="/app/books" className="text-sm font-medium text-primary hover:underline">
-                Create Your First Book
-              </Link>
+              <Button size="sm" asChild>
+                <Link href="/app/books">Create Your First Book</Link>
+              </Button>
             }
           />
         )}
+
         {!booksLoading && (books ?? []).length > 0 && (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             {books!.slice(0, 3).map((book) => (
-              <Link key={book.id} href={`/app/books/${book.id}`}>
-                <Card className="h-full p-5 transition-all hover:-translate-y-0.5 hover:shadow-md">
-                  <p className="font-semibold">{book.title}</p>
-                  <p className="mt-1 text-sm text-muted-foreground">{book.wordCount} words</p>
+              <Link key={book.id} href={`/app/books/${book.id}`} className="group">
+                <Card className="flex h-full flex-col justify-between p-5 transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md">
+                  <div>
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="font-semibold text-foreground transition-colors group-hover:text-primary">
+                        {book.title}
+                      </p>
+                      <ArrowRight className="size-4 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 group-hover:text-primary" />
+                    </div>
+                    {book.description && (
+                      <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{book.description}</p>
+                    )}
+                  </div>
+                  <p className="mt-3 text-xs font-medium text-muted-foreground">
+                    {book.wordCount ?? book.items?.length ?? 0} {book.wordCount === 1 ? "word" : "words"}
+                  </p>
                 </Card>
               </Link>
             ))}

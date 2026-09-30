@@ -6,8 +6,10 @@
   "/api/auth/logout/route": "/api/auth/logout",
   "/api/auth/refresh/route": "/api/auth/refresh",
   "/api/auth/register/route": "/api/auth/register",
+  "/api/auth/resend-verification/route": "/api/auth/resend-verification",
   "/api/auth/reset-password/route": "/api/auth/reset-password",
   "/api/auth/session/route": "/api/auth/session",
+  "/api/auth/verify-email/route": "/api/auth/verify-email",
   "/favicon.ico/route": "/favicon.ico",
   "/robots.txt/route": "/robots.txt",
   "/sitemap.xml/route": "/sitemap.xml",
@@ -15,6 +17,7 @@
   "/(auth)/login/page": "/login",
   "/(auth)/register/page": "/register",
   "/(auth)/reset-password/page": "/reset-password",
+  "/(auth)/verify-email/page": "/verify-email",
   "/(public)/dictionary/[category]/[concept]/page": "/dictionary/[category]/[concept]",
   "/(public)/dictionary/[category]/page": "/dictionary/[category]",
   "/(public)/dictionary/page": "/dictionary",
@@ -35,7 +38,7 @@
   "/app/submissions/new/page": "/app/submissions/new",
   "/app/submissions/page": "/app/submissions",
   "/app/translate/page": "/app/translate",
-  "/(public)/leaderboard/page": "/leaderboard",
+  "/(public)/about/page": "/about",
   "/(public)/contact/page": "/contact",
-  "/(public)/about/page": "/about"
+  "/(public)/leaderboard/page": "/leaderboard"
 }

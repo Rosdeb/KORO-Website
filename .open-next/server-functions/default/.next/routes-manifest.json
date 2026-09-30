@@ -120,6 +120,12 @@
       "namedRegex": "^/api/auth/register(?:/)?$"
     },
     {
+      "page": "/api/auth/resend-verification",
+      "regex": "^/api/auth/resend\\-verification(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/auth/resend\\-verification(?:/)?$"
+    },
+    {
       "page": "/api/auth/reset-password",
       "regex": "^/api/auth/reset\\-password(?:/)?$",
       "routeKeys": {},
@@ -130,6 +136,12 @@
       "regex": "^/api/auth/session(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/api/auth/session(?:/)?$"
+    },
+    {
+      "page": "/api/auth/verify-email",
+      "regex": "^/api/auth/verify\\-email(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/auth/verify\\-email(?:/)?$"
     },
     {
       "page": "/app",
@@ -268,6 +280,12 @@
       "regex": "^/sitemap\\.xml(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/sitemap\\.xml(?:/)?$"
+    },
+    {
+      "page": "/verify-email",
+      "regex": "^/verify\\-email(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/verify\\-email(?:/)?$"
     }
   ],
   "dataRoutes": [],
