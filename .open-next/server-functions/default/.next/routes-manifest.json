@@ -144,6 +144,12 @@
       "namedRegex": "^/api/auth/verify\\-email(?:/)?$"
     },
     {
+      "page": "/api/translate",
+      "regex": "^/api/translate(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/translate(?:/)?$"
+    },
+    {
       "page": "/app",
       "regex": "^/app(?:/)?$",
       "routeKeys": {},

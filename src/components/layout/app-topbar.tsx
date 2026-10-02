@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { LogOut, Settings } from "lucide-react";
+import { Globe, LogOut, Settings } from "lucide-react";
 import { Logo } from "@/components/layout/logo";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { SearchBar } from "@/components/search/search-bar";
@@ -40,6 +40,11 @@ export function AppTopbar() {
               <DropdownMenuItem asChild>
                 <Link href="/app/settings">
                   <Settings className="size-4" /> Settings
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="/">
+                  <Globe className="size-4" /> Back to Website
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />

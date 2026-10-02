@@ -15,8 +15,10 @@ import {
   Loader2,
   Quote,
   Send,
+  Sparkles,
   StickyNote,
   Volume2,
+  X,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -59,6 +61,7 @@ export default function NewSubmissionPage() {
     register,
     handleSubmit,
     setValue,
+    watch,
     getValues,
     setError,
     formState: { errors, isSubmitting },
@@ -149,17 +152,17 @@ export default function NewSubmissionPage() {
   if (submitted) {
     return (
       <Card className="mx-auto max-w-lg">
-        <CardContent className="flex flex-col items-center gap-3 pt-6 text-center">
+        <CardContent className="flex flex-col items-center gap-3 p-6 text-center">
           <div className="flex size-12 items-center justify-center rounded-full bg-success/10">
             <CheckCircle2 className="size-6 text-success" />
           </div>
           <h2 className="text-lg font-semibold">Your word has been submitted.</h2>
           <p className="text-sm text-muted-foreground">Status: Pending</p>
-          <div className="mt-2 flex gap-2">
-            <Button variant="outline" onClick={() => router.push("/app/submissions")}>
+          <div className="mt-2 flex w-full flex-col sm:flex-row gap-2">
+            <Button variant="outline" className="w-full" onClick={() => router.push("/app/submissions")}>
               View My Submissions
             </Button>
-            <Button onClick={() => setSubmitted(false)}>Suggest Another</Button>
+            <Button className="w-full" onClick={() => setSubmitted(false)}>Suggest Another</Button>
           </div>
         </CardContent>
       </Card>
@@ -170,24 +173,24 @@ export default function NewSubmissionPage() {
   const sourceLanguageName = languages?.find((l) => l.id === getValues("sourceLanguageId"))?.name;
 
   return (
-    <div className="mx-auto flex max-w-2xl flex-col gap-6">
+    <div className="mx-auto flex max-w-2xl flex-col gap-4 sm:gap-6 pb-6">
       <Link
         href="/app/submissions"
-        className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground"
+        className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground active:scale-95"
       >
         <ArrowLeft className="size-4" /> My Submissions
       </Link>
 
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Suggest a Translation</h1>
-        <p className="mt-1 text-muted-foreground">
+        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Suggest a Translation</h1>
+        <p className="mt-1 text-xs sm:text-sm text-muted-foreground">
           Help grow Korot&apos;s dictionary. Every suggestion is reviewed before it becomes official.
         </p>
       </div>
 
-      <Card>
-        <CardContent className="pt-6">
-          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
+      <Card className="border-border/70 shadow-sm">
+        <CardContent className="p-4 sm:p-6">
+          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5 sm:gap-6">
             {formError && (
               <p className="rounded-xl bg-danger/10 px-4 py-3 text-sm text-danger">{formError}</p>
             )}
@@ -206,7 +209,7 @@ export default function NewSubmissionPage() {
                   name="categoryId"
                   render={({ field }) => (
                     <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger className="pl-12">
+                      <SelectTrigger className="pl-12 text-base sm:text-sm h-11">
                         <SelectValue placeholder="Select a category" />
                       </SelectTrigger>
                       <SelectContent>
@@ -226,6 +229,13 @@ export default function NewSubmissionPage() {
               title="2. Enter the word and translations"
               description="Fill in all required fields to suggest a new word."
             >
+              <div className="flex items-center gap-2 rounded-xl border border-primary/20 bg-primary/5 px-3 py-2 text-xs text-primary">
+                <Sparkles className="size-4 shrink-0 text-primary" />
+                <span className="leading-tight">
+                  <strong>Smart Auto-Fill:</strong> Type in Bangla or English — both translate automatically.
+                </span>
+              </div>
+
               <IconField
                 label="Source Language (Your Language)"
                 required
@@ -239,7 +249,7 @@ export default function NewSubmissionPage() {
                   name="sourceLanguageId"
                   render={({ field }) => (
                     <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger className="pl-12">
+                      <SelectTrigger className="pl-12 text-base sm:text-sm h-11">
                         <SelectValue placeholder="Select source language" />
                       </SelectTrigger>
                       <SelectContent>
@@ -254,18 +264,29 @@ export default function NewSubmissionPage() {
                 />
               </IconField>
 
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="sourceWord">
-                  Word (Source Language) <span className="text-danger">*</span>
-                </Label>
-                <Input
-                  id="sourceWord"
-                  placeholder="Enter word in source language"
-                  {...register("sourceWord")}
+              <IconField
+                label="Word (Source Language)"
+                required
+                icon={<Quote className="size-4" />}
+                iconClassName="bg-primary/10 text-primary"
+                helper="e.g., a word in the source language you selected above"
+                error={errors.sourceWord?.message}
+                showClear={Boolean(watch("sourceWord"))}
+                onClear={() => setValue("sourceWord", "", { shouldValidate: true, shouldDirty: true })}
+              >
+                <Controller
+                  control={control}
+                  name="sourceWord"
+                  render={({ field }) => (
+                    <Input
+                      className="pl-12 pr-11 text-base sm:text-sm h-11"
+                      placeholder="Enter word in source language"
+                      value={field.value}
+                      onChange={field.onChange}
+                    />
+                  )}
                 />
-                <p className="text-xs text-muted-foreground">e.g., a word in the source language you selected above</p>
-                {errors.sourceWord && <p className="text-xs text-danger">{errors.sourceWord.message}</p>}
-              </div>
+              </IconField>
 
               <IconField
                 label="Translation in Bangla"
@@ -278,16 +299,28 @@ export default function NewSubmissionPage() {
                     : "e.g., পানি (Auto-translates English)"
                 }
                 isLoading={translatingField === "bangla"}
+                showClear={Boolean(watch("banglaTranslation"))}
+                onClear={() => {
+                  setValue("banglaTranslation", "", { shouldValidate: true, shouldDirty: true });
+                  setLastEdited(null);
+                  setTranslatingField(null);
+                }}
                 error={errors.banglaTranslation?.message}
               >
-                <Input
-                  className="pl-12 pr-28"
-                  placeholder="Enter meaning in Bangla"
-                  {...register("banglaTranslation", {
-                    onChange: (e) => {
-                      setLastEdited({ field: "bn", text: e.target.value });
-                    },
-                  })}
+                <Controller
+                  control={control}
+                  name="banglaTranslation"
+                  render={({ field }) => (
+                    <Input
+                      className="pl-12 pr-11 text-base sm:text-sm h-11"
+                      placeholder="Enter meaning in Bangla"
+                      value={field.value}
+                      onChange={(e) => {
+                        field.onChange(e);
+                        setLastEdited({ field: "bn", text: e.target.value });
+                      }}
+                    />
+                  )}
                 />
               </IconField>
 
@@ -302,16 +335,28 @@ export default function NewSubmissionPage() {
                     : "e.g., Water (Auto-translates Bangla)"
                 }
                 isLoading={translatingField === "english"}
+                showClear={Boolean(watch("englishTranslation"))}
+                onClear={() => {
+                  setValue("englishTranslation", "", { shouldValidate: true, shouldDirty: true });
+                  setLastEdited(null);
+                  setTranslatingField(null);
+                }}
                 error={errors.englishTranslation?.message}
               >
-                <Input
-                  className="pl-12 pr-28"
-                  placeholder="Enter meaning in English"
-                  {...register("englishTranslation", {
-                    onChange: (e) => {
-                      setLastEdited({ field: "en", text: e.target.value });
-                    },
-                  })}
+                <Controller
+                  control={control}
+                  name="englishTranslation"
+                  render={({ field }) => (
+                    <Input
+                      className="pl-12 pr-11 text-base sm:text-sm h-11"
+                      placeholder="Enter meaning in English"
+                      value={field.value}
+                      onChange={(e) => {
+                        field.onChange(e);
+                        setLastEdited({ field: "en", text: e.target.value });
+                      }}
+                    />
+                  )}
                 />
               </IconField>
             </FormSection>
@@ -324,7 +369,7 @@ export default function NewSubmissionPage() {
                 helper="e.g., pa-ni"
               >
                 <Input
-                  className="pl-12"
+                  className="pl-12 text-base sm:text-sm h-11"
                   placeholder="Enter pronunciation or phonetic spelling"
                   {...register("pronunciation")}
                 />
@@ -337,7 +382,7 @@ export default function NewSubmissionPage() {
                 helper="Written in the source language, Bangla, or English."
               >
                 <Input
-                  className="pl-12"
+                  className="pl-12 text-base sm:text-sm h-11"
                   placeholder="Use the word in a sentence (any language)"
                   {...register("exampleSentence")}
                 />
@@ -350,22 +395,36 @@ export default function NewSubmissionPage() {
                 helper="Add any useful context, usage notes, or etymology."
               >
                 <Input
-                  className="pl-12"
+                  className="pl-12 text-base sm:text-sm h-11"
                   placeholder="Any context that helps a reviewer"
                   {...register("note")}
                 />
               </IconField>
             </FormSection>
 
-            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-5">
-              <Button type="button" variant="outline" onClick={() => setPreview(true)}>
+            <div className="flex flex-col-reverse sm:flex-row sm:items-center justify-between gap-3 border-t border-border pt-5">
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full sm:w-auto h-11 text-sm font-medium"
+                onClick={() => setPreview(true)}
+              >
                 <Eye className="size-4" /> Preview
               </Button>
-              <div className="flex gap-2">
-                <Button type="button" variant="outline" onClick={() => router.push("/app/submissions")}>
+              <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full sm:w-auto h-11 text-sm"
+                  onClick={() => router.push("/app/submissions")}
+                >
                   Cancel
                 </Button>
-                <Button type="submit" loading={isSubmitting}>
+                <Button
+                  type="submit"
+                  loading={isSubmitting}
+                  className="w-full sm:w-auto h-11 text-sm font-semibold shadow-sm"
+                >
                   <Send className="size-4" /> Submit Suggestion
                 </Button>
               </div>
@@ -375,14 +434,14 @@ export default function NewSubmissionPage() {
       </Card>
 
       <Dialog open={preview} onOpenChange={setPreview}>
-        <DialogContent>
+        <DialogContent className="w-[calc(100%-2rem)] max-w-lg rounded-2xl p-5 sm:p-6">
           <DialogHeader>
-            <DialogTitle>{getValues("sourceWord") || "New word"}</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-lg sm:text-xl">{getValues("sourceWord") || "New word"}</DialogTitle>
+            <DialogDescription className="text-xs sm:text-sm">
               {categoryName ?? "No category selected"} · {sourceLanguageName ?? "No source language selected"}
             </DialogDescription>
           </DialogHeader>
-          <div className="flex flex-col gap-3 text-sm">
+          <div className="flex flex-col gap-2.5 text-xs sm:text-sm">
             <PreviewRow label="Bangla meaning" value={getValues("banglaTranslation")} />
             <PreviewRow label="English meaning" value={getValues("englishTranslation")} />
             <PreviewRow label="Pronunciation" value={getValues("pronunciation")} />
@@ -405,7 +464,7 @@ function FormSection({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-4 border-t border-border pt-5 first:border-t-0 first:pt-0">
+    <div className="flex flex-col gap-3.5 sm:gap-4 border-t border-border pt-4 sm:pt-5 first:border-t-0 first:pt-0">
       <div>
         <h2 className="text-sm font-semibold">{title}</h2>
         {description && <p className="mt-0.5 text-xs text-muted-foreground">{description}</p>}
@@ -423,6 +482,8 @@ function IconField({
   helper,
   error,
   isLoading,
+  showClear,
+  onClear,
   children,
 }: {
   label: string;
@@ -432,31 +493,44 @@ function IconField({
   helper?: string;
   error?: string;
   isLoading?: boolean;
+  showClear?: boolean;
+  onClear?: () => void;
   children: React.ReactNode;
 }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <Label>
+      <Label className="text-xs sm:text-sm font-medium">
         {label} {required && <span className="text-danger">*</span>}
       </Label>
       <div className="relative">
         <span
           className={cn(
-            "pointer-events-none absolute left-2 top-1/2 flex size-7 -translate-y-1/2 items-center justify-center rounded-lg",
+            "pointer-events-none absolute left-2.5 top-1/2 flex size-7 -translate-y-1/2 items-center justify-center rounded-lg text-sm",
             iconClassName,
           )}
         >
           {icon}
         </span>
         {children}
-        {isLoading && (
-          <span className="pointer-events-none absolute right-3 top-1/2 flex -translate-y-1/2 items-center gap-1.5 text-xs text-primary animate-pulse">
+        {isLoading ? (
+          <span className="pointer-events-none absolute right-2.5 top-1/2 flex -translate-y-1/2 items-center gap-1.5 rounded-full bg-background/90 px-2 py-0.5 text-xs font-medium text-primary shadow-xs animate-pulse">
             <Loader2 className="size-3.5 animate-spin" />
-            <span>Auto-translating...</span>
+            <span className="hidden sm:inline">Auto-translating...</span>
           </span>
-        )}
+        ) : showClear && onClear ? (
+          <button
+            type="button"
+            tabIndex={-1}
+            onClick={onClear}
+            className="absolute right-1.5 top-1/2 flex size-9 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground transition-all active:scale-90 hover:bg-muted hover:text-foreground touch-manipulation"
+            title="Clear text"
+            aria-label="Clear text"
+          >
+            <X className="size-4" />
+          </button>
+        ) : null}
       </div>
-      {helper && !error && <p className="text-xs text-muted-foreground">{helper}</p>}
+      {helper && !error && <p className="text-[11px] sm:text-xs text-muted-foreground">{helper}</p>}
       {error && <p className="text-xs text-danger">{error}</p>}
     </div>
   );

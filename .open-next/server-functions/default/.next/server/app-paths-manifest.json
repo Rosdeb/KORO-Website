@@ -10,6 +10,7 @@
   "/api/auth/reset-password/route": "app/api/auth/reset-password/route.js",
   "/api/auth/session/route": "app/api/auth/session/route.js",
   "/api/auth/verify-email/route": "app/api/auth/verify-email/route.js",
+  "/api/translate/route": "app/api/translate/route.js",
   "/favicon.ico/route": "app/favicon.ico/route.js",
   "/robots.txt/route": "app/robots.txt/route.js",
   "/sitemap.xml/route": "app/sitemap.xml/route.js",
@@ -39,7 +40,7 @@
   "/app/submissions/new/page": "app/app/submissions/new/page.js",
   "/app/submissions/page": "app/app/submissions/page.js",
   "/app/translate/page": "app/app/translate/page.js",
-  "/(public)/leaderboard/page": "app/(public)/leaderboard/page.js",
   "/(public)/contact/page": "app/(public)/contact/page.js",
-  "/(public)/about/page": "app/(public)/about/page.js"
+  "/(public)/about/page": "app/(public)/about/page.js",
+  "/(public)/leaderboard/page": "app/(public)/leaderboard/page.js"
 }

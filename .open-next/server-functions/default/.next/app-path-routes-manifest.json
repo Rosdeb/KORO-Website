@@ -10,6 +10,7 @@
   "/api/auth/reset-password/route": "/api/auth/reset-password",
   "/api/auth/session/route": "/api/auth/session",
   "/api/auth/verify-email/route": "/api/auth/verify-email",
+  "/api/translate/route": "/api/translate",
   "/favicon.ico/route": "/favicon.ico",
   "/robots.txt/route": "/robots.txt",
   "/sitemap.xml/route": "/sitemap.xml",
@@ -39,7 +40,7 @@
   "/app/submissions/new/page": "/app/submissions/new",
   "/app/submissions/page": "/app/submissions",
   "/app/translate/page": "/app/translate",
-  "/(public)/leaderboard/page": "/leaderboard",
   "/(public)/contact/page": "/contact",
-  "/(public)/about/page": "/about"
+  "/(public)/about/page": "/about",
+  "/(public)/leaderboard/page": "/leaderboard"
 }

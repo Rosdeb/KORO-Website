@@ -11,6 +11,7 @@ import {
   Bookmark,
   Sparkles,
   BookOpen,
+  Globe,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -38,9 +39,17 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-9">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Welcome back, {user?.name?.split(" ")[0] ?? "there"}</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Here&apos;s what&apos;s happening in your Korot learning space.</p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Welcome back, {user?.name?.split(" ")[0] ?? "there"}</h1>
+          <p className="mt-1 text-sm text-muted-foreground">Here&apos;s what&apos;s happening in your Korot learning space.</p>
+        </div>
+        <Button variant="outline" size="sm" asChild className="w-fit rounded-xl gap-2 shadow-xs transition-colors hover:border-primary/40 hover:text-primary">
+          <Link href="/">
+            <Globe className="size-4 text-primary" />
+            Back to Website
+          </Link>
+        </Button>
       </div>
 
       <div>
@@ -61,9 +70,67 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      <div>
+        <div className="mb-3.5 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <BookOpen className="size-4 text-primary" />
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Continue learning</h2>
+          </div>
+          <Link href="/app/books" className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline">
+            My Books <ArrowRight className="size-3" />
+          </Link>
+        </div>
+
+        {booksLoading && (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <Skeleton key={i} className="h-28 rounded-2xl" />
+            ))}
+          </div>
+        )}
+
+        {!booksLoading && (books ?? []).length === 0 && (
+          <EmptyState
+            icon={BookMarked}
+            title="No books yet"
+            description="Create your first book to organize vocabulary by topic, chapter, or theme."
+            action={
+              <Button size="sm" asChild>
+                <Link href="/app/books">Create Your First Book</Link>
+              </Button>
+            }
+          />
+        )}
+
+        {!booksLoading && (books ?? []).length > 0 && (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            {books!.slice(0, 3).map((book) => (
+              <Link key={book.id} href={`/app/books/${book.id}`} className="group">
+                <Card className="flex h-full flex-col justify-between p-5 transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md">
+                  <div>
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="font-semibold text-foreground transition-colors group-hover:text-primary">
+                        {book.title}
+                      </p>
+                      <ArrowRight className="size-4 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 group-hover:text-primary" />
+                    </div>
+                    {book.description && (
+                      <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{book.description}</p>
+                    )}
+                  </div>
+                  <p className="mt-3 text-xs font-medium text-muted-foreground">
+                    {book.wordCount ?? book.items?.length ?? 0} {book.wordCount === 1 ? "word" : "words"}
+                  </p>
+                </Card>
+              </Link>
+            ))}
+          </div>
+        )}
+      </div>
+
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        {/* Recently Saved Column */}
-        <div className="flex flex-col">
+        {/* Recently Saved Column (hidden on mobile, visible on desktop) */}
+        <div className="hidden lg:flex flex-col">
           <div className="mb-3 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Bookmark className="size-4 text-primary" />
@@ -159,64 +226,6 @@ export default function DashboardPage() {
             </Card>
           )}
         </div>
-      </div>
-
-      <div>
-        <div className="mb-3.5 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <BookOpen className="size-4 text-primary" />
-            <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Continue learning</h2>
-          </div>
-          <Link href="/app/books" className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline">
-            My Books <ArrowRight className="size-3" />
-          </Link>
-        </div>
-
-        {booksLoading && (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <Skeleton key={i} className="h-28 rounded-2xl" />
-            ))}
-          </div>
-        )}
-
-        {!booksLoading && (books ?? []).length === 0 && (
-          <EmptyState
-            icon={BookMarked}
-            title="No books yet"
-            description="Create your first book to organize vocabulary by topic, chapter, or theme."
-            action={
-              <Button size="sm" asChild>
-                <Link href="/app/books">Create Your First Book</Link>
-              </Button>
-            }
-          />
-        )}
-
-        {!booksLoading && (books ?? []).length > 0 && (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            {books!.slice(0, 3).map((book) => (
-              <Link key={book.id} href={`/app/books/${book.id}`} className="group">
-                <Card className="flex h-full flex-col justify-between p-5 transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md">
-                  <div>
-                    <div className="flex items-start justify-between gap-2">
-                      <p className="font-semibold text-foreground transition-colors group-hover:text-primary">
-                        {book.title}
-                      </p>
-                      <ArrowRight className="size-4 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 group-hover:text-primary" />
-                    </div>
-                    {book.description && (
-                      <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{book.description}</p>
-                    )}
-                  </div>
-                  <p className="mt-3 text-xs font-medium text-muted-foreground">
-                    {book.wordCount ?? book.items?.length ?? 0} {book.wordCount === 1 ? "word" : "words"}
-                  </p>
-                </Card>
-              </Link>
-            ))}
-          </div>
-        )}
       </div>
     </div>
   );
