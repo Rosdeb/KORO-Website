@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm, Controller } from "react-hook-form";
@@ -12,6 +12,7 @@ import {
   Eye,
   LayoutGrid,
   Languages,
+  Loader2,
   Quote,
   Send,
   StickyNote,
@@ -50,11 +51,14 @@ export default function NewSubmissionPage() {
   const [submitted, setSubmitted] = useState(false);
   const [preview, setPreview] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [translatingField, setTranslatingField] = useState<"bangla" | "english" | null>(null);
+  const [lastEdited, setLastEdited] = useState<{ field: "bn" | "en"; text: string } | null>(null);
 
   const {
     control,
     register,
     handleSubmit,
+    setValue,
     getValues,
     setError,
     formState: { errors, isSubmitting },
@@ -71,6 +75,61 @@ export default function NewSubmissionPage() {
       note: "",
     },
   });
+
+  useEffect(() => {
+    if (!lastEdited || !lastEdited.text.trim()) {
+      setTranslatingField(null);
+      return;
+    }
+
+    const { field, text } = lastEdited;
+    const target = field === "bn" ? "english" : "bangla";
+    setTranslatingField(target);
+
+    const controller = new AbortController();
+    const timer = setTimeout(async () => {
+      try {
+        const res = await fetch("/api/translate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            text: text.trim(),
+            from: field,
+            to: field === "bn" ? "en" : "bn",
+          }),
+          signal: controller.signal,
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          if (data.translatedText) {
+            if (field === "bn") {
+              setValue("englishTranslation", data.translatedText, {
+                shouldValidate: true,
+                shouldDirty: true,
+              });
+            } else {
+              setValue("banglaTranslation", data.translatedText, {
+                shouldValidate: true,
+                shouldDirty: true,
+              });
+            }
+          }
+        }
+      } catch (err) {
+        if ((err as Error).name !== "AbortError") {
+          console.error("Auto-translate error:", err);
+        }
+      } finally {
+        setTranslatingField((curr) => (curr === target ? null : curr));
+      }
+    }, 500);
+
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
+  }, [lastEdited, setValue]);
 
   async function onSubmit(values: FormValues) {
     setFormError(null);
@@ -213,13 +272,22 @@ export default function NewSubmissionPage() {
                 required
                 icon={<span className="text-sm">🇧🇩</span>}
                 iconClassName="bg-success/10"
-                helper="e.g., পানি"
+                helper={
+                  translatingField === "bangla"
+                    ? "Translating from English..."
+                    : "e.g., পানি (Auto-translates English)"
+                }
+                isLoading={translatingField === "bangla"}
                 error={errors.banglaTranslation?.message}
               >
                 <Input
-                  className="pl-12"
+                  className="pl-12 pr-28"
                   placeholder="Enter meaning in Bangla"
-                  {...register("banglaTranslation")}
+                  {...register("banglaTranslation", {
+                    onChange: (e) => {
+                      setLastEdited({ field: "bn", text: e.target.value });
+                    },
+                  })}
                 />
               </IconField>
 
@@ -228,13 +296,22 @@ export default function NewSubmissionPage() {
                 required
                 icon={<span className="text-sm">🇺🇸</span>}
                 iconClassName="bg-primary-100"
-                helper="e.g., Water"
+                helper={
+                  translatingField === "english"
+                    ? "Translating from Bangla..."
+                    : "e.g., Water (Auto-translates Bangla)"
+                }
+                isLoading={translatingField === "english"}
                 error={errors.englishTranslation?.message}
               >
                 <Input
-                  className="pl-12"
+                  className="pl-12 pr-28"
                   placeholder="Enter meaning in English"
-                  {...register("englishTranslation")}
+                  {...register("englishTranslation", {
+                    onChange: (e) => {
+                      setLastEdited({ field: "en", text: e.target.value });
+                    },
+                  })}
                 />
               </IconField>
             </FormSection>
@@ -345,6 +422,7 @@ function IconField({
   iconClassName,
   helper,
   error,
+  isLoading,
   children,
 }: {
   label: string;
@@ -353,6 +431,7 @@ function IconField({
   iconClassName?: string;
   helper?: string;
   error?: string;
+  isLoading?: boolean;
   children: React.ReactNode;
 }) {
   return (
@@ -370,6 +449,12 @@ function IconField({
           {icon}
         </span>
         {children}
+        {isLoading && (
+          <span className="pointer-events-none absolute right-3 top-1/2 flex -translate-y-1/2 items-center gap-1.5 text-xs text-primary animate-pulse">
+            <Loader2 className="size-3.5 animate-spin" />
+            <span>Auto-translating...</span>
+          </span>
+        )}
       </div>
       {helper && !error && <p className="text-xs text-muted-foreground">{helper}</p>}
       {error && <p className="text-xs text-danger">{error}</p>}
