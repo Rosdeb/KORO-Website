@@ -12,17 +12,15 @@ import {
   Settings,
   ClipboardCheck,
   ArrowLeft,
-  Users,
   Mail,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { useAuth } from "@/features/auth/context";
 import { useI18n } from "@/features/i18n/context";
-import { canViewAdminLeaderboard } from "@/features/leaderboard/api";
 
 export function AppSidebar() {
   const pathname = usePathname();
-  const { isReviewer, isModerator, user } = useAuth();
+  const { isReviewer, isModerator } = useAuth();
   const { t } = useI18n();
 
   const navItems = [
@@ -39,7 +37,6 @@ export function AppSidebar() {
     ...navItems,
     ...(isReviewer ? [{ href: "/app/review", label: t("nav.reviewQueue"), icon: ClipboardCheck, exact: false }] : []),
     ...(isModerator ? [{ href: "/app/messages", label: t("nav.inquiries"), icon: Mail, exact: false }] : []),
-    ...(canViewAdminLeaderboard(user?.roles) ? [{ href: "/app/leaderboard", label: t("nav.leaderboard"), icon: Users, exact: false }] : []),
   ];
 
   return (

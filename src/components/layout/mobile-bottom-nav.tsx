@@ -104,16 +104,18 @@ export function MobileBottomNav() {
             <div className="mx-auto mb-3 h-1.5 w-12 rounded-full bg-border" />
 
             {/* Header + Language Toggle */}
-            <div className="mb-4 flex items-center justify-between border-b border-border pb-3">
-              <div>
-                <DialogTitle className="text-base font-semibold">
+            <div className="mb-4 flex items-center justify-between gap-3 border-b border-border pb-3 pr-10">
+              <div className="min-w-0 flex-1">
+                <DialogTitle className="text-base font-semibold truncate">
                   {isAuthenticated ? user?.name || "Account Menu" : "Menu & Explore"}
                 </DialogTitle>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-muted-foreground truncate">
                   {isAuthenticated ? user?.email || "Signed in" : "Korot Dictionary Platform"}
                 </p>
               </div>
-              <LanguageToggle />
+              <div className="shrink-0 mr-2">
+                <LanguageToggle />
+              </div>
             </div>
 
             <nav className="flex flex-col gap-1">

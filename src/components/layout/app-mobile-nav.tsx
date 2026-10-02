@@ -16,14 +16,12 @@ import {
   Activity,
   ClipboardCheck,
   Mail,
-  Users,
   ChevronRight,
   Globe,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { useAuth } from "@/features/auth/context";
 import { useI18n } from "@/features/i18n/context";
-import { canViewAdminLeaderboard } from "@/features/leaderboard/api";
 import { Dialog, DialogTrigger, DialogContent, DialogClose, DialogTitle } from "@/components/ui/dialog";
 import { LanguageToggle } from "@/components/layout/language-toggle";
 
@@ -51,9 +49,6 @@ export function AppMobileNav() {
   const adminItems = [
     ...(isReviewer ? [{ href: "/app/review", label: t("nav.reviewQueue"), icon: ClipboardCheck, badge: "Reviewer" }] : []),
     ...(isModerator ? [{ href: "/app/messages", label: t("nav.inquiries"), icon: Mail, badge: "Support" }] : []),
-    ...(canViewAdminLeaderboard(user?.roles)
-      ? [{ href: "/app/leaderboard", label: t("nav.leaderboard"), icon: Users, badge: "Admin" }]
-      : []),
   ];
 
   const isMoreActive =
@@ -106,20 +101,22 @@ export function AppMobileNav() {
             <div className="mx-auto mb-3 h-1.5 w-12 rounded-full bg-border" />
 
             {/* User Mini Profile Header + Language Toggle */}
-            <div className="mb-4 flex items-center justify-between border-b border-border pb-3">
-              <div>
-                <DialogTitle className="text-base font-semibold">
+            <div className="mb-4 flex items-center justify-between gap-3 border-b border-border pb-3 pr-10">
+              <div className="min-w-0 flex-1">
+                <DialogTitle className="text-base font-semibold truncate">
                   {user?.name || "Account Menu"}
                 </DialogTitle>
-                <p className="text-xs text-muted-foreground">{user?.email || "Korot Learning Space"}</p>
+                <p className="text-xs text-muted-foreground truncate">{user?.email || "Korot Learning Space"}</p>
               </div>
-              <LanguageToggle />
+              <div className="shrink-0 mr-2">
+                <LanguageToggle />
+              </div>
             </div>
 
             {/* Primary More Links */}
             <div className="flex flex-col gap-1">
               <span className="px-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                Features & Tools
+                {t("nav.featuresTools")}
               </span>
               {moreItems.map((item) => {
                 const Icon = item.icon;
@@ -151,7 +148,7 @@ export function AppMobileNav() {
             {adminItems.length > 0 && (
               <div className="mt-4 flex flex-col gap-1 border-t border-border pt-3">
                 <span className="px-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                  Management & Review
+                  {t("nav.managementReview")}
                 </span>
                 {adminItems.map((item) => {
                   const Icon = item.icon;
