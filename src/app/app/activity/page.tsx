@@ -9,16 +9,9 @@ import { EmptyState } from "@/components/state/empty-state";
 import { ErrorState } from "@/components/state/error-state";
 import { cn } from "@/lib/utils/cn";
 import { useActivity } from "@/features/activity/hooks";
+import { useI18n } from "@/features/i18n/context";
 
 type RangeKey = "today" | "week" | "month" | "year" | "custom";
-
-const RANGE_OPTIONS: { key: RangeKey; label: string }[] = [
-  { key: "today", label: "Today" },
-  { key: "week", label: "Week" },
-  { key: "month", label: "Month" },
-  { key: "year", label: "Year" },
-  { key: "custom", label: "Custom" },
-];
 
 // The backend parses `from`/`to` as a plain LocalDate (yyyy-MM-dd) — a full
 // ISO datetime string 400s.
@@ -52,10 +45,19 @@ function rangeToDates(range: RangeKey, customFrom?: string, customTo?: string) {
 }
 
 export default function ActivityPage() {
+  const { t } = useI18n();
   const [range, setRange] = useState<RangeKey>("week");
   const [customFrom, setCustomFrom] = useState("");
   const [customTo, setCustomTo] = useState("");
   const [page, setPage] = useState(0);
+
+  const rangeOptions: { key: RangeKey; label: string }[] = [
+    { key: "today", label: t("activity.today") },
+    { key: "week", label: t("activity.week") },
+    { key: "month", label: t("activity.month") },
+    { key: "year", label: t("activity.year") },
+    { key: "custom", label: t("activity.custom") },
+  ];
 
   const { from, to } = rangeToDates(range, customFrom, customTo);
   const validRange = Boolean(from && to && from <= to);
@@ -83,24 +85,24 @@ export default function ActivityPage() {
 
   const summaryTiles = useMemo(
     () => [
-      { label: "Total activities", value: stats?.totalActivities, icon: Clock },
-      { label: "Translations", value: stats?.translations, icon: Languages },
-      { label: "Saved words", value: stats?.savedWords, icon: BookmarkPlus },
-      { label: "Image scans", value: stats?.imageRecognitions, icon: Camera },
-      { label: "PDF exports", value: stats?.pdfExports, icon: FileDown },
+      { label: t("activity.totalActivities"), value: stats?.totalActivities, icon: Clock },
+      { label: t("activity.translations"), value: stats?.translations, icon: Languages },
+      { label: t("activity.savedWords"), value: stats?.savedWords, icon: BookmarkPlus },
+      { label: t("activity.imageScans"), value: stats?.imageRecognitions, icon: Camera },
+      { label: t("activity.pdfExports"), value: stats?.pdfExports, icon: FileDown },
     ],
-    [stats],
+    [stats, t],
   );
 
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">My Activity</h1>
-        <p className="mt-1 text-muted-foreground">See how you&apos;ve been using Korot.</p>
+        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">{t("activity.title")}</h1>
+        <p className="mt-1 text-muted-foreground">{t("activity.subtitle")}</p>
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
-        {RANGE_OPTIONS.map((opt) => (
+        {rangeOptions.map((opt) => (
           <button
             key={opt.key}
             onClick={() => { setRange(opt.key); setPage(0); }}
@@ -122,7 +124,7 @@ export default function ActivityPage() {
             onChange={(e) => { setCustomFrom(e.target.value); setPage(0); }}
             className="h-10 rounded-xl border border-input bg-card px-3 text-sm"
           />
-          <span className="text-sm text-muted-foreground">to</span>
+          <span className="text-sm text-muted-foreground">{t("activity.to")}</span>
           <input
             type="date"
             value={customTo}
@@ -150,8 +152,8 @@ export default function ActivityPage() {
       )}
 
       <div>
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">Activity log</h2>
-        {!validRange && <p className="text-sm text-muted-foreground">Choose a valid start and end date.</p>}
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">{t("activity.log")}</h2>
+        {!validRange && <p className="text-sm text-muted-foreground">{t("activity.invalidRange")}</p>}
         {validRange && activityError && <ErrorState onRetry={() => refetchActivity()} />}
         {validRange && activityLoading && !activityError && (
           <div className="flex flex-col gap-2">
@@ -161,7 +163,7 @@ export default function ActivityPage() {
           </div>
         )}
         {validRange && !activityLoading && !activityError && filteredActivity.length === 0 && (
-          <EmptyState title="No activity in this range" description="Try a different time period." />
+          <EmptyState title={t("activity.noRangeActivity")} description={t("activity.tryDifferentRange")} />
         )}
         {validRange && !activityLoading && !activityError && filteredActivity.length > 0 && (
           <div className="flex flex-col gap-4">
@@ -179,11 +181,11 @@ export default function ActivityPage() {
             {activityPage && activityPage.totalPages > 1 && (
               <div className="flex items-center justify-between gap-3">
                 <Button variant="outline" size="sm" disabled={!activityPage.hasPrevious} onClick={() => setPage((current) => current - 1)}>
-                  Previous
+                  {t("activity.previous")}
                 </Button>
-                <span className="text-sm text-muted-foreground">Page {activityPage.page + 1} of {activityPage.totalPages}</span>
+                <span className="text-sm text-muted-foreground">{t("activity.page")} {activityPage.page + 1} {t("activity.of")} {activityPage.totalPages}</span>
                 <Button variant="outline" size="sm" disabled={!activityPage.hasNext} onClick={() => setPage((current) => current + 1)}>
-                  Next
+                  {t("activity.next")}
                 </Button>
               </div>
             )}

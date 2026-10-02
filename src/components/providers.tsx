@@ -4,6 +4,7 @@ import { useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "next-themes";
 import { AuthProvider } from "@/features/auth/context";
+import { LanguageProvider } from "@/features/i18n/context";
 import { ToastProvider } from "@/components/ui/toast";
 import { shouldRetryQuery } from "@/lib/api/client";
 
@@ -25,7 +26,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <ToastProvider>{children}</ToastProvider>
+          <LanguageProvider>
+            <ToastProvider>{children}</ToastProvider>
+          </LanguageProvider>
         </AuthProvider>
       </QueryClientProvider>
     </ThemeProvider>

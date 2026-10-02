@@ -19,6 +19,8 @@
   "/(auth)/register/page": "app/(auth)/register/page.js",
   "/(auth)/reset-password/page": "app/(auth)/reset-password/page.js",
   "/(auth)/verify-email/page": "app/(auth)/verify-email/page.js",
+  "/(public)/about/page": "app/(public)/about/page.js",
+  "/(public)/contact/page": "app/(public)/contact/page.js",
   "/(public)/dictionary/[category]/[concept]/page": "app/(public)/dictionary/[category]/[concept]/page.js",
   "/(public)/dictionary/[category]/page": "app/(public)/dictionary/[category]/page.js",
   "/(public)/dictionary/page": "app/(public)/dictionary/page.js",
@@ -40,7 +42,5 @@
   "/app/submissions/new/page": "app/app/submissions/new/page.js",
   "/app/submissions/page": "app/app/submissions/page.js",
   "/app/translate/page": "app/app/translate/page.js",
-  "/(public)/contact/page": "app/(public)/contact/page.js",
-  "/(public)/about/page": "app/(public)/about/page.js",
   "/(public)/leaderboard/page": "app/(public)/leaderboard/page.js"
 }

@@ -1,9 +1,14 @@
+"use client";
+
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { CategoryIcon } from "@/components/dictionary/category-icon";
+import { useI18n } from "@/features/i18n/context";
 import type { Category } from "@/types";
 
 export function CategoryCard({ category, basePath = "/dictionary" }: { category: Category; basePath?: string }) {
+  const { t } = useI18n();
+
   return (
     <Link href={`${basePath}/${category.slug}`} className="group block">
       <Card className="h-full transition-all group-hover:-translate-y-0.5 group-hover:shadow-md">
@@ -14,7 +19,7 @@ export function CategoryCard({ category, basePath = "/dictionary" }: { category:
           <div>
             <p className="font-semibold">{category.name}</p>
             {typeof category.conceptCount === "number" && (
-              <p className="text-sm text-muted-foreground">{category.conceptCount} words</p>
+              <p className="text-sm text-muted-foreground">{category.conceptCount} {t("card.words")}</p>
             )}
           </div>
         </div>

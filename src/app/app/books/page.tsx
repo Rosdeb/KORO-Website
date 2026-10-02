@@ -10,8 +10,10 @@ import { EmptyState } from "@/components/state/empty-state";
 import { ErrorState } from "@/components/state/error-state";
 import { CreateBookDialog } from "@/components/books/create-book-dialog";
 import { useBooks } from "@/features/books/hooks";
+import { useI18n } from "@/features/i18n/context";
 
 export default function BooksPage() {
+  const { t } = useI18n();
   const { data: books, isLoading, isError, refetch } = useBooks();
   const [createOpen, setCreateOpen] = useState(false);
 
@@ -19,11 +21,11 @@ export default function BooksPage() {
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">My Books</h1>
-          <p className="mt-1 text-muted-foreground">Your personal vocabulary collections.</p>
+          <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">{t("books.title")}</h1>
+          <p className="mt-1 text-muted-foreground">{t("books.subtitle")}</p>
         </div>
         <Button onClick={() => setCreateOpen(true)}>
-          <Plus className="size-4" /> Create Book
+          <Plus className="size-4" /> {t("books.createBook")}
         </Button>
       </div>
 
@@ -47,9 +49,9 @@ export default function BooksPage() {
       {!isLoading && !isError && (books ?? []).length === 0 && (
         <EmptyState
           icon={BookMarked}
-          title="No books yet"
-          description="Create your first book to start saving words as you explore Korot."
-          action={<Button onClick={() => setCreateOpen(true)}>Create Your First Book</Button>}
+          title={t("books.noBooks")}
+          description={t("books.noBooksDesc")}
+          action={<Button onClick={() => setCreateOpen(true)}>{t("books.createFirstBook")}</Button>}
         />
       )}
 
@@ -66,10 +68,10 @@ export default function BooksPage() {
                   {book.description ? (
                     <p className="mt-1 line-clamp-2 text-sm leading-5 text-muted-foreground">{book.description}</p>
                   ) : (
-                    <p className="mt-1 text-sm text-muted-foreground">Personal vocabulary collection</p>
+                    <p className="mt-1 text-sm text-muted-foreground">{t("books.personalCollection")}</p>
                   )}
                   <p className="mt-auto pt-3 text-sm font-medium text-muted-foreground">
-                    {typeof book.wordCount === "number" ? `${book.wordCount} words` : "Open book →"}
+                    {typeof book.wordCount === "number" ? `${book.wordCount} ${t("books.wordsCount")}` : t("books.openBook")}
                   </p>
                 </div>
               </Card>

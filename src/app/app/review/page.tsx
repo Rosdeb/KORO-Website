@@ -22,17 +22,19 @@ import { ErrorState } from "@/components/state/error-state";
 import { useToast } from "@/components/ui/toast";
 import { useAuth } from "@/features/auth/context";
 import { useApproveSubmission, useRejectSubmission, useReviewQueue } from "@/features/review/hooks";
+import { useI18n } from "@/features/i18n/context";
 import type { Submission } from "@/types";
 
 export default function ReviewQueuePage() {
+  const { t } = useI18n();
   const { isReviewer } = useAuth();
 
   if (!isReviewer) {
     return (
       <EmptyState
         icon={ClipboardList}
-        title="Reviewers only"
-        description="This page is reserved for language reviewers and admins. Ask an admin for reviewer access if you think you should be here."
+        title={t("review.reviewersOnlyTitle")}
+        description={t("review.reviewersOnlyDesc")}
       />
     );
   }
@@ -41,6 +43,7 @@ export default function ReviewQueuePage() {
 }
 
 function ReviewQueue() {
+  const { t } = useI18n();
   const [page, setPage] = useState(0);
   const { data: submissionPage, isLoading, isError, refetch } = useReviewQueue(page, 20);
   const submissions = submissionPage?.content ?? [];
@@ -49,11 +52,11 @@ function ReviewQueue() {
     <div className="flex flex-col gap-6">
       <div>
         <div className="flex items-center gap-2">
-          <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Review Queue</h1>
-          <Badge variant="accent">Reviewer</Badge>
+          <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">{t("review.title")}</h1>
+          <Badge variant="accent">{t("review.reviewer")}</Badge>
         </div>
         <p className="mt-1 text-muted-foreground">
-          Community-suggested translations waiting on approval or rejection.
+          {t("review.subtitle")}
         </p>
       </div>
 
@@ -70,8 +73,8 @@ function ReviewQueue() {
       {!isLoading && !isError && (submissions ?? []).length === 0 && (
         <EmptyState
           icon={ClipboardList}
-          title="Queue is empty"
-          description="There are no pending submissions to review right now."
+          title={t("review.emptyTitle")}
+          description={t("review.emptyDesc")}
         />
       )}
 
@@ -85,13 +88,13 @@ function ReviewQueue() {
           {submissionPage && submissionPage.totalPages > 1 && (
             <div className="flex items-center justify-between gap-3">
               <Button variant="outline" size="sm" disabled={!submissionPage.hasPrevious} onClick={() => setPage((current) => current - 1)}>
-                Previous
+                {t("activity.previous")}
               </Button>
               <span className="text-sm text-muted-foreground">
-                Page {submissionPage.page + 1} of {submissionPage.totalPages}
+                {t("activity.page")} {submissionPage.page + 1} {t("activity.of")} {submissionPage.totalPages}
               </span>
               <Button variant="outline" size="sm" disabled={!submissionPage.hasNext} onClick={() => setPage((current) => current + 1)}>
-                Next
+                {t("activity.next")}
               </Button>
             </div>
           )}
@@ -102,6 +105,7 @@ function ReviewQueue() {
 }
 
 function ReviewCard({ submission }: { submission: Submission }) {
+  const { t } = useI18n();
   const [dialog, setDialog] = useState<"approve" | "reject" | null>(null);
 
   return (
@@ -113,12 +117,12 @@ function ReviewCard({ submission }: { submission: Submission }) {
 
         <CardHeader className="flex-1 p-0">
           <div className="flex flex-wrap items-start justify-between gap-2">
-            <CardTitle>{submission.sourceWord || "Untitled submission"}</CardTitle>
-            <Badge variant="warning">Pending review</Badge>
+            <CardTitle>{submission.sourceWord || t("suggest.newWord")}</CardTitle>
+            <Badge variant="warning">{t("review.pendingBadge")}</Badge>
           </div>
           <CardDescription>
             {submission.categoryName && <span>{submission.categoryName} · </span>}
-            Source word in{" "}
+            {t("review.sourceWordIn")}{" "}
             <span className="font-medium text-foreground">{submission.sourceLanguageName}</span>
           </CardDescription>
         </CardHeader>
@@ -129,19 +133,19 @@ function ReviewCard({ submission }: { submission: Submission }) {
           <div className="flex flex-wrap gap-3 rounded-xl bg-muted/60 px-4 py-3">
             {submission.banglaTranslation && (
               <div className="min-w-32 flex-1">
-                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Bangla meaning</p>
+                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{t("review.banglaMeaning")}</p>
                 <p className="mt-0.5 font-semibold">{submission.banglaTranslation}</p>
               </div>
             )}
             {submission.englishTranslation && (
               <div className="min-w-32 flex-1">
-                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">English meaning</p>
+                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{t("review.englishMeaning")}</p>
                 <p className="mt-0.5 font-semibold">{submission.englishTranslation}</p>
               </div>
             )}
             {submission.pronunciation && (
               <div className="min-w-32 flex-1">
-                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Pronunciation</p>
+                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{t("review.pronunciation")}</p>
                 <p className="mt-0.5 font-semibold">{submission.pronunciation}</p>
               </div>
             )}
@@ -149,12 +153,12 @@ function ReviewCard({ submission }: { submission: Submission }) {
         )}
         {submission.exampleSentence && (
           <p className="rounded-xl bg-muted/60 px-4 py-3 text-sm text-muted-foreground">
-            Example: &quot;{submission.exampleSentence}&quot;
+            {t("review.example")}: &quot;{submission.exampleSentence}&quot;
           </p>
         )}
         {submission.note && (
           <p className="rounded-xl bg-muted/60 px-4 py-3 text-sm text-muted-foreground">
-            Submitter&apos;s note: {submission.note}
+            {t("review.submitterNote")}: {submission.note}
           </p>
         )}
       </CardContent>
@@ -164,16 +168,16 @@ function ReviewCard({ submission }: { submission: Submission }) {
           <User className="size-3.5" />
           <span>
             {submission.submittedByName ?? "A community member"}
-            {submission.submittedByEmail && ` (${submission.submittedByEmail})`} · submitted{" "}
+            {submission.submittedByEmail && ` (${submission.submittedByEmail})`} · {t("review.submittedBy")}{" "}
             {new Date(submission.createdAt).toLocaleDateString()}
           </span>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={() => setDialog("reject")}>
-            <XCircle className="size-4" /> Reject
+            <XCircle className="size-4" /> {t("review.reject")}
           </Button>
           <Button size="sm" onClick={() => setDialog("approve")}>
-            <CheckCircle2 className="size-4" /> Approve
+            <CheckCircle2 className="size-4" /> {t("review.approve")}
           </Button>
         </div>
       </CardFooter>
@@ -192,6 +196,7 @@ function ReviewActionDialog({
   action: "approve" | "reject" | null;
   onClose: () => void;
 }) {
+  const { t } = useI18n();
   const [note, setNote] = useState("");
   const [rejectionReason, setRejectionReason] = useState("");
   const [rejectionReasonError, setRejectionReasonError] = useState(false);
@@ -264,9 +269,9 @@ function ReviewActionDialog({
     <Dialog open={action !== null} onOpenChange={handleOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{action === "approve" ? "Approve submission" : "Reject submission"}</DialogTitle>
+          <DialogTitle>{action === "approve" ? t("review.approveTitle") : t("review.rejectTitle")}</DialogTitle>
           <DialogDescription>
-            {submission.sourceWord || "Untitled submission"} — {submission.sourceLanguageName}
+            {submission.sourceWord || t("suggest.newWord")} — {submission.sourceLanguageName}
             {submission.englishTranslation && <>: &quot;{submission.englishTranslation}&quot;</>}
           </DialogDescription>
         </DialogHeader>
@@ -275,7 +280,7 @@ function ReviewActionDialog({
           {action === "reject" && (
             <div className="flex flex-col gap-2">
               <Label htmlFor="rejection-reason">
-                Rejection reason <span className="text-danger">*</span>
+                {t("review.rejectionReason")} <span className="text-danger">*</span>
               </Label>
               <Textarea
                 id="rejection-reason"
@@ -284,22 +289,22 @@ function ReviewActionDialog({
                   setRejectionReason(e.target.value);
                   if (e.target.value.trim()) setRejectionReasonError(false);
                 }}
-                placeholder="Explain why this submission is being rejected."
+                placeholder={t("review.rejectionReasonPlaceholder")}
               />
               {rejectionReasonError && (
-                <p className="text-xs text-danger">A rejection reason is required.</p>
+                <p className="text-xs text-danger">{t("review.rejectionReasonRequired")}</p>
               )}
             </div>
           )}
 
           <div className="flex flex-col gap-2">
-            <Label htmlFor="reviewer-note">Reviewer note (optional)</Label>
+            <Label htmlFor="reviewer-note">{t("review.reviewerNoteOptional")}</Label>
             <Textarea
               id="reviewer-note"
               value={note}
               onChange={(e) => setNote(e.target.value)}
               placeholder={
-                action === "approve" ? "Verified by community linguist." : "Any extra context for the record."
+                action === "approve" ? t("review.reviewerNoteApprovePlaceholder") : t("review.reviewerNoteRejectPlaceholder")
               }
             />
           </div>
@@ -307,14 +312,14 @@ function ReviewActionDialog({
 
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">Cancel</Button>
+            <Button variant="outline">{t("review.cancel")}</Button>
           </DialogClose>
           <Button
             variant={action === "reject" ? "danger" : "primary"}
             loading={mutation.isPending}
             onClick={handleConfirm}
           >
-            {action === "approve" ? "Approve" : "Reject"}
+            {action === "approve" ? t("review.approve") : t("review.reject")}
           </Button>
         </DialogFooter>
       </DialogContent>

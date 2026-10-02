@@ -16,6 +16,7 @@ import { useToast } from "@/components/ui/toast";
 import { useAuth } from "@/features/auth/context";
 import { useLanguages } from "@/features/languages/hooks";
 import { useUpdateProfile, useChangePassword } from "@/features/profile/hooks";
+import { useI18n } from "@/features/i18n/context";
 
 const profileSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -33,6 +34,7 @@ type ProfileValues = z.infer<typeof profileSchema>;
 type PasswordValues = z.infer<typeof passwordSchema>;
 
 export default function SettingsPage() {
+  const { t } = useI18n();
   const { user, logout } = useAuth();
   const [passwordOpen, setPasswordOpen] = useState(false);
   const { data: languages } = useLanguages();
@@ -85,14 +87,14 @@ export default function SettingsPage() {
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-8">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Profile & Settings</h1>
-        <p className="mt-1 text-muted-foreground">Manage your account details.</p>
+        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">{t("settings.title")}</h1>
+        <p className="mt-1 text-muted-foreground">{t("settings.subtitle")}</p>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Profile</CardTitle>
-          <CardDescription>Update your name and language preferences.</CardDescription>
+          <CardTitle>{t("settings.profile")}</CardTitle>
+          <CardDescription>{t("settings.profileDesc")}</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleProfileSubmit(onProfileSubmit)} className="flex flex-col gap-5">
@@ -108,21 +110,21 @@ export default function SettingsPage() {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="name">{t("settings.name")}</Label>
               <Input id="name" {...registerProfile("name")} />
               {profileErrors.name && <p className="text-xs text-danger">{profileErrors.name.message}</p>}
             </div>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="flex flex-col gap-1.5">
-                <Label>Native language</Label>
+                <Label>{t("settings.nativeLang")}</Label>
                 <Controller
                   control={profileControl}
                   name="nativeLanguage"
                   render={({ field }) => (
                     <Select value={field.value} onValueChange={field.onChange}>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select a language" />
+                        <SelectValue placeholder={t("settings.selectLanguage")} />
                       </SelectTrigger>
                       <SelectContent>
                         {(languages ?? []).map((l) => (
@@ -136,14 +138,14 @@ export default function SettingsPage() {
                 />
               </div>
               <div className="flex flex-col gap-1.5">
-                <Label>Preferred language</Label>
+                <Label>{t("settings.preferredLang")}</Label>
                 <Controller
                   control={profileControl}
                   name="preferredLanguage"
                   render={({ field }) => (
                     <Select value={field.value} onValueChange={field.onChange}>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select a language" />
+                        <SelectValue placeholder={t("settings.selectLanguage")} />
                       </SelectTrigger>
                       <SelectContent>
                         {(languages ?? []).map((l) => (
@@ -159,7 +161,7 @@ export default function SettingsPage() {
             </div>
 
             <Button type="submit" loading={profileSubmitting} className="self-start">
-              Save Changes
+              {t("settings.saveChanges")}
             </Button>
           </form>
         </CardContent>
@@ -168,8 +170,8 @@ export default function SettingsPage() {
       <Card>
         <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="space-y-1.5">
-            <CardTitle>Password</CardTitle>
-            <CardDescription>Change your account password.</CardDescription>
+            <CardTitle>{t("settings.password")}</CardTitle>
+            <CardDescription>{t("settings.passwordDesc")}</CardDescription>
           </div>
           <Button
             type="button"
@@ -182,25 +184,25 @@ export default function SettingsPage() {
               setPasswordOpen(open => !open);
             }}
           >
-            {passwordOpen ? "Cancel" : "Change password"}
+            {passwordOpen ? t("settings.cancel") : t("settings.changePassword")}
           </Button>
         </CardHeader>
         <CardContent id="password-form" hidden={!passwordOpen}>
           {passwordOpen && <form onSubmit={handlePasswordSubmit(onPasswordSubmit)} className="flex flex-col gap-4">
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="currentPassword">Current password</Label>
+              <Label htmlFor="currentPassword">{t("settings.currentPassword")}</Label>
               <Input id="currentPassword" type="password" autoComplete="current-password" {...registerPassword("currentPassword")} />
               {passwordErrors.currentPassword && (
                 <p className="text-xs text-danger">{passwordErrors.currentPassword.message}</p>
               )}
             </div>
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="newPassword">New password</Label>
+              <Label htmlFor="newPassword">{t("settings.newPassword")}</Label>
               <Input id="newPassword" type="password" autoComplete="new-password" {...registerPassword("newPassword")} />
               {passwordErrors.newPassword && <p className="text-xs text-danger">{passwordErrors.newPassword.message}</p>}
             </div>
             <Button type="submit" variant="outline" loading={passwordSubmitting} className="self-start">
-              Update password
+              {t("settings.updatePassword")}
             </Button>
           </form>}
         </CardContent>
@@ -209,7 +211,7 @@ export default function SettingsPage() {
       <Separator />
 
       <Button variant="danger" className="self-start" onClick={() => logout()}>
-        <LogOut className="size-4" /> Log out
+        <LogOut className="size-4" /> {t("settings.logOut")}
       </Button>
     </div>
   );

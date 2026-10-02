@@ -1,38 +1,42 @@
+"use client";
+
 import Link from "next/link";
 import { Logo } from "@/components/layout/logo";
-
-const COLUMNS = [
-  {
-    title: "Explore",
-    links: [
-      { href: "/languages", label: "Languages" },
-      { href: "/dictionary", label: "Dictionary" },
-      { href: "/search", label: "Search" },
-    ],
-  },
-  {
-    title: "Korot",
-    links: [
-      { href: "/about", label: "About" },
-      { href: "/contact", label: "Contact" },
-      { href: "/register", label: "Create an account" },
-      { href: "/login", label: "Login" },
-    ],
-  },
-];
+import { useI18n } from "@/features/i18n/context";
 
 export function SiteFooter() {
+  const { t, locale } = useI18n();
+
+  const columns = [
+    {
+      title: t("footer.explore"),
+      links: [
+        { href: "/languages", label: t("nav.languages") },
+        { href: "/dictionary", label: t("nav.dictionary") },
+        { href: "/search", label: t("nav.search") },
+      ],
+    },
+    {
+      title: t("footer.korot"),
+      links: [
+        { href: "/about", label: t("footer.about") },
+        { href: "/contact", label: t("footer.contact") },
+        { href: "/register", label: t("footer.createAccount") },
+        { href: "/login", label: t("footer.login") },
+      ],
+    },
+  ];
+
   return (
     <footer className="border-t border-border bg-muted/40 pb-24 md:pb-0">
       <div className="container-koro grid gap-10 py-12 sm:grid-cols-2 md:grid-cols-4">
         <div className="sm:col-span-2 md:col-span-2">
           <Logo />
           <p className="mt-3 max-w-xs text-sm text-muted-foreground">
-            Discover languages, learn words, and help preserve indigenous language knowledge for
-            generations to come.
+            {t("footer.tagline")}
           </p>
         </div>
-        {COLUMNS.map((col) => (
+        {columns.map((col) => (
           <div key={col.title}>
             <h4 className="text-sm font-semibold">{col.title}</h4>
             <ul className="mt-3 flex flex-col gap-2.5">
@@ -48,7 +52,7 @@ export function SiteFooter() {
         ))}
       </div>
       <div className="container-koro border-t border-border py-5 text-xs text-muted-foreground">
-        © {new Date().getFullYear()} Korot. Built to discover, learn, and preserve language knowledge.
+        © {new Date().getFullYear()} Korot. {t("footer.rights")}
       </div>
     </footer>
   );

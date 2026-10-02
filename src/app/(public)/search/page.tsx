@@ -10,8 +10,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/state/empty-state";
 import { ErrorState } from "@/components/state/error-state";
 import { useGlobalSearch } from "@/features/search/hooks";
+import { useI18n } from "@/features/i18n/context";
 
 function SearchPageInner() {
+  const { t } = useI18n();
   const searchParams = useSearchParams();
   const router = useRouter();
   const initialQuery = searchParams.get("q") ?? "";
@@ -28,20 +30,20 @@ function SearchPageInner() {
 
   return (
     <div className="container-koro py-10">
-      <h1 className="text-2xl font-extrabold sm:text-3xl">Search</h1>
+      <h1 className="text-2xl font-extrabold sm:text-3xl">{t("search.title")}</h1>
 
       <form onSubmit={handleSubmit} className="relative mt-5 max-w-xl">
         <SearchIcon className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search languages, words, and concepts..."
+          placeholder={t("search.placeholder")}
           className="h-12 w-full rounded-full border border-input bg-card pl-11 pr-4 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring"
         />
       </form>
 
       {!initialQuery && (
-        <EmptyState className="mt-10" icon={SearchIcon} title="Search Korot" description="Try searching for a language, a word, or a category." />
+        <EmptyState className="mt-10" icon={SearchIcon} title={t("search.emptyTitle")} description={t("search.emptyDesc")} />
       )}
 
       {initialQuery && isError && <ErrorState className="mt-10" onRetry={() => refetch()} />}
@@ -55,13 +57,13 @@ function SearchPageInner() {
       )}
 
       {initialQuery && !isLoading && !isError && totalResults === 0 && (
-        <EmptyState className="mt-10" icon={SearchIcon} title={`No results for "${initialQuery}"`} description="Try a different search term." />
+        <EmptyState className="mt-10" icon={SearchIcon} title={`${t("search.noResults")} "${initialQuery}"`} description={t("languages.tryDifferent")} />
       )}
 
       {initialQuery && !isLoading && !isError && data && (
         <div className="mt-10 flex flex-col gap-12">
           {data.languages.length > 0 && (
-            <ResultSection title="Languages">
+            <ResultSection title={t("common.languages")}>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {data.languages.map((l) => (
                   <LanguageCard key={l.code} language={l} />
@@ -71,7 +73,7 @@ function SearchPageInner() {
           )}
 
           {data.categories.length > 0 && (
-            <ResultSection title="Categories">
+            <ResultSection title={t("common.categories")}>
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
                 {data.categories.map((c) => (
                   <CategoryCard key={c.id} category={c} />
@@ -81,7 +83,7 @@ function SearchPageInner() {
           )}
 
           {data.concepts.length > 0 && (
-            <ResultSection title="Concepts & Translations">
+            <ResultSection title={t("search.conceptsTranslations")}>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {data.concepts.map((c) => (
                   <ConceptCard key={c.id} concept={c} />

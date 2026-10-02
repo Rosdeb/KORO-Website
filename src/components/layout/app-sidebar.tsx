@@ -17,31 +17,29 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { useAuth } from "@/features/auth/context";
-
+import { useI18n } from "@/features/i18n/context";
 import { canViewAdminLeaderboard } from "@/features/leaderboard/api";
-
-const NAV_ITEMS = [
-  { href: "/app", label: "Home", icon: LayoutGrid, exact: true },
-  { href: "/app/translate", label: "Translate", icon: Languages },
-  { href: "/app/scan", label: "Scan", icon: Camera },
-  { href: "/app/books", label: "Books", icon: BookMarked },
-  { href: "/app/submissions", label: "Submissions", icon: MessageSquarePlus },
-  { href: "/app/activity", label: "Activity", icon: Activity },
-  { href: "/app/settings", label: "Settings", icon: Settings },
-];
-
-// Shown only to ROLE_LANGUAGE_REVIEWER / ROLE_ADMIN accounts.
-const REVIEWER_NAV_ITEM = { href: "/app/review", label: "Review Queue", icon: ClipboardCheck, exact: false };
-const MESSAGES_NAV_ITEM = { href: "/app/messages", label: "Inquiries", icon: Mail, exact: false };
 
 export function AppSidebar() {
   const pathname = usePathname();
   const { isReviewer, isModerator, user } = useAuth();
+  const { t } = useI18n();
+
+  const navItems = [
+    { href: "/app", label: t("nav.home"), icon: LayoutGrid, exact: true },
+    { href: "/app/translate", label: t("nav.translate"), icon: Languages },
+    { href: "/app/scan", label: t("nav.scan"), icon: Camera },
+    { href: "/app/books", label: t("nav.books"), icon: BookMarked },
+    { href: "/app/submissions", label: t("nav.submissions"), icon: MessageSquarePlus },
+    { href: "/app/activity", label: t("nav.activity"), icon: Activity },
+    { href: "/app/settings", label: t("nav.settings"), icon: Settings },
+  ];
+
   const items = [
-    ...NAV_ITEMS,
-    ...(isReviewer ? [REVIEWER_NAV_ITEM] : []),
-    ...(isModerator ? [MESSAGES_NAV_ITEM] : []),
-    ...(canViewAdminLeaderboard(user?.roles) ? [{ href: "/app/leaderboard", label: "Contributor activity", icon: Users, exact: false }] : []),
+    ...navItems,
+    ...(isReviewer ? [{ href: "/app/review", label: t("nav.reviewQueue"), icon: ClipboardCheck, exact: false }] : []),
+    ...(isModerator ? [{ href: "/app/messages", label: t("nav.inquiries"), icon: Mail, exact: false }] : []),
+    ...(canViewAdminLeaderboard(user?.roles) ? [{ href: "/app/leaderboard", label: t("nav.leaderboard"), icon: Users, exact: false }] : []),
   ];
 
   return (
@@ -56,7 +54,7 @@ export function AppSidebar() {
               href={item.href}
               className={cn(
                 "flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium transition-colors",
-                active ? "bg-primary-50 text-primary-700" : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                active ? "bg-primary-50 text-primary-700 dark:bg-primary-950/50 dark:text-primary-300" : "text-muted-foreground hover:bg-muted hover:text-foreground",
               )}
             >
               <Icon className="size-[1.1rem]" />
@@ -71,7 +69,7 @@ export function AppSidebar() {
           className="flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
         >
           <ArrowLeft className="size-[1.1rem]" />
-          Back to Website
+          {t("nav.backToWebsite")}
         </Link>
       </div>
     </aside>

@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/features/auth/context";
+import { useI18n } from "@/features/i18n/context";
 
 const schema = z.object({
   email: z.string().min(1, "Email is required").email("Enter a valid email address"),
@@ -21,6 +22,7 @@ const schema = z.object({
 type FormValues = z.infer<typeof schema>;
 
 function LoginForm() {
+  const { t } = useI18n();
   const { login } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -63,8 +65,8 @@ function LoginForm() {
   return (
     <Card>
       <CardHeader className="items-center text-center">
-        <CardTitle className="text-2xl">Welcome back</CardTitle>
-        <CardDescription>Log in to save words and access your books.</CardDescription>
+        <CardTitle className="text-2xl">{t("auth.welcomeBack")}</CardTitle>
+        <CardDescription>{t("auth.loginSubtitle")}</CardDescription>
       </CardHeader>
       <CardContent>
         {isVerified && (
@@ -83,15 +85,15 @@ function LoginForm() {
 
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">{t("auth.email")}</Label>
             <Input id="email" type="email" placeholder="you@example.com" {...register("email")} />
             {errors.email && <p className="text-xs text-danger">{errors.email.message}</p>}
           </div>
           <div className="flex flex-col gap-1.5">
             <div className="flex items-center justify-between">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">{t("auth.password")}</Label>
               <Link href="/forgot-password" className="text-xs font-medium text-primary hover:underline">
-                Forgot password?
+                {t("auth.forgotPassword")}
               </Link>
             </div>
             <Input id="password" type="password" placeholder="••••••••" {...register("password")} />
@@ -101,21 +103,21 @@ function LoginForm() {
           {formError && <p className="text-sm text-danger">{formError}</p>}
 
           <Button type="submit" loading={isSubmitting} className="mt-2">
-            Login
+            {t("auth.login")}
           </Button>
         </form>
 
         <div className="mt-6 flex flex-col items-center gap-2 text-center text-sm text-muted-foreground">
           <p>
-            Don&apos;t have an account?{" "}
+            {t("auth.dontHaveAccount")}{" "}
             <Link href="/register" className="font-medium text-primary hover:underline">
-              Create one
+              {t("auth.createOne")}
             </Link>
           </p>
           <p className="text-xs">
-            Have a pending verification code?{" "}
+            {t("auth.havePendingOtp")}{" "}
             <Link href="/verify-email" className="font-medium text-primary hover:underline">
-              Verify email
+              {t("auth.verifyEmail")}
             </Link>
           </p>
         </div>

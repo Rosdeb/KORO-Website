@@ -7,8 +7,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/state/empty-state";
 import { ErrorState } from "@/components/state/error-state";
 import { useLanguages } from "@/features/languages/hooks";
+import { useI18n } from "@/features/i18n/context";
 
 export default function LanguagesPage() {
+  const { t } = useI18n();
   const { data: languages, isLoading, isError, refetch } = useLanguages();
   const [query, setQuery] = useState("");
 
@@ -27,16 +29,16 @@ export default function LanguagesPage() {
   return (
     <div className="container-koro py-12">
       <div className="mx-auto max-w-2xl text-center">
-        <h1 className="text-3xl font-extrabold sm:text-4xl">Languages</h1>
+        <h1 className="text-3xl font-extrabold sm:text-4xl">{t("languages.title")}</h1>
         <p className="mt-2 text-muted-foreground">
-          Browse every language available on Korot — native names, regions, and ISO codes.
+          {t("languages.subtitle")}
         </p>
         <div className="relative mt-6">
           <Search className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search languages..."
+            placeholder={t("languages.searchPlaceholder")}
             className="h-12 w-full rounded-full border border-input bg-card pl-11 pr-4 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring"
           />
         </div>
@@ -56,8 +58,8 @@ export default function LanguagesPage() {
         <EmptyState
           className="mt-10"
           icon={LanguagesIcon}
-          title="No languages found"
-          description="Try a different search term."
+          title={t("languages.notFound")}
+          description={t("languages.tryDifferent")}
         />
       )}
 

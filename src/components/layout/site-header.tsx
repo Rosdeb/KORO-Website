@@ -7,6 +7,7 @@ import { createPortal } from "react-dom";
 import { Menu, Search, X, LayoutGrid, LogOut, Settings, BookMarked } from "lucide-react";
 import { Logo } from "@/components/layout/logo";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
+import { LanguageToggle } from "@/components/layout/language-toggle";
 import { SearchBar } from "@/components/search/search-bar";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -18,20 +19,22 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/features/auth/context";
+import { useI18n } from "@/features/i18n/context";
 import { cn } from "@/lib/utils/cn";
-
-const NAV_LINKS = [
-  { href: "/languages", label: "Languages" },
-  { href: "/dictionary", label: "Dictionary" },
-  { href: "/leaderboard", label: "Top contributors" },
-  { href: "/about", label: "About" },
-];
 
 export function SiteHeader() {
   const pathname = usePathname();
   const { user, isAuthenticated, isLoading, logout } = useAuth();
+  const { t } = useI18n();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+
+  const navLinks = [
+    { href: "/languages", label: t("nav.languages") },
+    { href: "/dictionary", label: t("nav.dictionary") },
+    { href: "/leaderboard", label: t("nav.leaderboard") },
+    { href: "/about", label: "About" },
+  ];
 
   useEffect(() => {
     if (!mobileOpen) return;
@@ -55,7 +58,7 @@ export function SiteHeader() {
         <Logo />
 
         <nav className="ml-2 hidden items-center gap-1 md:flex">
-          {NAV_LINKS.map((link) => (
+          {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
@@ -82,15 +85,16 @@ export function SiteHeader() {
             <Search className="size-5" />
           </button>
 
+          <LanguageToggle />
           <ThemeToggle />
 
           {!isLoading && !isAuthenticated && (
             <div className="hidden items-center gap-2 sm:flex">
               <Button variant="ghost" size="sm" asChild>
-                <Link href="/login">Login</Link>
+                <Link href="/login">{t("nav.login")}</Link>
               </Button>
               <Button variant="primary" size="sm" asChild>
-                <Link href="/register">Sign Up</Link>
+                <Link href="/register">{t("nav.register")}</Link>
               </Button>
             </div>
           )}
@@ -154,7 +158,8 @@ export function SiteHeader() {
         <div className="fixed inset-0 z-50 flex h-dvh flex-col bg-background md:hidden animate-fade-in" role="dialog" aria-modal="true" aria-label="Mobile menu">
           <div className="container-koro flex h-16 shrink-0 items-center justify-between border-b border-border">
             <Logo />
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-2">
+              <LanguageToggle />
               <ThemeToggle />
               <button aria-label="Close menu" onClick={() => setMobileOpen(false)} className="rounded-full p-2.5 hover:bg-muted">
                 <X className="size-5" />
@@ -162,7 +167,7 @@ export function SiteHeader() {
             </div>
           </div>
           <nav className="container-koro flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto py-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))]">
-            {NAV_LINKS.map((link) => (
+            {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
@@ -179,10 +184,10 @@ export function SiteHeader() {
             {!isAuthenticated ? (
               <div className="flex flex-col gap-3 px-1">
                 <Button variant="outline" asChild onClick={() => setMobileOpen(false)}>
-                  <Link href="/login">Login</Link>
+                  <Link href="/login">{t("nav.login")}</Link>
                 </Button>
                 <Button variant="primary" asChild onClick={() => setMobileOpen(false)}>
-                  <Link href="/register">Sign Up</Link>
+                  <Link href="/register">{t("nav.register")}</Link>
                 </Button>
               </div>
             ) : (

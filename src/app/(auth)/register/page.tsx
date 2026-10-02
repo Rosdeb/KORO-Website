@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { OtpInput } from "@/components/ui/otp-input";
 import { authApi } from "@/lib/api/endpoints";
+import { useI18n } from "@/features/i18n/context";
 
 const registerSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -25,6 +26,7 @@ const registerSchema = z.object({
 type RegisterFormValues = z.infer<typeof registerSchema>;
 
 function RegisterFlow() {
+  const { t } = useI18n();
   const router = useRouter();
   const searchParams = useSearchParams();
   const returnTo = searchParams.get("returnTo");
@@ -134,7 +136,7 @@ function RegisterFlow() {
               router.push(`/login?${query.toString()}`);
             }}
           >
-            Go to login
+            {t("auth.login")}
           </Button>
         </CardContent>
       </Card>
@@ -206,23 +208,23 @@ function RegisterFlow() {
   return (
     <Card>
       <CardHeader className="items-center text-center">
-        <CardTitle className="text-2xl">Create your account</CardTitle>
-        <CardDescription>It&apos;s free — save words and build your own language books.</CardDescription>
+        <CardTitle className="text-2xl">{t("auth.createAccount")}</CardTitle>
+        <CardDescription>{t("auth.registerSubtitle")}</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit(onRegisterSubmit)} className="flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="name">Name</Label>
+            <Label htmlFor="name">{t("auth.fullName")}</Label>
             <Input id="name" placeholder="Your name" {...register("name")} />
             {errors.name && <p className="text-xs text-danger">{errors.name.message}</p>}
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">{t("auth.email")}</Label>
             <Input id="email" type="email" placeholder="you@example.com" {...register("email")} />
             {errors.email && <p className="text-xs text-danger">{errors.email.message}</p>}
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password">{t("auth.password")}</Label>
             <Input id="password" type="password" placeholder="At least 8 characters" {...register("password")} />
             {errors.password && <p className="text-xs text-danger">{errors.password.message}</p>}
           </div>
@@ -230,14 +232,14 @@ function RegisterFlow() {
           {formError && <p className="text-sm text-danger">{formError}</p>}
 
           <Button type="submit" loading={isSubmitting} className="mt-2">
-            Create Account
+            {t("auth.register")}
           </Button>
         </form>
 
         <p className="mt-6 text-center text-sm text-muted-foreground">
-          Already have an account?{" "}
+          {t("auth.alreadyHaveAccount")}{" "}
           <Link href="/login" className="font-medium text-primary hover:underline">
-            Log in
+            {t("auth.signIn")}
           </Link>
         </p>
       </CardContent>

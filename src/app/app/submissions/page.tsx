@@ -11,15 +11,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/state/empty-state";
 import { ErrorState } from "@/components/state/error-state";
 import { useMySubmissions } from "@/features/submissions/hooks";
+import { useI18n } from "@/features/i18n/context";
 import type { Submission, SubmissionStatus } from "@/types";
 
-const STATUS_CONFIG: Record<SubmissionStatus, { label: string; variant: "warning" | "success" | "danger"; icon: typeof Clock }> = {
-  PENDING: { label: "Community submission — Pending", variant: "warning", icon: Clock },
-  APPROVED: { label: "Approved", variant: "success", icon: CheckCircle2 },
-  REJECTED: { label: "Rejected", variant: "danger", icon: XCircle },
-};
-
 export default function SubmissionsPage() {
+  const { t } = useI18n();
   const [page, setPage] = useState(0);
   const { data: submissionPage, isLoading, isError, refetch } = useMySubmissions(page, 20);
   const [tab, setTab] = useState<"ALL" | SubmissionStatus>("ALL");
@@ -30,22 +26,22 @@ export default function SubmissionsPage() {
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">My Submissions</h1>
-          <p className="mt-1 text-muted-foreground">Track the translations you&apos;ve suggested to Korot.</p>
+          <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">{t("submissions.title")}</h1>
+          <p className="mt-1 text-muted-foreground">{t("submissions.subtitle")}</p>
         </div>
         <Button asChild>
           <Link href="/app/submissions/new">
-            <Plus className="size-4" /> Suggest a Translation
+            <Plus className="size-4" /> {t("submissions.suggestBtn")}
           </Link>
         </Button>
       </div>
 
       <Tabs value={tab} onValueChange={(v) => { setTab(v as typeof tab); setPage(0); }}>
         <TabsList>
-          <TabsTrigger value="ALL">All</TabsTrigger>
-          <TabsTrigger value="PENDING">Pending</TabsTrigger>
-          <TabsTrigger value="APPROVED">Approved</TabsTrigger>
-          <TabsTrigger value="REJECTED">Rejected</TabsTrigger>
+          <TabsTrigger value="ALL">{t("submissions.tabAll")}</TabsTrigger>
+          <TabsTrigger value="PENDING">{t("submissions.tabPending")}</TabsTrigger>
+          <TabsTrigger value="APPROVED">{t("submissions.tabApproved")}</TabsTrigger>
+          <TabsTrigger value="REJECTED">{t("submissions.tabRejected")}</TabsTrigger>
         </TabsList>
 
         <TabsContent value={tab}>
@@ -62,11 +58,11 @@ export default function SubmissionsPage() {
           {!isLoading && !isError && filtered.length === 0 && (
             <EmptyState
               icon={MessageSquarePlus}
-              title="No submissions here"
-              description="Suggest a translation to help grow Korot's dictionary."
+              title={t("submissions.emptyTitle")}
+              description={t("submissions.emptyDesc")}
               action={
                 <Link href="/app/submissions/new" className="text-sm font-medium text-primary hover:underline">
-                  Suggest a Translation
+                  {t("submissions.suggestBtn")}
                 </Link>
               }
             />
@@ -82,13 +78,13 @@ export default function SubmissionsPage() {
               {submissionPage && submissionPage.totalPages > 1 && (
                 <div className="flex items-center justify-between gap-3">
                   <Button variant="outline" size="sm" disabled={!submissionPage.hasPrevious} onClick={() => setPage((current) => current - 1)}>
-                    Previous
+                    {t("activity.previous")}
                   </Button>
                   <span className="text-sm text-muted-foreground">
-                    Page {submissionPage.page + 1} of {submissionPage.totalPages}
+                    {t("activity.page")} {submissionPage.page + 1} {t("activity.of")} {submissionPage.totalPages}
                   </span>
                   <Button variant="outline" size="sm" disabled={!submissionPage.hasNext} onClick={() => setPage((current) => current + 1)}>
-                    Next
+                    {t("activity.next")}
                   </Button>
                 </div>
               )}
@@ -101,7 +97,15 @@ export default function SubmissionsPage() {
 }
 
 function SubmissionCard({ submission }: { submission: Submission }) {
-  const status = STATUS_CONFIG[submission.status];
+  const { t } = useI18n();
+
+  const statusConfig: Record<SubmissionStatus, { label: string; variant: "warning" | "success" | "danger"; icon: typeof Clock }> = {
+    PENDING: { label: t("submissions.pendingLabel"), variant: "warning", icon: Clock },
+    APPROVED: { label: t("submissions.approvedLabel"), variant: "success", icon: CheckCircle2 },
+    REJECTED: { label: t("submissions.rejectedLabel"), variant: "danger", icon: XCircle },
+  };
+
+  const status = statusConfig[submission.status];
   const Icon = status.icon;
   // A handful of submissions predate the source-word model and only ever
   // carried pronunciation/notes — degrade gracefully instead of showing
@@ -113,7 +117,7 @@ function SubmissionCard({ submission }: { submission: Submission }) {
       <div className="flex flex-col gap-3 p-5">
         <div className="flex flex-wrap items-start justify-between gap-2">
           <div>
-            <p className="font-semibold">{submission.sourceWord || "Untitled submission"}</p>
+            <p className="font-semibold">{submission.sourceWord || t("suggest.newWord")}</p>
             <p className="text-sm text-muted-foreground">
               {submission.sourceLanguageName} · {submission.categoryName}
             </p>
@@ -127,13 +131,13 @@ function SubmissionCard({ submission }: { submission: Submission }) {
           <div className="flex flex-wrap gap-4 rounded-xl bg-muted/60 px-4 py-2.5 text-sm">
             {submission.banglaTranslation && (
               <span>
-                <span className="text-muted-foreground">Bangla: </span>
+                <span className="text-muted-foreground">{t("common.bangla")}: </span>
                 <span className="font-medium">{submission.banglaTranslation}</span>
               </span>
             )}
             {submission.englishTranslation && (
               <span>
-                <span className="text-muted-foreground">English: </span>
+                <span className="text-muted-foreground">{t("common.english")}: </span>
                 <span className="font-medium">{submission.englishTranslation}</span>
               </span>
             )}
@@ -141,12 +145,12 @@ function SubmissionCard({ submission }: { submission: Submission }) {
         )}
 
         {submission.pronunciation && (
-          <p className="text-xs text-muted-foreground">Pronunciation: {submission.pronunciation}</p>
+          <p className="text-xs text-muted-foreground">{t("suggest.pronunciation")}: {submission.pronunciation}</p>
         )}
-        {submission.note && <p className="text-xs text-muted-foreground">Note: {submission.note}</p>}
+        {submission.note && <p className="text-xs text-muted-foreground">{t("suggest.note")}: {submission.note}</p>}
         {submission.status === "REJECTED" && rejectionMessage && (
           <p className="rounded-lg bg-danger/5 px-3 py-2 text-sm text-danger">
-            Rejection reason: {rejectionMessage}
+            {t("submissions.rejectionReason")}: {rejectionMessage}
           </p>
         )}
         <p className="text-xs text-muted-foreground">{new Date(submission.createdAt).toLocaleDateString()}</p>

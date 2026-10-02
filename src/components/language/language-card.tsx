@@ -1,10 +1,15 @@
+"use client";
+
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { scriptClassFor } from "@/lib/utils/script-font";
+import { useI18n } from "@/features/i18n/context";
 import type { Language } from "@/types";
 
 export function LanguageCard({ language }: { language: Language }) {
+  const { t } = useI18n();
+
   return (
     <Link href={`/languages/${language.code}`} className="group block">
       <Card className="h-full transition-all group-hover:-translate-y-0.5 group-hover:shadow-md">
@@ -23,10 +28,10 @@ export function LanguageCard({ language }: { language: Language }) {
           <p className="text-sm text-muted-foreground">{language.region}</p>
           <div className="mt-1 flex items-center justify-between text-sm">
             <span className="text-muted-foreground">
-              {language.conceptCount ?? 0} concepts
+              {language.conceptCount ?? 0} {t("card.concepts")}
             </span>
             <span className="inline-flex items-center gap-1 font-medium text-primary">
-              Explore <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
+              {t("card.explore")} <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
             </span>
           </div>
         </div>

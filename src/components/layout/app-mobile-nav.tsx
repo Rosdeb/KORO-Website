@@ -22,34 +22,37 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { useAuth } from "@/features/auth/context";
+import { useI18n } from "@/features/i18n/context";
 import { canViewAdminLeaderboard } from "@/features/leaderboard/api";
 import { Dialog, DialogTrigger, DialogContent, DialogClose, DialogTitle } from "@/components/ui/dialog";
-
-const PRIMARY_ITEMS = [
-  { href: "/app", label: "Home", icon: Home, exact: true },
-  { href: "/app/translate", label: "Translate", icon: Languages, exact: false },
-  { href: "/app/submissions/new", label: "Suggest", icon: MessageSquarePlus, exact: true },
-  { href: "/search", label: "Search", icon: Search, exact: false },
-  { href: "/app/books", label: "Books", icon: BookMarked, exact: false },
-];
+import { LanguageToggle } from "@/components/layout/language-toggle";
 
 export function AppMobileNav() {
   const pathname = usePathname();
   const { isReviewer, isModerator, user } = useAuth();
+  const { t } = useI18n();
   const [open, setOpen] = useState(false);
 
+  const primaryItems = [
+    { href: "/app", label: t("nav.home"), icon: Home, exact: true },
+    { href: "/app/translate", label: t("nav.translate"), icon: Languages, exact: false },
+    { href: "/app/submissions/new", label: t("nav.suggest"), icon: MessageSquarePlus, exact: true },
+    { href: "/search", label: t("nav.search"), icon: Search, exact: false },
+    { href: "/app/books", label: t("nav.books"), icon: BookMarked, exact: false },
+  ];
+
   const moreItems = [
-    { href: "/app/settings", label: "Profile & Settings", icon: User, description: "Account, preferences & security" },
-    { href: "/app/submissions", label: "My Submissions", icon: FileText, description: "Track your suggested translations" },
-    { href: "/app/scan", label: "Scan Object", icon: Camera, description: "Visual dictionary lookup" },
-    { href: "/app/activity", label: "Activity History", icon: Activity, description: "Your translations & saved words" },
+    { href: "/app/settings", label: t("nav.profileSettings"), icon: User, description: "Account, preferences & security" },
+    { href: "/app/submissions", label: t("nav.submissions"), icon: FileText, description: "Track your suggested translations" },
+    { href: "/app/scan", label: t("nav.scan"), icon: Camera, description: "Visual dictionary lookup" },
+    { href: "/app/activity", label: t("nav.activity"), icon: Activity, description: "Your translations & saved words" },
   ];
 
   const adminItems = [
-    ...(isReviewer ? [{ href: "/app/review", label: "Review Queue", icon: ClipboardCheck, badge: "Reviewer" }] : []),
-    ...(isModerator ? [{ href: "/app/messages", label: "Inquiries", icon: Mail, badge: "Support" }] : []),
+    ...(isReviewer ? [{ href: "/app/review", label: t("nav.reviewQueue"), icon: ClipboardCheck, badge: "Reviewer" }] : []),
+    ...(isModerator ? [{ href: "/app/messages", label: t("nav.inquiries"), icon: Mail, badge: "Support" }] : []),
     ...(canViewAdminLeaderboard(user?.roles)
-      ? [{ href: "/app/leaderboard", label: "Leaderboard & Activity", icon: Users, badge: "Admin" }]
+      ? [{ href: "/app/leaderboard", label: t("nav.leaderboard"), icon: Users, badge: "Admin" }]
       : []),
   ];
 
@@ -62,7 +65,7 @@ export function AppMobileNav() {
       aria-label="App Primary Navigation"
       className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-6 border-t border-border bg-card/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-md md:hidden"
     >
-      {PRIMARY_ITEMS.map((item) => {
+      {primaryItems.map((item) => {
         const active = item.exact ? pathname === item.href : pathname.startsWith(item.href);
         const Icon = item.icon;
         return (
@@ -93,7 +96,7 @@ export function AppMobileNav() {
             )}
           >
             <LayoutGrid className={cn("size-4.5 sm:size-5 transition-transform", isMoreActive && "scale-110")} />
-            <span className="truncate max-w-full text-center">More</span>
+            <span className="truncate max-w-full text-center">{t("nav.more")}</span>
           </button>
         </DialogTrigger>
 
@@ -102,7 +105,7 @@ export function AppMobileNav() {
             {/* Sheet Handle */}
             <div className="mx-auto mb-3 h-1.5 w-12 rounded-full bg-border" />
 
-            {/* User Mini Profile Header */}
+            {/* User Mini Profile Header + Language Toggle */}
             <div className="mb-4 flex items-center justify-between border-b border-border pb-3">
               <div>
                 <DialogTitle className="text-base font-semibold">
@@ -110,6 +113,7 @@ export function AppMobileNav() {
                 </DialogTitle>
                 <p className="text-xs text-muted-foreground">{user?.email || "Korot Learning Space"}</p>
               </div>
+              <LanguageToggle />
             </div>
 
             {/* Primary More Links */}
@@ -186,7 +190,7 @@ export function AppMobileNav() {
                   <div className="flex size-9 items-center justify-center rounded-lg bg-muted text-muted-foreground">
                     <Globe className="size-4" />
                   </div>
-                  <span className="flex-1 text-sm font-medium">Back to Website</span>
+                  <span className="flex-1 text-sm font-medium">{t("nav.backToWebsite")}</span>
                   <ChevronRight className="size-4 text-muted-foreground/60" />
                 </Link>
               </DialogClose>

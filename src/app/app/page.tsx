@@ -20,16 +20,11 @@ import { EmptyState } from "@/components/state/empty-state";
 import { useAuth } from "@/features/auth/context";
 import { useBooks } from "@/features/books/hooks";
 import { useActivity } from "@/features/activity/hooks";
-
-const QUICK_ACTIONS = [
-  { href: "/app/translate", label: "Translate", icon: Languages },
-  { href: "/app/scan", label: "Scan Object", icon: Camera },
-  { href: "/app/books", label: "My Books", icon: BookMarked },
-  { href: "/app/submissions/new", label: "Suggest Translation", icon: MessageSquarePlus },
-];
+import { useI18n } from "@/features/i18n/context";
 
 export default function DashboardPage() {
   const { user } = useAuth();
+  const { t } = useI18n();
   const { data: books, isLoading: booksLoading } = useBooks();
   const { data: activity, isLoading: activityLoading } = useActivity();
 
@@ -37,25 +32,41 @@ export default function DashboardPage() {
   const savedActivity = activityEntries.filter((a) => a.type === "SAVE_WORD").slice(0, 5);
   const recentActivity = activityEntries.slice(0, 6);
 
+  const quickActions = [
+    { href: "/app/translate", label: t("nav.translate"), icon: Languages },
+    { href: "/app/scan", label: t("nav.scan"), icon: Camera },
+    { href: "/app/books", label: t("nav.books"), icon: BookMarked },
+    { href: "/app/submissions/new", label: t("nav.suggestTranslation"), icon: MessageSquarePlus },
+  ];
+
   return (
     <div className="flex flex-col gap-9">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Welcome back, {user?.name?.split(" ")[0] ?? "there"}</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Here&apos;s what&apos;s happening in your Korot learning space.</p>
+          <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
+            {t("dashboard.welcome")}, {user?.name?.split(" ")[0] ?? "there"}
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">{t("dashboard.subtitle")}</p>
         </div>
-        <Button variant="outline" size="sm" asChild className="w-fit rounded-xl gap-2 shadow-xs transition-colors hover:border-primary/40 hover:text-primary">
+        <Button
+          variant="outline"
+          size="sm"
+          asChild
+          className="w-fit rounded-xl gap-2 shadow-xs transition-colors hover:border-primary/40 hover:text-primary"
+        >
           <Link href="/">
             <Globe className="size-4 text-primary" />
-            Back to Website
+            {t("nav.backToWebsite")}
           </Link>
         </Button>
       </div>
 
       <div>
-        <h2 className="mb-3.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Quick actions</h2>
+        <h2 className="mb-3.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          {t("dashboard.quickActions")}
+        </h2>
         <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-4">
-          {QUICK_ACTIONS.map((action) => (
+          {quickActions.map((action) => (
             <Link key={action.href} href={action.href} className="group">
               <Card className="flex h-full flex-col items-center justify-center gap-3 p-5 text-center transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md">
                 <div className="flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary transition-transform group-hover:scale-105">
@@ -74,10 +85,12 @@ export default function DashboardPage() {
         <div className="mb-3.5 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <BookOpen className="size-4 text-primary" />
-            <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Continue learning</h2>
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              {t("dashboard.continueLearning")}
+            </h2>
           </div>
           <Link href="/app/books" className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline">
-            My Books <ArrowRight className="size-3" />
+            {t("dashboard.myBooks")} <ArrowRight className="size-3" />
           </Link>
         </div>
 
@@ -92,11 +105,11 @@ export default function DashboardPage() {
         {!booksLoading && (books ?? []).length === 0 && (
           <EmptyState
             icon={BookMarked}
-            title="No books yet"
-            description="Create your first book to organize vocabulary by topic, chapter, or theme."
+            title={t("dashboard.noBooksTitle")}
+            description={t("dashboard.noBooksDesc")}
             action={
               <Button size="sm" asChild>
-                <Link href="/app/books">Create Your First Book</Link>
+                <Link href="/app/books">{t("dashboard.createFirstBook")}</Link>
               </Button>
             }
           />
@@ -119,7 +132,7 @@ export default function DashboardPage() {
                     )}
                   </div>
                   <p className="mt-3 text-xs font-medium text-muted-foreground">
-                    {book.wordCount ?? book.items?.length ?? 0} {book.wordCount === 1 ? "word" : "words"}
+                    {book.wordCount ?? book.items?.length ?? 0} {book.wordCount === 1 ? t("dashboard.wordCount") : t("dashboard.wordsCount")}
                   </p>
                 </Card>
               </Link>
@@ -134,10 +147,12 @@ export default function DashboardPage() {
           <div className="mb-3 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Bookmark className="size-4 text-primary" />
-              <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Recently saved</h2>
+              <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                {t("dashboard.recentlySaved")}
+              </h2>
             </div>
             <Link href="/app/activity" className="text-xs font-medium text-primary hover:underline">
-              View all
+              {t("dashboard.viewAll")}
             </Link>
           </div>
 
@@ -153,11 +168,11 @@ export default function DashboardPage() {
             <EmptyState
               className="flex-1 min-h-[220px]"
               icon={Bookmark}
-              title="No saved words yet"
-              description="Explore the dictionary and start collecting words to build your language books."
+              title={t("dashboard.noSavedWordsTitle")}
+              description={t("dashboard.noSavedWordsDesc")}
               action={
                 <Button variant="outline" size="sm" asChild>
-                  <Link href="/dictionary">Explore Dictionary</Link>
+                  <Link href="/dictionary">{t("dashboard.exploreDictionary")}</Link>
                 </Button>
               }
             />
@@ -183,10 +198,12 @@ export default function DashboardPage() {
           <div className="mb-3 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Sparkles className="size-4 text-primary" />
-              <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Recent activity</h2>
+              <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                {t("dashboard.recentActivity")}
+              </h2>
             </div>
             <Link href="/app/activity" className="text-xs font-medium text-primary hover:underline">
-              View all
+              {t("dashboard.viewAll")}
             </Link>
           </div>
 
@@ -202,11 +219,11 @@ export default function DashboardPage() {
             <EmptyState
               className="flex-1 min-h-[220px]"
               icon={Sparkles}
-              title="No activity yet"
-              description="Your translation history, word saves, and book updates will appear here."
+              title={t("dashboard.noActivityTitle")}
+              description={t("dashboard.noActivityDesc")}
               action={
                 <Button variant="outline" size="sm" asChild>
-                  <Link href="/app/translate">Start Translating</Link>
+                  <Link href="/app/translate">{t("dashboard.startTranslating")}</Link>
                 </Button>
               }
             />

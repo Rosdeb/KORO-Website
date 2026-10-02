@@ -1,9 +1,13 @@
+"use client";
+
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { scriptClassFor } from "@/lib/utils/script-font";
+import { useI18n } from "@/features/i18n/context";
 import type { Concept } from "@/types";
 
 export function ConceptCard({ concept }: { concept: Concept }) {
+  const { t } = useI18n();
   const preview = concept.translations.slice(0, 2);
   return (
     <Link href={`/dictionary/${concept.categorySlug}/${concept.id}`} className="group block">
@@ -17,7 +21,7 @@ export function ConceptCard({ concept }: { concept: Concept }) {
                 <span className={scriptClassFor(t.languageCode)}>{t.text}</span>
               </div>
             ))}
-            {preview.length === 0 && <p className="text-sm text-muted-foreground">View translations</p>}
+            {preview.length === 0 && <p className="text-sm text-muted-foreground">{t("card.viewTranslations")}</p>}
           </div>
         </div>
       </Card>

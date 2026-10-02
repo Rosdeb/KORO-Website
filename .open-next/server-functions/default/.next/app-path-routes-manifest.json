@@ -19,6 +19,8 @@
   "/(auth)/register/page": "/register",
   "/(auth)/reset-password/page": "/reset-password",
   "/(auth)/verify-email/page": "/verify-email",
+  "/(public)/about/page": "/about",
+  "/(public)/contact/page": "/contact",
   "/(public)/dictionary/[category]/[concept]/page": "/dictionary/[category]/[concept]",
   "/(public)/dictionary/[category]/page": "/dictionary/[category]",
   "/(public)/dictionary/page": "/dictionary",
@@ -40,7 +42,5 @@
   "/app/submissions/new/page": "/app/submissions/new",
   "/app/submissions/page": "/app/submissions",
   "/app/translate/page": "/app/translate",
-  "/(public)/contact/page": "/contact",
-  "/(public)/about/page": "/about",
   "/(public)/leaderboard/page": "/leaderboard"
 }

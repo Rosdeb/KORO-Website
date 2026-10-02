@@ -9,6 +9,8 @@ import { useGlobalSearch } from "@/features/search/hooks";
 import { cn } from "@/lib/utils/cn";
 import { scriptClassFor } from "@/lib/utils/script-font";
 
+import { useI18n } from "@/features/i18n/context";
+
 interface SearchBarProps {
   size?: "lg" | "md";
   placeholder?: string;
@@ -21,12 +23,14 @@ interface SearchBarProps {
 
 export function SearchBar({
   size = "md",
-  placeholder = "Search languages, words, and concepts...",
+  placeholder,
   autoFocus,
   onNavigate,
   className,
   collapsible = false,
 }: SearchBarProps) {
+  const { t } = useI18n();
+  const effectivePlaceholder = placeholder ?? t("search.placeholder");
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
   const [expanded, setExpanded] = useState(!collapsible);
@@ -118,7 +122,7 @@ export function SearchBar({
               setOpen(false);
               collapseIfIdle();
             }, 150)}
-            placeholder={expanded ? placeholder : ""}
+            placeholder={expanded ? effectivePlaceholder : ""}
             aria-hidden={collapsible && !expanded}
             tabIndex={collapsible && !expanded ? -1 : 0}
             className={cn(
@@ -138,12 +142,12 @@ export function SearchBar({
         <div className="absolute z-40 mt-2 w-full overflow-hidden rounded-2xl border border-border bg-card shadow-xl animate-scale-in">
           {!hasResults && !isFetching && (
             <p className="px-4 py-6 text-center text-sm text-muted-foreground">
-              No matches for &ldquo;{debounced}&rdquo; yet.
+              {t("search.noMatches")} &ldquo;{debounced}&rdquo;.
             </p>
           )}
 
           {data?.languages && data.languages.length > 0 && (
-            <ResultGroup icon={Languages} label="Languages">
+            <ResultGroup icon={Languages} label={t("common.languages")}>
               {data.languages.slice(0, 4).map((l) => (
                 <Link
                   key={l.code}
@@ -159,7 +163,7 @@ export function SearchBar({
           )}
 
           {data?.categories && data.categories.length > 0 && (
-            <ResultGroup icon={Shapes} label="Categories">
+            <ResultGroup icon={Shapes} label={t("common.categories")}>
               {data.categories.slice(0, 4).map((c) => (
                 <Link
                   key={c.id}
@@ -174,7 +178,7 @@ export function SearchBar({
           )}
 
           {data?.concepts && data.concepts.length > 0 && (
-            <ResultGroup icon={BookOpen} label="Concepts">
+            <ResultGroup icon={BookOpen} label={t("common.concepts")}>
               {data.concepts.slice(0, 5).map((c) => (
                 <Link
                   key={c.id}
@@ -194,7 +198,7 @@ export function SearchBar({
               onClick={goToFullSearch}
               className="w-full border-t border-border px-4 py-3 text-left text-sm font-medium text-primary hover:bg-primary-50"
             >
-              See all results for &ldquo;{query.trim()}&rdquo;
+              {t("search.seeAll")} &ldquo;{query.trim()}&rdquo;
             </button>
           )}
         </div>

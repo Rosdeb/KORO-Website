@@ -20,34 +20,37 @@ import {
   LogIn,
 } from "lucide-react";
 import { useAuth } from "@/features/auth/context";
+import { useI18n } from "@/features/i18n/context";
 import { cn } from "@/lib/utils/cn";
 import { Dialog, DialogTrigger, DialogContent, DialogClose, DialogTitle } from "@/components/ui/dialog";
+import { LanguageToggle } from "@/components/layout/language-toggle";
 
 export function MobileBottomNav() {
   const pathname = usePathname();
   const { isAuthenticated, isReviewer, user } = useAuth();
+  const { t } = useI18n();
 
   const items = [
-    { href: "/", label: "Home", icon: Home, exact: true },
-    { href: "/languages", label: "Languages", icon: Languages, exact: false },
-    { href: "/app/submissions/new", label: "Suggest", icon: MessageSquarePlus, exact: true },
-    { href: "/dictionary", label: "Dictionary", icon: BookOpen, exact: false },
-    { href: "/search", label: "Search", icon: Search, exact: false },
+    { href: "/", label: t("nav.home"), icon: Home, exact: true },
+    { href: "/languages", label: t("nav.languages"), icon: Languages, exact: false },
+    { href: "/app/submissions/new", label: t("nav.suggest"), icon: MessageSquarePlus, exact: true },
+    { href: "/dictionary", label: t("nav.dictionary"), icon: BookOpen, exact: false },
+    { href: "/search", label: t("nav.search"), icon: Search, exact: false },
   ];
 
   const moreItems = [
     isAuthenticated
-      ? { href: "/app/settings", label: "Profile & Settings", icon: User, description: "Manage account & preferences" }
+      ? { href: "/app/settings", label: t("nav.profileSettings"), icon: User, description: "Manage account & preferences" }
       : { href: "/login", label: "Sign In / Register", icon: LogIn, description: "Access your books and account" },
-    { href: "/app/translate", label: "Translate", icon: Sparkles, description: "Instant concept translations" },
-    { href: "/app/books", label: "My Books", icon: BookMarked, description: "Your custom vocabulary collections" },
-    { href: "/app/scan", label: "Scan Object", icon: ScanLine, description: "Visual object recognition" },
-    { href: "/app/submissions", label: "Submissions", icon: FileText, description: "Suggest & track new words" },
-    { href: "/app/activity", label: "Activity History", icon: Activity, description: "Your learning log" },
+    { href: "/app/translate", label: t("nav.translate"), icon: Sparkles, description: "Instant concept translations" },
+    { href: "/app/books", label: t("nav.books"), icon: BookMarked, description: "Your custom vocabulary collections" },
+    { href: "/app/scan", label: t("nav.scan"), icon: ScanLine, description: "Visual object recognition" },
+    { href: "/app/submissions", label: t("nav.submissions"), icon: FileText, description: "Suggest & track new words" },
+    { href: "/app/activity", label: t("nav.activity"), icon: Activity, description: "Your learning log" },
   ];
 
   if (isReviewer) {
-    moreItems.push({ href: "/app/review", label: "Review Queue", icon: ClipboardCheck, description: "Review community translations" });
+    moreItems.push({ href: "/app/review", label: t("nav.reviewQueue"), icon: ClipboardCheck, description: "Review community translations" });
   }
 
   const isActive = (href: string, exact?: boolean) =>
@@ -91,7 +94,7 @@ export function MobileBottomNav() {
             )}
           >
             <LayoutGrid className={cn("size-4.5 sm:size-5 transition-transform", isMoreActive && "scale-110")} />
-            <span className="truncate max-w-full text-center">More</span>
+            <span className="truncate max-w-full text-center">{t("nav.more")}</span>
           </button>
         </DialogTrigger>
 
@@ -100,7 +103,7 @@ export function MobileBottomNav() {
             {/* Sheet Handle */}
             <div className="mx-auto mb-3 h-1.5 w-12 rounded-full bg-border" />
 
-            {/* Header */}
+            {/* Header + Language Toggle */}
             <div className="mb-4 flex items-center justify-between border-b border-border pb-3">
               <div>
                 <DialogTitle className="text-base font-semibold">
@@ -110,6 +113,7 @@ export function MobileBottomNav() {
                   {isAuthenticated ? user?.email || "Signed in" : "Korot Dictionary Platform"}
                 </p>
               </div>
+              <LanguageToggle />
             </div>
 
             <nav className="flex flex-col gap-1">

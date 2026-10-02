@@ -126,10 +126,10 @@
     "hints": 64,
     "slots": {
       "children": {
-        "hints": 32,
+        "hints": 96,
         "slots": {
           "children": {
-            "hints": 64,
+            "hints": 96,
             "slots": {
               "children": {
                 "hints": 160,
@@ -145,10 +145,10 @@
     "hints": 64,
     "slots": {
       "children": {
-        "hints": 32,
+        "hints": 96,
         "slots": {
           "children": {
-            "hints": 64,
+            "hints": 96,
             "slots": {
               "children": {
                 "hints": 160,
@@ -164,10 +164,10 @@
     "hints": 64,
     "slots": {
       "children": {
-        "hints": 32,
+        "hints": 96,
         "slots": {
           "children": {
-            "hints": 64,
+            "hints": 96,
             "slots": {
               "children": {
                 "hints": 160,
@@ -183,10 +183,10 @@
     "hints": 64,
     "slots": {
       "children": {
-        "hints": 32,
+        "hints": 96,
         "slots": {
           "children": {
-            "hints": 64,
+            "hints": 96,
             "slots": {
               "children": {
                 "hints": 160,
@@ -202,10 +202,10 @@
     "hints": 64,
     "slots": {
       "children": {
-        "hints": 32,
+        "hints": 96,
         "slots": {
           "children": {
-            "hints": 64,
+            "hints": 96,
             "slots": {
               "children": {
                 "hints": 160,
@@ -221,10 +221,10 @@
     "hints": 64,
     "slots": {
       "children": {
-        "hints": 32,
+        "hints": 96,
         "slots": {
           "children": {
-            "hints": 128,
+            "hints": 160,
             "slots": null
           }
         }
@@ -235,10 +235,10 @@
     "hints": 64,
     "slots": {
       "children": {
-        "hints": 32,
+        "hints": 96,
         "slots": {
           "children": {
-            "hints": 64,
+            "hints": 96,
             "slots": {
               "children": {
                 "hints": 160,

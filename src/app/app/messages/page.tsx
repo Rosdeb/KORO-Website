@@ -19,26 +19,20 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/state/empty-state";
 import { ErrorState } from "@/components/state/error-state";
 import { useAuth } from "@/features/auth/context";
+import { useI18n } from "@/features/i18n/context";
 import { useAdminContactMessages } from "@/features/contact/hooks";
 import type { ContactMessage, ContactMessageStatus } from "@/types";
 
-const STATUS_FILTERS: { label: string; value: ContactMessageStatus | "" }[] = [
-  { label: "All", value: "" },
-  { label: "Pending", value: "PENDING" },
-  { label: "Read", value: "READ" },
-  { label: "Replied", value: "REPLIED" },
-  { label: "Archived", value: "ARCHIVED" },
-];
-
 export default function AdminMessagesPage() {
   const { isModerator } = useAuth();
+  const { t } = useI18n();
 
   if (!isModerator) {
     return (
       <EmptyState
         icon={Mail}
-        title="Moderators & Admins Only"
-        description="This inbox is reserved for administrators and moderators to review contact submissions."
+        title={t("inquiries.adminOnlyTitle")}
+        description={t("inquiries.adminOnlyDesc")}
       />
     );
   }
@@ -47,10 +41,19 @@ export default function AdminMessagesPage() {
 }
 
 function MessagesInbox() {
+  const { t, locale } = useI18n();
   const [page, setPage] = useState(0);
   const [status, setStatus] = useState<ContactMessageStatus | "">("");
   const [searchQuery, setSearchQuery] = useState("");
   const [searchInput, setSearchInput] = useState("");
+
+  const statusFilters: { label: string; value: ContactMessageStatus | "" }[] = [
+    { label: t("inquiries.all"), value: "" },
+    { label: t("inquiries.pending"), value: "PENDING" },
+    { label: t("inquiries.read"), value: "READ" },
+    { label: t("inquiries.replied"), value: "REPLIED" },
+    { label: t("inquiries.archived"), value: "ARCHIVED" },
+  ];
 
   const {
     data: messagePage,
@@ -85,14 +88,14 @@ function MessagesInbox() {
         <div>
           <div className="flex items-center gap-2.5">
             <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
-              Contact Inquiries
+              {t("inquiries.title")}
             </h1>
             <Badge variant="primary" className="gap-1">
-              <ShieldCheck className="size-3" /> Admin & Mod
+              <ShieldCheck className="size-3" /> {t("inquiries.adminBadge")}
             </Badge>
           </div>
           <p className="mt-1 text-sm text-muted-foreground">
-            Review and manage public messages and support inquiries sent via the Contact page.
+            {t("inquiries.subtitle")}
           </p>
         </div>
         <Button
@@ -103,7 +106,7 @@ function MessagesInbox() {
           className="gap-2"
         >
           <RefreshCw className={`size-4 ${isFetching ? "animate-spin" : ""}`} />
-          <span>Refresh</span>
+          <span>{t("inquiries.refresh")}</span>
         </Button>
       </div>
 
@@ -111,7 +114,7 @@ function MessagesInbox() {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         {/* Status Tabs */}
         <div className="flex flex-wrap gap-1.5 rounded-xl bg-muted/60 p-1">
-          {STATUS_FILTERS.map((f) => (
+          {statusFilters.map((f) => (
             <button
               key={f.value || "all"}
               type="button"
@@ -132,7 +135,7 @@ function MessagesInbox() {
           <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             type="search"
-            placeholder="Search name, email, subject..."
+            placeholder={t("inquiries.searchPlaceholder")}
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             className="pl-9 text-sm"
@@ -153,11 +156,11 @@ function MessagesInbox() {
       {!isLoading && !isError && messages.length === 0 && (
         <EmptyState
           icon={Mail}
-          title="No messages found"
+          title={t("inquiries.noMessagesTitle")}
           description={
             searchQuery || status
-              ? "No contact messages matched your search or status filter."
-              : "There are no contact messages in the inbox yet."
+              ? t("inquiries.noMessagesFilter")
+              : t("inquiries.noMessagesEmpty")
           }
         />
       )}
@@ -179,10 +182,14 @@ function MessagesInbox() {
                 disabled={!messagePage.hasPrevious || isFetching}
                 onClick={() => setPage((current) => current - 1)}
               >
-                Previous
+                {t("inquiries.previous")}
               </Button>
               <span className="text-sm text-muted-foreground">
-                Page {messagePage.page + 1} of {messagePage.totalPages} ({messagePage.totalElements} total)
+                {t("inquiries.pageInfo", {
+                  page: String(messagePage.page + 1),
+                  totalPages: String(messagePage.totalPages),
+                  totalElements: String(messagePage.totalElements),
+                })}
               </span>
               <Button
                 variant="outline"
@@ -190,7 +197,7 @@ function MessagesInbox() {
                 disabled={!messagePage.hasNext || isFetching}
                 onClick={() => setPage((current) => current + 1)}
               >
-                Next
+                {t("inquiries.next")}
               </Button>
             </div>
           )}
@@ -201,6 +208,8 @@ function MessagesInbox() {
 }
 
 function MessageCard({ message }: { message: ContactMessage }) {
+  const { t, locale } = useI18n();
+
   const statusBadgeVariant = (status: ContactMessageStatus) => {
     switch (status) {
       case "PENDING":
@@ -216,7 +225,22 @@ function MessageCard({ message }: { message: ContactMessage }) {
     }
   };
 
-  const formattedDate = new Date(message.createdAt).toLocaleString(undefined, {
+  const getStatusLabel = (status: ContactMessageStatus) => {
+    switch (status) {
+      case "PENDING":
+        return t("inquiries.pending");
+      case "READ":
+        return t("inquiries.read");
+      case "REPLIED":
+        return t("inquiries.replied");
+      case "ARCHIVED":
+        return t("inquiries.archived");
+      default:
+        return status;
+    }
+  };
+
+  const formattedDate = new Date(message.createdAt).toLocaleString(locale === "bn" ? "bn-BD" : "en-US", {
     month: "short",
     day: "numeric",
     year: "numeric",
@@ -231,10 +255,10 @@ function MessageCard({ message }: { message: ContactMessage }) {
           <div>
             <div className="flex items-center gap-2">
               <CardTitle className="text-base font-semibold">
-                {message.subject || "No Subject"}
+                {message.subject || t("inquiries.noSubject")}
               </CardTitle>
               <Badge variant={statusBadgeVariant(message.status)}>
-                {message.status}
+                {getStatusLabel(message.status)}
               </Badge>
             </div>
             <CardDescription className="mt-1 flex flex-wrap items-center gap-3 text-xs">
@@ -250,7 +274,7 @@ function MessageCard({ message }: { message: ContactMessage }) {
               </a>
               {message.userId && (
                 <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
-                  Registered User
+                  {t("inquiries.registeredUser")}
                 </span>
               )}
             </CardDescription>
@@ -269,10 +293,10 @@ function MessageCard({ message }: { message: ContactMessage }) {
         {message.replyMessage && (
           <div className="rounded-xl border border-success/30 bg-success/5 p-3.5 text-sm">
             <div className="flex items-center justify-between text-xs font-semibold text-success mb-1.5">
-              <span>Reply by {message.repliedBy || "Moderator"}</span>
+              <span>{t("inquiries.replyBy", { name: message.repliedBy || t("inquiries.moderator") })}</span>
               {message.repliedAt && (
                 <span className="text-muted-foreground font-normal">
-                  {new Date(message.repliedAt).toLocaleDateString()}
+                  {new Date(message.repliedAt).toLocaleDateString(locale === "bn" ? "bn-BD" : "en-US")}
                 </span>
               )}
             </div>
@@ -293,7 +317,7 @@ function MessageCard({ message }: { message: ContactMessage }) {
             className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
           >
             <Mail className="size-3.5" />
-            <span>Reply via Email</span>
+            <span>{t("inquiries.replyViaEmail")}</span>
             <ExternalLink className="size-3" />
           </a>
         </div>

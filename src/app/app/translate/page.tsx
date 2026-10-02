@@ -13,8 +13,10 @@ import { useTranslationSearch } from "@/features/translations/hooks";
 import { scriptClassFor } from "@/lib/utils/script-font";
 import { TtsSpeechButton } from "@/components/ui/tts-speech-button";
 import { PronunciationPlayer } from "@/components/dictionary/pronunciation-player";
+import { useI18n } from "@/features/i18n/context";
 
 export default function TranslatePage() {
+  const { t } = useI18n();
   const { data: languages, isLoading: languagesLoading } = useLanguages();
   const [toLanguage, setToLanguage] = useState<string>("");
   const [query, setQuery] = useState("");
@@ -33,21 +35,21 @@ export default function TranslatePage() {
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Translate & Search</h1>
-        <p className="mt-1 text-muted-foreground">Look up any concept and see it translated instantly.</p>
+        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">{t("translate.title")}</h1>
+        <p className="mt-1 text-muted-foreground">{t("translate.subtitle")}</p>
       </div>
 
       <Card>
         <form onSubmit={handleSubmit} className="flex flex-col gap-5 p-6">
           <div className="grid grid-cols-1 items-end gap-4 sm:grid-cols-[1fr_auto_1fr]">
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-muted-foreground">From</label>
+              <label className="mb-1.5 block text-sm font-medium text-muted-foreground">{t("translate.from")}</label>
               <Select value="en" disabled>
                 <SelectTrigger>
-                  <SelectValue>English</SelectValue>
+                  <SelectValue>{t("common.english")}</SelectValue>
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="en">English</SelectItem>
+                  <SelectItem value="en">{t("common.english")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -55,10 +57,10 @@ export default function TranslatePage() {
               <ArrowLeftRight className="size-4 text-muted-foreground" />
             </div>
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-muted-foreground">To</label>
+              <label className="mb-1.5 block text-sm font-medium text-muted-foreground">{t("translate.to")}</label>
               <Select value={effectiveToLanguage} onValueChange={setToLanguage} disabled={languagesLoading}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select a language" />
+                  <SelectValue placeholder={t("translate.selectLanguage")} />
                 </SelectTrigger>
                 <SelectContent>
                   {(languages ?? []).map((l) => (
@@ -76,11 +78,11 @@ export default function TranslatePage() {
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search concept..."
+              placeholder={t("translate.searchPlaceholder")}
               className="h-12 w-full rounded-full border border-input bg-card pl-11 pr-28 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring"
             />
             <Button type="submit" size="sm" className="absolute right-1.5 top-1.5" loading={search.isPending}>
-              Search
+              {t("translate.searchBtn")}
             </Button>
           </div>
         </form>
@@ -93,7 +95,7 @@ export default function TranslatePage() {
       )}
 
       {search.isSuccess && search.data.length === 0 && (
-        <EmptyState title="No matches found" description="Try a different word or concept." />
+        <EmptyState title={t("translate.noMatches")} description={t("translate.noMatchesDesc")} />
       )}
 
       {search.isSuccess && search.data.length > 0 && (
@@ -103,13 +105,13 @@ export default function TranslatePage() {
               <div className="flex flex-col gap-4 p-6">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
-                    <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Concept</p>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t("translate.concept")}</p>
                     <div className="flex items-center gap-2">
                       <p className="text-lg font-bold">{concept.name}</p>
                       <TtsSpeechButton
                         text={concept.name}
                         langCode="en"
-                        label={`Listen to English: ${concept.name}`}
+                        label={`Listen: ${concept.name}`}
                         size="sm"
                       />
                     </div>
@@ -130,7 +132,7 @@ export default function TranslatePage() {
 
                 <div>
                   <div className="flex items-center justify-between">
-                    <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Translation</p>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t("translate.translation")}</p>
                     <PronunciationPlayer
                       text={translation.text}
                       pronunciation={translation.pronunciation}
@@ -145,7 +147,7 @@ export default function TranslatePage() {
 
                 {translation.notes && (
                   <div>
-                    <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Notes</p>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t("translate.notes")}</p>
                     <p className="text-sm text-muted-foreground">{translation.notes}</p>
                   </div>
                 )}

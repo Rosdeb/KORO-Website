@@ -7,8 +7,10 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/features/auth/context";
 import { useSubmitContact } from "@/features/contact/hooks";
+import { useI18n } from "@/features/i18n/context";
 
 export function ContactForm() {
+  const { t } = useI18n();
   const { user } = useAuth();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -63,13 +65,13 @@ export function ContactForm() {
         <div className="flex items-start gap-4">
           <CheckCircle2 className="size-6 shrink-0 text-success" />
           <div className="space-y-2">
-            <h3 className="font-semibold text-base">Thank you for reaching out!</h3>
+            <h3 className="font-semibold text-base">{t("contact.thankYou")}</h3>
             <p className="text-sm text-muted-foreground leading-relaxed">
               {submittedMessage}
             </p>
             <div className="pt-2">
               <Button variant="outline" size="sm" onClick={handleReset}>
-                Send another message
+                {t("contact.sendAnother")}
               </Button>
             </div>
           </div>
@@ -82,13 +84,13 @@ export function ContactForm() {
     <form onSubmit={handleSubmit} className="mt-6 space-y-5">
       <div className="space-y-2">
         <label htmlFor="contact-name" className="block text-sm font-medium">
-          Name <span className="text-danger">*</span>
+          {t("contact.name")} <span className="text-danger">*</span>
         </label>
         <Input
           id="contact-name"
           name="name"
           autoComplete="name"
-          placeholder="Your name"
+          placeholder={t("contact.namePlaceholder")}
           value={name}
           onChange={(e) => setName(e.target.value)}
           maxLength={120}
@@ -100,14 +102,14 @@ export function ContactForm() {
 
       <div className="space-y-2">
         <label htmlFor="contact-email" className="block text-sm font-medium">
-          Email <span className="text-danger">*</span>
+          {t("contact.email")} <span className="text-danger">*</span>
         </label>
         <Input
           id="contact-email"
           name="email"
           type="email"
           autoComplete="email"
-          placeholder="you@example.com"
+          placeholder={t("contact.emailPlaceholder")}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           maxLength={254}
@@ -119,12 +121,12 @@ export function ContactForm() {
 
       <div className="space-y-2">
         <label htmlFor="contact-subject" className="block text-sm font-medium">
-          Subject <span className="text-danger">*</span>
+          {t("contact.subject")} <span className="text-danger">*</span>
         </label>
         <Input
           id="contact-subject"
           name="subject"
-          placeholder="What is this inquiry about?"
+          placeholder={t("contact.subjectPlaceholder")}
           value={subject}
           onChange={(e) => setSubject(e.target.value)}
           maxLength={200}
@@ -137,7 +139,7 @@ export function ContactForm() {
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <label htmlFor="contact-message" className="block text-sm font-medium">
-            Message <span className="text-danger">*</span>
+            {t("contact.message")} <span className="text-danger">*</span>
           </label>
           <span className="text-xs text-muted-foreground">
             {message.length}/5000
@@ -146,7 +148,7 @@ export function ContactForm() {
         <Textarea
           id="contact-message"
           name="message"
-          placeholder="Tell us how we can help, suggest a translation, or ask a question..."
+          placeholder={t("contact.messagePlaceholder")}
           rows={5}
           value={message}
           onChange={(e) => setMessage(e.target.value)}
@@ -178,12 +180,12 @@ export function ContactForm() {
         {submitMutation.isPending ? (
           <>
             <Loader2 className="size-4 animate-spin" />
-            <span>Sending...</span>
+            <span>{t("contact.sending")}</span>
           </>
         ) : (
           <>
             <Send className="size-4" />
-            <span>Send message</span>
+            <span>{t("contact.send")}</span>
           </>
         )}
       </Button>

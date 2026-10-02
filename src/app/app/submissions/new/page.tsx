@@ -31,6 +31,7 @@ import { useCategories } from "@/features/dictionary/hooks";
 import { useCreateSubmission } from "@/features/submissions/hooks";
 import { ApiError } from "@/lib/api/client";
 import { cn } from "@/lib/utils/cn";
+import { useI18n } from "@/features/i18n/context";
 
 const schema = z.object({
   categoryId: z.string().min(1, "Select a category"),
@@ -46,6 +47,7 @@ const schema = z.object({
 type FormValues = z.infer<typeof schema>;
 
 export default function NewSubmissionPage() {
+  const { t } = useI18n();
   const { data: languages } = useLanguages();
   const { data: categories } = useCategories();
   const createSubmission = useCreateSubmission();
@@ -156,13 +158,13 @@ export default function NewSubmissionPage() {
           <div className="flex size-12 items-center justify-center rounded-full bg-success/10">
             <CheckCircle2 className="size-6 text-success" />
           </div>
-          <h2 className="text-lg font-semibold">Your word has been submitted.</h2>
-          <p className="text-sm text-muted-foreground">Status: Pending</p>
+          <h2 className="text-lg font-semibold">{t("suggest.successTitle")}</h2>
+          <p className="text-sm text-muted-foreground">{t("suggest.successSubtitle")}</p>
           <div className="mt-2 flex w-full flex-col sm:flex-row gap-2">
             <Button variant="outline" className="w-full" onClick={() => router.push("/app/submissions")}>
-              View My Submissions
+              {t("suggest.viewSubmissions")}
             </Button>
-            <Button className="w-full" onClick={() => setSubmitted(false)}>Suggest Another</Button>
+            <Button className="w-full" onClick={() => setSubmitted(false)}>{t("suggest.suggestAnother")}</Button>
           </div>
         </CardContent>
       </Card>
@@ -178,13 +180,13 @@ export default function NewSubmissionPage() {
         href="/app/submissions"
         className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground active:scale-95"
       >
-        <ArrowLeft className="size-4" /> My Submissions
+        <ArrowLeft className="size-4" /> {t("suggest.mySubmissions")}
       </Link>
 
       <div>
-        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Suggest a Translation</h1>
+        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{t("suggest.title")}</h1>
         <p className="mt-1 text-xs sm:text-sm text-muted-foreground">
-          Help grow Korot&apos;s dictionary. Every suggestion is reviewed before it becomes official.
+          {t("suggest.desc")}
         </p>
       </div>
 
@@ -195,13 +197,13 @@ export default function NewSubmissionPage() {
               <p className="rounded-xl bg-danger/10 px-4 py-3 text-sm text-danger">{formError}</p>
             )}
 
-            <FormSection title="1. What do you want to translate?">
+            <FormSection title={t("suggest.step1")}>
               <IconField
-                label="Category"
+                label={t("suggest.category")}
                 required
                 icon={<LayoutGrid className="size-4" />}
                 iconClassName="bg-primary-100 text-primary-700"
-                helper="Choose the category that best fits this word."
+                helper={t("suggest.categoryHelper")}
                 error={errors.categoryId?.message}
               >
                 <Controller
@@ -210,7 +212,7 @@ export default function NewSubmissionPage() {
                   render={({ field }) => (
                     <Select value={field.value} onValueChange={field.onChange}>
                       <SelectTrigger className="pl-12 text-base sm:text-sm h-11">
-                        <SelectValue placeholder="Select a category" />
+                        <SelectValue placeholder={t("suggest.selectCategory")} />
                       </SelectTrigger>
                       <SelectContent>
                         {(categories ?? []).map((c) => (
@@ -226,22 +228,22 @@ export default function NewSubmissionPage() {
             </FormSection>
 
             <FormSection
-              title="2. Enter the word and translations"
-              description="Fill in all required fields to suggest a new word."
+              title={t("suggest.step2")}
+              description={t("suggest.step2Desc")}
             >
               <div className="flex items-center gap-2 rounded-xl border border-primary/20 bg-primary/5 px-3 py-2 text-xs text-primary">
                 <Sparkles className="size-4 shrink-0 text-primary" />
                 <span className="leading-tight">
-                  <strong>Smart Auto-Fill:</strong> Type in Bangla or English — both translate automatically.
+                  <strong>{t("suggest.smartAutoFill")}</strong> {t("suggest.autoTranslateHint")}
                 </span>
               </div>
 
               <IconField
-                label="Source Language (Your Language)"
+                label={t("suggest.sourceLanguage")}
                 required
                 icon={<Languages className="size-4" />}
                 iconClassName="bg-success/10 text-success"
-                helper="The language of the word you're adding (e.g., Chakma)."
+                helper={t("suggest.sourceLanguageHelper")}
                 error={errors.sourceLanguageId?.message}
               >
                 <Controller
@@ -250,7 +252,7 @@ export default function NewSubmissionPage() {
                   render={({ field }) => (
                     <Select value={field.value} onValueChange={field.onChange}>
                       <SelectTrigger className="pl-12 text-base sm:text-sm h-11">
-                        <SelectValue placeholder="Select source language" />
+                        <SelectValue placeholder={t("suggest.selectSourceLanguage")} />
                       </SelectTrigger>
                       <SelectContent>
                         {(languages ?? []).map((l) => (
@@ -265,11 +267,11 @@ export default function NewSubmissionPage() {
               </IconField>
 
               <IconField
-                label="Word (Source Language)"
+                label={t("suggest.word")}
                 required
                 icon={<Quote className="size-4" />}
                 iconClassName="bg-primary/10 text-primary"
-                helper="e.g., a word in the source language you selected above"
+                helper={t("suggest.wordHelper")}
                 error={errors.sourceWord?.message}
                 showClear={Boolean(watch("sourceWord"))}
                 onClear={() => setValue("sourceWord", "", { shouldValidate: true, shouldDirty: true })}
@@ -280,7 +282,7 @@ export default function NewSubmissionPage() {
                   render={({ field }) => (
                     <Input
                       className="pl-12 pr-11 text-base sm:text-sm h-11"
-                      placeholder="Enter word in source language"
+                      placeholder={t("suggest.wordPlaceholder")}
                       value={field.value}
                       onChange={field.onChange}
                     />
@@ -289,14 +291,14 @@ export default function NewSubmissionPage() {
               </IconField>
 
               <IconField
-                label="Translation in Bangla"
+                label={t("suggest.bangla")}
                 required
                 icon={<span className="text-sm">🇧🇩</span>}
                 iconClassName="bg-success/10"
                 helper={
                   translatingField === "bangla"
-                    ? "Translating from English..."
-                    : "e.g., পানি (Auto-translates English)"
+                    ? t("suggest.banglaTranslating")
+                    : t("suggest.banglaHelper")
                 }
                 isLoading={translatingField === "bangla"}
                 showClear={Boolean(watch("banglaTranslation"))}
@@ -313,7 +315,7 @@ export default function NewSubmissionPage() {
                   render={({ field }) => (
                     <Input
                       className="pl-12 pr-11 text-base sm:text-sm h-11"
-                      placeholder="Enter meaning in Bangla"
+                      placeholder={t("suggest.banglaPlaceholder")}
                       value={field.value}
                       onChange={(e) => {
                         field.onChange(e);
@@ -325,14 +327,14 @@ export default function NewSubmissionPage() {
               </IconField>
 
               <IconField
-                label="Translation in English"
+                label={t("suggest.english")}
                 required
                 icon={<span className="text-sm">🇺🇸</span>}
                 iconClassName="bg-primary-100"
                 helper={
                   translatingField === "english"
-                    ? "Translating from Bangla..."
-                    : "e.g., Water (Auto-translates Bangla)"
+                    ? t("suggest.englishTranslating")
+                    : t("suggest.englishHelper")
                 }
                 isLoading={translatingField === "english"}
                 showClear={Boolean(watch("englishTranslation"))}
@@ -349,7 +351,7 @@ export default function NewSubmissionPage() {
                   render={({ field }) => (
                     <Input
                       className="pl-12 pr-11 text-base sm:text-sm h-11"
-                      placeholder="Enter meaning in English"
+                      placeholder={t("suggest.englishPlaceholder")}
                       value={field.value}
                       onChange={(e) => {
                         field.onChange(e);
@@ -361,42 +363,42 @@ export default function NewSubmissionPage() {
               </IconField>
             </FormSection>
 
-            <FormSection title="3. Additional Information (Optional)">
+            <FormSection title={t("suggest.step3")}>
               <IconField
-                label="Pronunciation (Optional)"
+                label={t("suggest.pronunciation")}
                 icon={<Volume2 className="size-4" />}
                 iconClassName="bg-accent-100 text-accent"
                 helper="e.g., pa-ni"
               >
                 <Input
                   className="pl-12 text-base sm:text-sm h-11"
-                  placeholder="Enter pronunciation or phonetic spelling"
+                  placeholder={t("suggest.pronunciationPlaceholder")}
                   {...register("pronunciation")}
                 />
               </IconField>
 
               <IconField
-                label="Example Sentence (Optional)"
+                label={t("suggest.example")}
                 icon={<Quote className="size-4" />}
                 iconClassName="bg-accent-100 text-accent"
-                helper="Written in the source language, Bangla, or English."
+                helper={t("suggest.exampleHelper")}
               >
                 <Input
                   className="pl-12 text-base sm:text-sm h-11"
-                  placeholder="Use the word in a sentence (any language)"
+                  placeholder={t("suggest.examplePlaceholder")}
                   {...register("exampleSentence")}
                 />
               </IconField>
 
               <IconField
-                label="Note (Optional)"
+                label={t("suggest.note")}
                 icon={<StickyNote className="size-4" />}
                 iconClassName="bg-accent-100 text-accent"
-                helper="Add any useful context, usage notes, or etymology."
+                helper={t("suggest.noteHelper")}
               >
                 <Input
                   className="pl-12 text-base sm:text-sm h-11"
-                  placeholder="Any context that helps a reviewer"
+                  placeholder={t("suggest.notePlaceholder")}
                   {...register("note")}
                 />
               </IconField>
@@ -409,7 +411,7 @@ export default function NewSubmissionPage() {
                 className="w-full sm:w-auto h-11 text-sm font-medium"
                 onClick={() => setPreview(true)}
               >
-                <Eye className="size-4" /> Preview
+                <Eye className="size-4" /> {t("suggest.preview")}
               </Button>
               <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
                 <Button
@@ -418,14 +420,14 @@ export default function NewSubmissionPage() {
                   className="w-full sm:w-auto h-11 text-sm"
                   onClick={() => router.push("/app/submissions")}
                 >
-                  Cancel
+                  {t("suggest.cancel")}
                 </Button>
                 <Button
                   type="submit"
                   loading={isSubmitting}
                   className="w-full sm:w-auto h-11 text-sm font-semibold shadow-sm"
                 >
-                  <Send className="size-4" /> Submit Suggestion
+                  <Send className="size-4" /> {t("suggest.submit")}
                 </Button>
               </div>
             </div>
@@ -436,17 +438,17 @@ export default function NewSubmissionPage() {
       <Dialog open={preview} onOpenChange={setPreview}>
         <DialogContent className="w-[calc(100%-2rem)] max-w-lg rounded-2xl p-5 sm:p-6">
           <DialogHeader>
-            <DialogTitle className="text-lg sm:text-xl">{getValues("sourceWord") || "New word"}</DialogTitle>
+            <DialogTitle className="text-lg sm:text-xl">{getValues("sourceWord") || t("suggest.newWord")}</DialogTitle>
             <DialogDescription className="text-xs sm:text-sm">
-              {categoryName ?? "No category selected"} · {sourceLanguageName ?? "No source language selected"}
+              {categoryName ?? t("suggest.noCategory")} · {sourceLanguageName ?? t("suggest.noSourceLang")}
             </DialogDescription>
           </DialogHeader>
           <div className="flex flex-col gap-2.5 text-xs sm:text-sm">
-            <PreviewRow label="Bangla meaning" value={getValues("banglaTranslation")} />
-            <PreviewRow label="English meaning" value={getValues("englishTranslation")} />
-            <PreviewRow label="Pronunciation" value={getValues("pronunciation")} />
-            <PreviewRow label="Example sentence" value={getValues("exampleSentence")} />
-            <PreviewRow label="Note" value={getValues("note")} />
+            <PreviewRow label={t("suggest.bangla")} value={getValues("banglaTranslation")} />
+            <PreviewRow label={t("suggest.english")} value={getValues("englishTranslation")} />
+            <PreviewRow label={t("suggest.pronunciation")} value={getValues("pronunciation")} />
+            <PreviewRow label={t("suggest.example")} value={getValues("exampleSentence")} />
+            <PreviewRow label={t("suggest.note")} value={getValues("note")} />
           </div>
         </DialogContent>
       </Dialog>

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Globe, LogOut, Settings } from "lucide-react";
 import { Logo } from "@/components/layout/logo";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
+import { LanguageToggle } from "@/components/layout/language-toggle";
 import { SearchBar } from "@/components/search/search-bar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -14,9 +15,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/features/auth/context";
+import { useI18n } from "@/features/i18n/context";
 
 export function AppTopbar() {
   const { user, logout } = useAuth();
+  const { t } = useI18n();
 
   return (
     <header className="sticky top-0 z-30 border-b border-border bg-background/85 backdrop-blur-md">
@@ -26,6 +29,7 @@ export function AppTopbar() {
           <SearchBar size="md" collapsible className="max-w-md" />
         </div>
         <div className="ml-auto flex items-center gap-2">
+          <LanguageToggle />
           <ThemeToggle />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -39,17 +43,17 @@ export function AppTopbar() {
             <DropdownMenuContent align="end">
               <DropdownMenuItem asChild>
                 <Link href="/app/settings">
-                  <Settings className="size-4" /> Settings
+                  <Settings className="size-4" /> {t("nav.settings")}
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link href="/">
-                  <Globe className="size-4" /> Back to Website
+                  <Globe className="size-4" /> {t("nav.backToWebsite")}
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => logout()}>
-                <LogOut className="size-4" /> Log out
+                <LogOut className="size-4" /> {t("nav.logout")}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
