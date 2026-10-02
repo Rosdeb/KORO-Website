@@ -2,13 +2,15 @@
 
 import { use } from "react";
 import Link from "next/link";
-import { ArrowLeft, Volume2 } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ErrorState } from "@/components/state/error-state";
 import { Card } from "@/components/ui/card";
 import { SaveToBookButton } from "@/components/save-to-book/save-to-book-button";
 import { useConcept } from "@/features/dictionary/hooks";
 import { scriptClassFor } from "@/lib/utils/script-font";
+import { TtsSpeechButton } from "@/components/ui/tts-speech-button";
+import { PronunciationPlayer } from "@/components/dictionary/pronunciation-player";
 
 export default function ConceptDetailPage({
   params,
@@ -44,7 +46,16 @@ export default function ConceptDetailPage({
       </Link>
 
       <div className="mt-4 flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-3xl font-extrabold uppercase tracking-tight sm:text-4xl">{concept.name}</h1>
+        <div className="flex items-center gap-3">
+          <h1 className="text-3xl font-extrabold uppercase tracking-tight sm:text-4xl">{concept.name}</h1>
+          <TtsSpeechButton
+            text={concept.name}
+            langCode="en"
+            label={`Listen to English: ${concept.name}`}
+            size="default"
+            showSettings={true}
+          />
+        </div>
         <SaveToBookButton concept={concept} />
       </div>
 
@@ -59,11 +70,13 @@ export default function ConceptDetailPage({
                 >
                   {t.languageName}
                 </Link>
-                {t.pronunciation && (
-                  <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-                    <Volume2 className="size-3.5" /> {t.pronunciation}
-                  </span>
-                )}
+                <PronunciationPlayer
+                  text={t.text}
+                  pronunciation={t.pronunciation}
+                  languageCode={t.languageCode}
+                  languageName={t.languageName}
+                  size="sm"
+                />
               </div>
               <p className={`text-3xl ${scriptClassFor(t.languageCode)}`}>{t.text}</p>
               {t.notes && <p className="text-sm text-muted-foreground">{t.notes}</p>}

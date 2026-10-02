@@ -118,7 +118,7 @@
       "routeType": "page",
       "response": "complete",
       "compute": "static",
-      "htmlSize": 13069,
+      "htmlSize": 12939,
       "experimentalBypassFor": [
         {
           "type": "header",
@@ -217,6 +217,34 @@
       "initialRevalidateSeconds": false,
       "srcRoute": "/app/leaderboard",
       "dataRoute": "/app/leaderboard.rsc",
+      "allowHeader": [
+        "host",
+        "x-matched-path",
+        "x-prerender-revalidate",
+        "x-prerender-revalidate-if-generated",
+        "x-next-revalidated-tags",
+        "x-next-revalidate-tag-token"
+      ]
+    },
+    "/app/messages": {
+      "routeType": "page",
+      "response": "complete",
+      "compute": "static",
+      "htmlSize": 13415,
+      "experimentalBypassFor": [
+        {
+          "type": "header",
+          "key": "next-action"
+        },
+        {
+          "type": "header",
+          "key": "content-type",
+          "value": "multipart/form-data;.*"
+        }
+      ],
+      "initialRevalidateSeconds": false,
+      "srcRoute": "/app/messages",
+      "dataRoute": "/app/messages.rsc",
       "allowHeader": [
         "host",
         "x-matched-path",
@@ -398,7 +426,7 @@
       "routeType": "page",
       "response": "complete",
       "compute": "static",
-      "htmlSize": 14069,
+      "htmlSize": 14199,
       "experimentalBypassFor": [
         {
           "type": "header",
@@ -426,7 +454,7 @@
       "routeType": "page",
       "response": "complete",
       "compute": "static",
-      "htmlSize": 39563,
+      "htmlSize": 41726,
       "experimentalBypassFor": [
         {
           "type": "header",

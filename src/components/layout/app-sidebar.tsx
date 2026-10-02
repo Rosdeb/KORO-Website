@@ -13,6 +13,7 @@ import {
   ClipboardCheck,
   ArrowLeft,
   Users,
+  Mail,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { useAuth } from "@/features/auth/context";
@@ -31,11 +32,17 @@ const NAV_ITEMS = [
 
 // Shown only to ROLE_LANGUAGE_REVIEWER / ROLE_ADMIN accounts.
 const REVIEWER_NAV_ITEM = { href: "/app/review", label: "Review Queue", icon: ClipboardCheck, exact: false };
+const MESSAGES_NAV_ITEM = { href: "/app/messages", label: "Inquiries", icon: Mail, exact: false };
 
 export function AppSidebar() {
   const pathname = usePathname();
-  const { isReviewer, user } = useAuth();
-  const items = [...NAV_ITEMS, ...(isReviewer ? [REVIEWER_NAV_ITEM] : []), ...(canViewAdminLeaderboard(user?.roles) ? [{ href: "/app/leaderboard", label: "Contributor activity", icon: Users, exact: false }] : [])];
+  const { isReviewer, isModerator, user } = useAuth();
+  const items = [
+    ...NAV_ITEMS,
+    ...(isReviewer ? [REVIEWER_NAV_ITEM] : []),
+    ...(isModerator ? [MESSAGES_NAV_ITEM] : []),
+    ...(canViewAdminLeaderboard(user?.roles) ? [{ href: "/app/leaderboard", label: "Contributor activity", icon: Users, exact: false }] : []),
+  ];
 
   return (
     <aside className="sticky top-16 hidden h-[calc(100vh-4rem)] w-60 shrink-0 flex-col border-r border-border py-6 md:flex">

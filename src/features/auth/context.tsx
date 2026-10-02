@@ -16,6 +16,7 @@ interface AuthContextValue {
   // granted to admins, so this covers both roles — see api_documentation.md.
   isReviewer: boolean;
   isAdmin: boolean;
+  isModerator: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (
     nameOrPayload: string | { name: string; email: string; password: string; nativeLanguage?: string; preferredLanguage?: string },
@@ -100,10 +101,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const isAdmin = !!user?.roles.includes("ROLE_ADMIN");
   const isReviewer = isAdmin || !!user?.roles.includes("ROLE_LANGUAGE_REVIEWER");
+  const isModerator = isAdmin || !!user?.roles.includes("ROLE_MODERATOR");
 
   return (
     <AuthContext.Provider
-      value={{ user, isLoading, isAuthenticated: !!user, isReviewer, isAdmin, login, register, logout }}
+      value={{ user, isLoading, isAuthenticated: !!user, isReviewer, isAdmin, isModerator, login, register, logout }}
     >
       {children}
     </AuthContext.Provider>

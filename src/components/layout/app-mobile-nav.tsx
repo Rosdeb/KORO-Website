@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Compass, Search, BookMarked, User, ClipboardCheck, Users } from "lucide-react";
+import { Home, Compass, Search, BookMarked, User, ClipboardCheck, Users, Mail } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { useAuth } from "@/features/auth/context";
 import { canViewAdminLeaderboard } from "@/features/leaderboard/api";
@@ -17,13 +17,15 @@ const ITEMS = [
 
 // Shown only to ROLE_LANGUAGE_REVIEWER / ROLE_ADMIN accounts.
 const REVIEWER_ITEM = { href: "/app/review", label: "Review", icon: ClipboardCheck, exact: false };
+const MESSAGES_ITEM = { href: "/app/messages", label: "Inquiries", icon: Mail, exact: false };
 
 export function AppMobileNav() {
   const pathname = usePathname();
-  const { isReviewer, user } = useAuth();
+  const { isReviewer, isModerator, user } = useAuth();
   const items = [
     ...ITEMS,
     ...(isReviewer ? [REVIEWER_ITEM] : []),
+    ...(isModerator ? [MESSAGES_ITEM] : []),
     ...(canViewAdminLeaderboard(user?.roles)
       ? [{ href: "/app/leaderboard", label: "Activity", icon: Users, exact: false }]
       : []),

@@ -204,3 +204,44 @@ export interface Paginated<T> {
   totalPages: number;
   totalItems: number;
 }
+
+export type ContactMessageStatus = "PENDING" | "READ" | "REPLIED" | "ARCHIVED";
+
+export interface SubmitContactPayload {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+}
+
+export interface ContactMessage {
+  id: string;
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  status: ContactMessageStatus;
+  userId?: string | null;
+  replySubject?: string | null;
+  replyMessage?: string | null;
+  repliedBy?: string | null;
+  repliedByUserId?: string | null;
+  repliedAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SubmitContactResponse {
+  message: string;
+  contactMessage: ContactMessage;
+}
+
+export interface ContactMessagePage {
+  content: ContactMessage[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
+}

@@ -11,6 +11,8 @@ import { SaveToBookButton } from "@/components/save-to-book/save-to-book-button"
 import { useLanguages } from "@/features/languages/hooks";
 import { useTranslationSearch } from "@/features/translations/hooks";
 import { scriptClassFor } from "@/lib/utils/script-font";
+import { TtsSpeechButton } from "@/components/ui/tts-speech-button";
+import { PronunciationPlayer } from "@/components/dictionary/pronunciation-player";
 
 export default function TranslatePage() {
   const { data: languages, isLoading: languagesLoading } = useLanguages();
@@ -102,7 +104,15 @@ export default function TranslatePage() {
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
                     <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Concept</p>
-                    <p className="text-lg font-bold">{concept.name}</p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-lg font-bold">{concept.name}</p>
+                      <TtsSpeechButton
+                        text={concept.name}
+                        langCode="en"
+                        label={`Listen to English: ${concept.name}`}
+                        size="sm"
+                      />
+                    </div>
                   </div>
                   <SaveToBookButton
                     concept={{
@@ -119,20 +129,19 @@ export default function TranslatePage() {
                 </div>
 
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Translation</p>
-                  <p className={`text-2xl text-primary ${scriptClassFor(translation.languageCode)}`}>
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Translation</p>
+                    <PronunciationPlayer
+                      text={translation.text}
+                      pronunciation={translation.pronunciation}
+                      languageCode={translation.languageCode}
+                      size="sm"
+                    />
+                  </div>
+                  <p className={`mt-1 text-2xl text-primary ${scriptClassFor(translation.languageCode)}`}>
                     {translation.text}
                   </p>
                 </div>
-
-                {translation.pronunciation && (
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Pronunciation</p>
-                    <p className="inline-flex items-center gap-1.5 text-sm text-muted-foreground">
-                      <Volume2 className="size-3.5" /> {translation.pronunciation}
-                    </p>
-                  </div>
-                )}
 
                 {translation.notes && (
                   <div>

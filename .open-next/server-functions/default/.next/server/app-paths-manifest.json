@@ -30,6 +30,7 @@
   "/app/books/[id]/page": "app/app/books/[id]/page.js",
   "/app/books/page": "app/app/books/page.js",
   "/app/leaderboard/page": "app/app/leaderboard/page.js",
+  "/app/messages/page": "app/app/messages/page.js",
   "/app/page": "app/app/page.js",
   "/app/review/page": "app/app/review/page.js",
   "/app/scan/history/page": "app/app/scan/history/page.js",
@@ -38,7 +39,7 @@
   "/app/submissions/new/page": "app/app/submissions/new/page.js",
   "/app/submissions/page": "app/app/submissions/page.js",
   "/app/translate/page": "app/app/translate/page.js",
+  "/(public)/leaderboard/page": "app/(public)/leaderboard/page.js",
   "/(public)/contact/page": "app/(public)/contact/page.js",
-  "/(public)/about/page": "app/(public)/about/page.js",
-  "/(public)/leaderboard/page": "app/(public)/leaderboard/page.js"
+  "/(public)/about/page": "app/(public)/about/page.js"
 }

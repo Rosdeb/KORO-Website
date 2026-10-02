@@ -212,3 +212,37 @@ export interface RawAdminStatistics {
   pendingApprovals: number;
   todayActivities: number;
 }
+
+export type RawContactMessageStatus = "PENDING" | "READ" | "REPLIED" | "ARCHIVED";
+
+export interface RawContactMessage {
+  id: string;
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  status: RawContactMessageStatus;
+  userId?: string | null;
+  replySubject?: string | null;
+  replyMessage?: string | null;
+  repliedBy?: string | null;
+  repliedByUserId?: string | null;
+  repliedAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface RawSubmitContactResponse {
+  message: string;
+  contactMessage: RawContactMessage;
+}
+
+export interface RawContactMessagePage {
+  content: RawContactMessage[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
+}

@@ -31,6 +31,8 @@ import { EditBookDialog } from "@/components/books/edit-book-dialog";
 import { DeleteBookDialog } from "@/components/books/delete-book-dialog";
 import { useBook, useRemoveBookItem } from "@/features/books/hooks";
 import { scriptClassFor } from "@/lib/utils/script-font";
+import { TtsSpeechButton } from "@/components/ui/tts-speech-button";
+import { PronunciationPlayer } from "@/components/dictionary/pronunciation-player";
 import type { BookItem } from "@/types";
 
 export default function BookDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -166,17 +168,29 @@ export default function BookDetailPage({ params }: { params: Promise<{ id: strin
               {chapterItems.map((item) => (
                 <li key={item.id} className="flex items-start gap-4 px-5 py-4 sm:items-center">
                   <div className="min-w-0 flex-1">
-                    <p className="font-medium">{item.conceptName}</p>
-                    <div className="mt-0.5 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium">{item.conceptName}</p>
+                      <TtsSpeechButton
+                        text={item.conceptName}
+                        langCode="en"
+                        label={`Listen to English: ${item.conceptName}`}
+                        size="sm"
+                      />
+                    </div>
+                    <div className="mt-1 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
                       <span className="text-xs uppercase tracking-wide text-muted-foreground/70">
                         {item.languageName}
                       </span>
-                      <span className={scriptClassFor(item.languageCode)}>{item.translationText}</span>
-                      {item.pronunciation && (
-                        <span className="inline-flex items-center gap-1">
-                          <Volume2 className="size-3" /> {item.pronunciation}
-                        </span>
-                      )}
+                      <span className={`text-base text-foreground ${scriptClassFor(item.languageCode)}`}>
+                        {item.translationText}
+                      </span>
+                      <PronunciationPlayer
+                        text={item.translationText}
+                        pronunciation={item.pronunciation}
+                        languageCode={item.languageCode}
+                        languageName={item.languageName}
+                        size="sm"
+                      />
                     </div>
                     {item.note && <p className="mt-1 text-xs text-muted-foreground">{item.note}</p>}
                   </div>

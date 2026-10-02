@@ -23,12 +23,15 @@ import type {
   RawCollectionItem,
   RawConcept,
   RawConceptPage,
+  RawContactMessage,
+  RawContactMessagePage,
   RawLanguage,
   RawLeaderboardEntry,
   RawPdfExport,
   RawScanResult,
   RawSubmission,
   RawSubmissionPage,
+  RawSubmitContactResponse,
   RawTranslation,
   RawUser,
 } from "./raw-types";
@@ -250,6 +253,15 @@ export const adminApi = {
   },
   statistics: () => apiClient.get<RawAdminStatistics>("/admin/statistics", { auth: true }),
   leaderboard: () => apiClient.get<RawLeaderboardEntry[]>("/admin/leaderboard", { auth: true }),
+  contactMessages: {
+    list: (params?: { page?: number; size?: number; status?: string; search?: string }) =>
+      apiClient.get<RawContactMessagePage>(`/admin/contact-messages${toQuery(params)}`, { auth: true }),
+  },
+};
+
+export const contactApi = {
+  submit: (payload: { name: string; email: string; subject: string; message: string }) =>
+    apiClient.post<RawSubmitContactResponse>("/contact", payload),
 };
 
 function toQuery(params?: Record<string, string | number | boolean | undefined>) {

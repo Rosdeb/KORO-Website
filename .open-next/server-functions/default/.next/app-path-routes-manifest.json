@@ -30,6 +30,7 @@
   "/app/books/[id]/page": "/app/books/[id]",
   "/app/books/page": "/app/books",
   "/app/leaderboard/page": "/app/leaderboard",
+  "/app/messages/page": "/app/messages",
   "/app/page": "/app",
   "/app/review/page": "/app/review",
   "/app/scan/history/page": "/app/scan/history",
@@ -38,7 +39,7 @@
   "/app/submissions/new/page": "/app/submissions/new",
   "/app/submissions/page": "/app/submissions",
   "/app/translate/page": "/app/translate",
+  "/(public)/leaderboard/page": "/leaderboard",
   "/(public)/contact/page": "/contact",
-  "/(public)/about/page": "/about",
-  "/(public)/leaderboard/page": "/leaderboard"
+  "/(public)/about/page": "/about"
 }

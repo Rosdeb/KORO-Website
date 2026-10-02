@@ -168,6 +168,12 @@
       "namedRegex": "^/app/leaderboard(?:/)?$"
     },
     {
+      "page": "/app/messages",
+      "regex": "^/app/messages(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/app/messages(?:/)?$"
+    },
+    {
       "page": "/app/review",
       "regex": "^/app/review(?:/)?$",
       "routeKeys": {},
