@@ -4,6 +4,7 @@ export const translations = {
   en: {
     // Navigation
     "nav.home": "Home",
+    "nav.about": "About",
     "nav.languages": "Languages",
     "nav.dictionary": "Dictionary",
     "nav.search": "Search",
@@ -406,6 +407,7 @@ export const translations = {
   bn: {
     // Navigation
     "nav.home": "হোম",
+    "nav.about": "আমাদের সম্পর্কে",
     "nav.languages": "ভাষাসমূহ",
     "nav.dictionary": "অভিধান",
     "nav.search": "অনুসন্ধান",

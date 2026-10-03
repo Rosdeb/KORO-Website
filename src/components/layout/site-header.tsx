@@ -33,7 +33,7 @@ export function SiteHeader() {
     { href: "/languages", label: t("nav.languages") },
     { href: "/dictionary", label: t("nav.dictionary") },
     { href: "/leaderboard", label: t("nav.leaderboard") },
-    { href: "/about", label: "About" },
+    { href: "/about", label: t("nav.about") },
   ];
 
   useEffect(() => {
