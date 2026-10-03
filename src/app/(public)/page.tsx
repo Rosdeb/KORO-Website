@@ -213,9 +213,9 @@ export default function HomePage() {
 
       {/* Final CTA */}
       <section className="container-koro pb-20">
-        <div className="flex flex-col items-center gap-5 rounded-3xl bg-primary px-8 py-14 text-center text-primary-foreground">
+        <div className="flex flex-col items-center gap-5 rounded-3xl border border-primary/10 bg-primary/5 px-8 py-14 text-center text-foreground/90">
           <h2 className="text-2xl font-bold sm:text-3xl">{t("home.startExploring")}</h2>
-          <p className="max-w-md text-primary-foreground/85">
+          <p className="max-w-md text-muted-foreground">
             {t("home.startExploringDesc")}
           </p>
           <Button size="lg" variant="accent" asChild>
