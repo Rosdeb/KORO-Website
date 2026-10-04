@@ -16,6 +16,9 @@ const fontBn = Noto_Sans_Bengali({
   display: "swap",
 });
 
+
+
+
 const fontCcp = Noto_Sans_Chakma({
   variable: "--font-ccp",
   weight: "400",
