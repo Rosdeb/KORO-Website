@@ -1,197 +1,75 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Languages, BookmarkPlus, Camera, FileDown, Clock } from "lucide-react";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import { EmptyState } from "@/components/state/empty-state";
-import { ErrorState } from "@/components/state/error-state";
-import { cn } from "@/lib/utils/cn";
-import { useActivity } from "@/features/activity/hooks";
+import { useActivity, useActivityStatistics } from "@/features/activity/hooks";
 import { useI18n } from "@/features/i18n/context";
-
-type RangeKey = "today" | "week" | "month" | "year" | "custom";
-
-// The backend parses `from`/`to` as a plain LocalDate (yyyy-MM-dd) — a full
-// ISO datetime string 400s.
-function toLocalDate(date: Date) {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
-}
-
-function rangeToDates(range: RangeKey, customFrom?: string, customTo?: string) {
-  const to = new Date();
-  const from = new Date();
-  switch (range) {
-    case "today":
-      from.setHours(0, 0, 0, 0);
-      break;
-    case "week":
-      from.setDate(from.getDate() - ((from.getDay() + 6) % 7));
-      break;
-    case "month":
-      from.setDate(1);
-      break;
-    case "year":
-      from.setMonth(0, 1);
-      break;
-    case "custom":
-      return { from: customFrom, to: customTo };
-  }
-  return { from: toLocalDate(from), to: toLocalDate(to) };
-}
+import { ActivityHeatmap } from "@/components/activity/activity-heatmap";
+import { ActivityEntry } from "@/types";
 
 export default function ActivityPage() {
   const { t } = useI18n();
-  const [range, setRange] = useState<RangeKey>("week");
-  const [customFrom, setCustomFrom] = useState("");
-  const [customTo, setCustomTo] = useState("");
-  const [page, setPage] = useState(0);
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
-  const rangeOptions: { key: RangeKey; label: string }[] = [
-    { key: "today", label: t("activity.today") },
-    { key: "week", label: t("activity.week") },
-    { key: "month", label: t("activity.month") },
-    { key: "year", label: t("activity.year") },
-    { key: "custom", label: t("activity.custom") },
-  ];
+  // 1. Fetch lifetime statistics from /activity/statistics
+  const { data: statsData } = useActivityStatistics();
 
-  const { from, to } = rangeToDates(range, customFrom, customTo);
-  const validRange = Boolean(from && to && from <= to);
-  const { data: activityPage, isLoading: activityLoading, isError: activityError, refetch: refetchActivity } = useActivity(
-    validRange ? { from, to, page, size: 10 } : undefined,
-    validRange,
-  );
-  const activity = activityPage?.content ?? [];
+  // 2. Fetch default activity feed (no params, identical to dashboard)
+  const { data: defaultActivity, isLoading: defaultLoading } = useActivity();
 
-  const filteredActivity = useMemo(
-    () => activity.filter((entry) => {
-      const date = new Date(entry.createdAt);
-      return !Number.isNaN(date.getTime()) && toLocalDate(date) >= from! && toLocalDate(date) <= to!;
-    }),
-    [activity, from, to],
+  // 3. Also fetch first page with safe size (50)
+  const { data: pagedActivity, isLoading: pagedLoading } = useActivity({ page: 0, size: 50 });
+
+  // 4. Fetch specific day's activities when a date is clicked
+  const { data: dayActivity } = useActivity(
+    selectedDate ? { from: selectedDate, to: selectedDate, size: 50 } : undefined,
+    Boolean(selectedDate),
   );
 
-  const stats = useMemo(() => ({
-    totalActivities: filteredActivity.length,
-    translations: filteredActivity.filter((entry) => entry.type === "TRANSLATION").length,
-    savedWords: filteredActivity.filter((entry) => entry.type === "SAVE_WORD").length,
-    imageRecognitions: filteredActivity.filter((entry) => entry.type === "IMAGE_RECOGNITION").length,
-    pdfExports: filteredActivity.filter((entry) => entry.type === "EXPORT_PDF").length,
-  }), [filteredActivity]);
+  const entries = useMemo(() => {
+    const list: ActivityEntry[] = [];
+    const seen = new Set<string>();
 
-  const summaryTiles = useMemo(
-    () => [
-      { label: t("activity.totalActivities"), value: stats?.totalActivities, icon: Clock },
-      { label: t("activity.translations"), value: stats?.translations, icon: Languages },
-      { label: t("activity.savedWords"), value: stats?.savedWords, icon: BookmarkPlus },
-      { label: t("activity.imageScans"), value: stats?.imageRecognitions, icon: Camera },
-      { label: t("activity.pdfExports"), value: stats?.pdfExports, icon: FileDown },
-    ],
-    [stats, t],
-  );
+    for (const item of defaultActivity?.content ?? []) {
+      if (item?.id && !seen.has(item.id)) {
+        seen.add(item.id);
+        list.push(item);
+      }
+    }
+    for (const item of pagedActivity?.content ?? []) {
+      if (item?.id && !seen.has(item.id)) {
+        seen.add(item.id);
+        list.push(item);
+      }
+    }
+    for (const item of dayActivity?.content ?? []) {
+      if (item?.id && !seen.has(item.id)) {
+        seen.add(item.id);
+        list.push(item);
+      }
+    }
+    return list;
+  }, [defaultActivity, pagedActivity, dayActivity]);
+
+  const isLoading = defaultLoading && pagedLoading && entries.length === 0;
 
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">{t("activity.title")}</h1>
-        <p className="mt-1 text-muted-foreground">{t("activity.subtitle")}</p>
+        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
+          {t("activity.title")}
+        </h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          {t("activity.subtitle")}
+        </p>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2">
-        {rangeOptions.map((opt) => (
-          <button
-            key={opt.key}
-            onClick={() => { setRange(opt.key); setPage(0); }}
-            className={cn(
-              "rounded-full px-4 py-2 text-sm font-medium transition-colors",
-              range === opt.key ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground",
-            )}
-          >
-            {opt.label}
-          </button>
-        ))}
-      </div>
-
-      {range === "custom" && (
-        <div className="flex flex-wrap items-center gap-3">
-          <input
-            type="date"
-            value={customFrom}
-            onChange={(e) => { setCustomFrom(e.target.value); setPage(0); }}
-            className="h-10 rounded-xl border border-input bg-card px-3 text-sm"
-          />
-          <span className="text-sm text-muted-foreground">{t("activity.to")}</span>
-          <input
-            type="date"
-            value={customTo}
-            onChange={(e) => { setCustomTo(e.target.value); setPage(0); }}
-            className="h-10 rounded-xl border border-input bg-card px-3 text-sm"
-          />
-        </div>
-      )}
-
-      {validRange && !activityError && (
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
-          {activityLoading &&
-            Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-24 rounded-2xl" />)}
-          {!activityLoading &&
-            summaryTiles.map((tile) => (
-              <Card key={tile.label}>
-                <div className="flex flex-col gap-2 p-4">
-                  <tile.icon className="size-4 text-primary" />
-                  <p className="text-2xl font-bold">{tile.value ?? 0}</p>
-                  <p className="text-xs text-muted-foreground">{tile.label}</p>
-                </div>
-              </Card>
-            ))}
-        </div>
-      )}
-
-      <div>
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">{t("activity.log")}</h2>
-        {!validRange && <p className="text-sm text-muted-foreground">{t("activity.invalidRange")}</p>}
-        {validRange && activityError && <ErrorState onRetry={() => refetchActivity()} />}
-        {validRange && activityLoading && !activityError && (
-          <div className="flex flex-col gap-2">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <Skeleton key={i} className="h-14 rounded-xl" />
-            ))}
-          </div>
-        )}
-        {validRange && !activityLoading && !activityError && filteredActivity.length === 0 && (
-          <EmptyState title={t("activity.noRangeActivity")} description={t("activity.tryDifferentRange")} />
-        )}
-        {validRange && !activityLoading && !activityError && filteredActivity.length > 0 && (
-          <div className="flex flex-col gap-4">
-            <Card>
-              <ul className="divide-y divide-border">
-                {filteredActivity.map((entry) => (
-                  <li key={entry.id} className="flex items-center gap-3 px-4 py-3 text-sm">
-                    <Clock className="size-4 shrink-0 text-muted-foreground" />
-                    <span className="flex-1">{entry.description}</span>
-                    <span className="text-xs text-muted-foreground">{new Date(entry.createdAt).toLocaleString()}</span>
-                  </li>
-                ))}
-              </ul>
-            </Card>
-            {activityPage && activityPage.totalPages > 1 && (
-              <div className="flex items-center justify-between gap-3">
-                <Button variant="outline" size="sm" disabled={!activityPage.hasPrevious} onClick={() => setPage((current) => current - 1)}>
-                  {t("activity.previous")}
-                </Button>
-                <span className="text-sm text-muted-foreground">{t("activity.page")} {activityPage.page + 1} {t("activity.of")} {activityPage.totalPages}</span>
-                <Button variant="outline" size="sm" disabled={!activityPage.hasNext} onClick={() => setPage((current) => current + 1)}>
-                  {t("activity.next")}
-                </Button>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
+      <ActivityHeatmap
+        entries={entries}
+        totalActivities={statsData?.totalActivities}
+        isLoading={isLoading}
+        selectedDate={selectedDate}
+        onSelectDate={setSelectedDate}
+      />
     </div>
   );
 }
