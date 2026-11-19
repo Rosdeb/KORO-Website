@@ -203,7 +203,6 @@ export default function NewSubmissionPage() {
                 required
                 icon={<LayoutGrid className="size-4" />}
                 iconClassName="bg-primary-100 text-primary-700"
-                helper={t("suggest.categoryHelper")}
                 error={errors.categoryId?.message}
               >
                 <Controller
@@ -227,15 +226,10 @@ export default function NewSubmissionPage() {
               </IconField>
             </FormSection>
 
-            <FormSection
-              title={t("suggest.step2")}
-              description={t("suggest.step2Desc")}
-            >
-              <div className="flex items-center gap-2 rounded-xl border border-primary/20 bg-primary/5 px-3 py-2 text-xs text-primary">
-                <Sparkles className="size-4 shrink-0 text-primary" />
-                <span className="leading-tight">
-                  <strong>{t("suggest.smartAutoFill")}</strong> {t("suggest.autoTranslateHint")}
-                </span>
+            <FormSection title={t("suggest.step2")}>
+              <div className="flex items-center gap-1.5 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-xs text-primary">
+                <Sparkles className="size-3.5 shrink-0" />
+                {t("suggest.autoTranslateHint")}
               </div>
 
               <IconField
@@ -243,7 +237,6 @@ export default function NewSubmissionPage() {
                 required
                 icon={<Languages className="size-4" />}
                 iconClassName="bg-success/10 text-success"
-                helper={t("suggest.sourceLanguageHelper")}
                 error={errors.sourceLanguageId?.message}
               >
                 <Controller
@@ -271,7 +264,6 @@ export default function NewSubmissionPage() {
                 required
                 icon={<Quote className="size-4" />}
                 iconClassName="bg-primary/10 text-primary"
-                helper={t("suggest.wordHelper")}
                 error={errors.sourceWord?.message}
                 showClear={Boolean(watch("sourceWord"))}
                 onClear={() => setValue("sourceWord", "", { shouldValidate: true, shouldDirty: true })}
@@ -368,7 +360,6 @@ export default function NewSubmissionPage() {
                 label={t("suggest.pronunciation")}
                 icon={<Volume2 className="size-4" />}
                 iconClassName="bg-accent-100 text-accent"
-                helper="e.g., pa-ni"
               >
                 <Input
                   className="pl-12 text-base sm:text-sm h-11"
@@ -381,7 +372,6 @@ export default function NewSubmissionPage() {
                 label={t("suggest.example")}
                 icon={<Quote className="size-4" />}
                 iconClassName="bg-accent-100 text-accent"
-                helper={t("suggest.exampleHelper")}
               >
                 <Input
                   className="pl-12 text-base sm:text-sm h-11"
@@ -394,7 +384,6 @@ export default function NewSubmissionPage() {
                 label={t("suggest.note")}
                 icon={<StickyNote className="size-4" />}
                 iconClassName="bg-accent-100 text-accent"
-                helper={t("suggest.noteHelper")}
               >
                 <Input
                   className="pl-12 text-base sm:text-sm h-11"

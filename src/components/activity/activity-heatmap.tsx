@@ -201,89 +201,56 @@ export function ActivityHeatmap({
 
   return (
     <div className={cn("flex flex-col gap-6", className)}>
-      {/* 4 Small Glass Cards Row — Liquid Glass styling with reduced rounded radius */}
+      {/* Stat cards */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        {/* Total activities */}
-        <Glass
-          radius={12}
-          strength={0.5}
-          blur={4}
-          tint={0.25}
-          dome={0.1}
-          className="border border-border/60 bg-card/40 shadow-xs transition-all hover:scale-[1.02]"
-          contentClassName="p-4 flex flex-col justify-between h-full min-h-[92px]"
-        >
-          <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
-            <TrendingUp className="size-4 text-primary shrink-0" />
-            <span className="truncate">{t("activity.totalActivities")}</span>
+        {[
+          {
+            label: t("activity.totalActivities"),
+            value: displayTotal,
+            suffix: null,
+            icon: TrendingUp,
+            iconClass: "bg-accent/10 text-accent",
+          },
+          {
+            label: t("activity.activeDays"),
+            value: displayActiveDays,
+            suffix: null,
+            icon: CheckCircle2,
+            iconClass: "bg-muted text-muted-foreground",
+          },
+          {
+            label: t("activity.longestStreak"),
+            value: displayMaxStreak,
+            suffix: t("activity.days"),
+            icon: Trophy,
+            iconClass: "bg-muted text-muted-foreground",
+          },
+          {
+            label: t("activity.currentStreak"),
+            value: displayCurrentStreak,
+            suffix: t("activity.days"),
+            icon: Zap,
+            iconClass: "bg-muted text-muted-foreground",
+          },
+        ].map((card) => (
+          <div
+            key={card.label}
+            className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4"
+          >
+            <div className={cn("flex size-9 items-center justify-center rounded-lg", card.iconClass)}>
+              <card.icon className="size-4" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold tabular-nums sm:text-3xl">
+                {card.value}
+                {card.suffix && (
+                  <span className="ml-1 text-sm font-medium text-muted-foreground">{card.suffix}</span>
+                )}
+              </p>
+              <p className="mt-0.5 text-xs text-muted-foreground">{card.label}</p>
+            </div>
           </div>
-          <p className="mt-2 text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
-            {displayTotal}
-          </p>
-        </Glass>
-
-        {/* Active days */}
-        <Glass
-          radius={12}
-          strength={0.5}
-          blur={4}
-          tint={0.25}
-          dome={0.1}
-          className="border border-border/60 bg-card/40 shadow-xs transition-all hover:scale-[1.02]"
-          contentClassName="p-4 flex flex-col justify-between h-full min-h-[92px]"
-        >
-          <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
-            <CheckCircle2 className="size-4 text-success shrink-0" />
-            <span className="truncate">{t("activity.activeDays")}</span>
-          </div>
-          <p className="mt-2 text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
-            {displayActiveDays}
-          </p>
-        </Glass>
-
-        {/* Longest streak */}
-        <Glass
-          radius={12}
-          strength={0.5}
-          blur={4}
-          tint={0.25}
-          dome={0.1}
-          className="border border-border/60 bg-card/40 shadow-xs transition-all hover:scale-[1.02]"
-          contentClassName="p-4 flex flex-col justify-between h-full min-h-[92px]"
-        >
-          <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
-            <Trophy className="size-4 text-warning shrink-0" />
-            <span className="truncate">{t("activity.longestStreak")}</span>
-          </div>
-          <p className="mt-2 text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
-            {displayMaxStreak}{" "}
-            <span className="text-sm font-medium text-muted-foreground">
-              {t("activity.days")}
-            </span>
-          </p>
-        </Glass>
-
-        {/* Current streak */}
-        <Glass
-          radius={12}
-          strength={0.5}
-          blur={4}
-          tint={0.25}
-          dome={0.1}
-          className="border border-border/60 bg-card/40 shadow-xs transition-all hover:scale-[1.02]"
-          contentClassName="p-4 flex flex-col justify-between h-full min-h-[92px]"
-        >
-          <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
-            <Zap className="size-4 text-primary shrink-0" />
-            <span className="truncate">{t("activity.currentStreak")}</span>
-          </div>
-          <p className="mt-2 text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
-            {displayCurrentStreak}{" "}
-            <span className="text-sm font-medium text-muted-foreground">
-              {t("activity.days")}
-            </span>
-          </p>
-        </Glass>
+        ))}
       </div>
 
       {/* Chart Section Header with Title and Year Selector */}

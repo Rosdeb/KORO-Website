@@ -37,7 +37,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    let stored: Theme = "system";
+    let stored: Theme = "light";
     try {
       const val = localStorage.getItem(STORAGE_KEY);
       if (val === "light" || val === "dark" || val === "system") stored = val;

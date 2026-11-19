@@ -42,19 +42,19 @@ function statValue(entry: LeaderboardEntry, type: LeaderboardType) {
 
 const MEDAL: Record<number, { bg: string; text: string; ring: string }> = {
   1: {
-    bg: "bg-amber-100 dark:bg-amber-900/40",
-    text: "text-amber-700 dark:text-amber-400",
-    ring: "ring-amber-400/60",
+    bg: "bg-muted",
+    text: "text-foreground",
+    ring: "ring-border",
   },
   2: {
-    bg: "bg-slate-100 dark:bg-slate-800/60",
-    text: "text-slate-600 dark:text-slate-300",
-    ring: "ring-slate-400/60",
+    bg: "bg-muted",
+    text: "text-foreground",
+    ring: "ring-border",
   },
   3: {
-    bg: "bg-orange-100 dark:bg-orange-900/40",
-    text: "text-orange-700 dark:text-orange-400",
-    ring: "ring-orange-400/60",
+    bg: "bg-muted",
+    text: "text-foreground",
+    ring: "ring-border",
   },
 };
 
@@ -95,9 +95,9 @@ function PodiumCard({
   const avatarSize: Record<number, string> = { 1: "size-20", 2: "size-16", 3: "size-14" };
   const barH: Record<number, string> = { 1: "h-20", 2: "h-14", 3: "h-9" };
   const barColor: Record<number, string> = {
-    1: "border-amber-300 bg-amber-50 dark:border-amber-700 dark:bg-amber-900/20",
-    2: "border-slate-300 bg-slate-50 dark:border-slate-600 dark:bg-slate-800/30",
-    3: "border-orange-200 bg-orange-50 dark:border-orange-700 dark:bg-orange-900/20",
+    1: "border-border bg-muted/60",
+    2: "border-border bg-muted/40",
+    3: "border-border bg-muted/20",
   };
 
   return (
@@ -369,9 +369,13 @@ export function PublicLeaderboard() {
             </div>
           )}
           {user && data.currentUserRank && (
-            <div className="overflow-hidden rounded-xl border border-accent/40 bg-card">
-              <div className="border-b border-border px-5 py-2.5">
-                <p className="text-xs font-semibold uppercase tracking-widest text-accent">Your rank</p>
+            <div className="overflow-hidden rounded-xl border border-border bg-card">
+              <div className="flex items-center justify-between border-b border-border px-5 py-3">
+                <div className="flex items-center gap-2">
+                  <div className="size-1.5 rounded-full bg-accent" />
+                  <span className="text-sm font-medium">Your standing</span>
+                </div>
+                <span className="text-xs text-muted-foreground">not in top {limit}</span>
               </div>
               <ContributorRow entry={data.currentUserRank} type={type} isCurrent />
             </div>

@@ -61,7 +61,7 @@ export function ContactForm() {
 
   if (submittedMessage) {
     return (
-      <div className="mt-6 rounded-2xl border border-success/30 bg-success/5 p-6 text-foreground animate-scale-in">
+      <div className="rounded-xl border border-success/30 bg-success/5 p-5 text-foreground animate-scale-in">
         <div className="flex items-start gap-4">
           <CheckCircle2 className="size-6 shrink-0 text-success" />
           <div className="space-y-2">
@@ -81,7 +81,7 @@ export function ContactForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mt-6 space-y-5">
+    <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
         <label htmlFor="contact-name" className="block text-sm font-medium">
           {t("contact.name")} <span className="text-danger">*</span>

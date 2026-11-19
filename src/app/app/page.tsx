@@ -7,11 +7,13 @@ import {
   BookMarked,
   MessageSquarePlus,
   ArrowRight,
-  Clock,
   Bookmark,
   Activity,
   BookOpen,
   Globe,
+  FileDown,
+  Search,
+  Clock,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -21,6 +23,21 @@ import { useAuth } from "@/features/auth/context";
 import { useBooks } from "@/features/books/hooks";
 import { useActivity } from "@/features/activity/hooks";
 import { useI18n } from "@/features/i18n/context";
+import { ActivityType } from "@/types";
+import { cn } from "@/lib/utils/cn";
+
+function getActivityIcon(type: ActivityType) {
+  switch (type) {
+    case "TRANSLATION": return { icon: Languages, cls: "bg-accent/10 text-accent" };
+    case "SAVE_WORD": return { icon: Bookmark, cls: "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400" };
+    case "SEARCH": return { icon: Search, cls: "bg-muted text-muted-foreground" };
+    case "IMAGE_RECOGNITION":
+    case "IMAGE_UPLOAD": return { icon: Camera, cls: "bg-orange-100 text-orange-500 dark:bg-orange-900/40 dark:text-orange-400" };
+    case "EXPORT_PDF":
+    case "DOWNLOAD_BOOK": return { icon: FileDown, cls: "bg-muted text-muted-foreground" };
+    default: return { icon: Clock, cls: "bg-muted text-muted-foreground" };
+  }
+}
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -144,10 +161,10 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
 
         {/* Recently Saved */}
-        <div className="hidden lg:flex flex-col">
-          <div className="mb-3 flex items-center justify-between">
+        <div className="flex flex-col overflow-hidden rounded-xl border border-border bg-card">
+          <div className="flex items-center justify-between border-b border-border px-4 py-3">
             <div className="flex items-center gap-2">
-              <Bookmark className="size-4 text-muted-foreground" />
+              <Bookmark className="size-4 text-accent" />
               <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
                 {t("dashboard.recentlySaved")}
               </p>
@@ -156,18 +173,19 @@ export default function DashboardPage() {
               {t("dashboard.viewAll")}
             </Link>
           </div>
-
-          {activityLoading && (
-            <div className="flex flex-1 flex-col gap-2">
-              {Array.from({ length: 3 }).map((_, i) => (
-                <Skeleton key={i} className="h-14 rounded-md" />
+          {activityLoading ? (
+            <div className="flex flex-col divide-y divide-border">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="flex items-center gap-3 px-4 py-3">
+                  <Skeleton className="size-7 rounded-lg shrink-0" />
+                  <Skeleton className="h-3.5 flex-1 rounded" />
+                  <Skeleton className="h-3 w-10 rounded" />
+                </div>
               ))}
             </div>
-          )}
-
-          {!activityLoading && savedActivity.length === 0 && (
+          ) : savedActivity.length === 0 ? (
             <EmptyState
-              className="flex-1 min-h-[180px]"
+              className="flex-1 min-h-[160px]"
               icon={Bookmark}
               title={t("dashboard.noSavedWordsTitle")}
               description={t("dashboard.noSavedWordsDesc")}
@@ -177,28 +195,29 @@ export default function DashboardPage() {
                 </Button>
               }
             />
-          )}
-
-          {!activityLoading && savedActivity.length > 0 && (
-            <Card className="flex-1">
-              <ul className="divide-y divide-border">
-                {savedActivity.map((entry) => (
-                  <li key={entry.id} className="flex items-center gap-3 px-4 py-3 text-sm">
-                    <Clock className="size-3.5 shrink-0 text-muted-foreground" />
-                    <span className="flex-1 truncate font-medium">{entry.description}</span>
-                    <span className="shrink-0 text-xs text-muted-foreground">{formatRelative(entry.createdAt)}</span>
+          ) : (
+            <ul className="divide-y divide-border">
+              {savedActivity.map((entry) => {
+                const { icon: Icon, cls } = getActivityIcon(entry.type);
+                return (
+                  <li key={entry.id} className="flex items-center gap-3 px-4 py-3">
+                    <div className={cn("flex size-7 shrink-0 items-center justify-center rounded-lg", cls)}>
+                      <Icon className="size-3.5" />
+                    </div>
+                    <span className="flex-1 truncate text-sm font-medium">{entry.description}</span>
+                    <span className="shrink-0 text-xs text-muted-foreground tabular-nums">{formatRelative(entry.createdAt)}</span>
                   </li>
-                ))}
-              </ul>
-            </Card>
+                );
+              })}
+            </ul>
           )}
         </div>
 
         {/* Recent Activity */}
-        <div className="flex flex-col">
-          <div className="mb-3 flex items-center justify-between">
+        <div className="flex flex-col overflow-hidden rounded-xl border border-border bg-card">
+          <div className="flex items-center justify-between border-b border-border px-4 py-3">
             <div className="flex items-center gap-2">
-              <Activity className="size-4 text-muted-foreground" />
+              <Activity className="size-4 text-accent" />
               <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
                 {t("dashboard.recentActivity")}
               </p>
@@ -207,18 +226,19 @@ export default function DashboardPage() {
               {t("dashboard.viewAll")}
             </Link>
           </div>
-
-          {activityLoading && (
-            <div className="flex flex-1 flex-col gap-2">
-              {Array.from({ length: 3 }).map((_, i) => (
-                <Skeleton key={i} className="h-14 rounded-md" />
+          {activityLoading ? (
+            <div className="flex flex-col divide-y divide-border">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="flex items-center gap-3 px-4 py-3">
+                  <Skeleton className="size-7 rounded-lg shrink-0" />
+                  <Skeleton className="h-3.5 flex-1 rounded" />
+                  <Skeleton className="h-3 w-10 rounded" />
+                </div>
               ))}
             </div>
-          )}
-
-          {!activityLoading && recentActivity.length === 0 && (
+          ) : recentActivity.length === 0 ? (
             <EmptyState
-              className="flex-1 min-h-[180px]"
+              className="flex-1 min-h-[160px]"
               icon={Activity}
               title={t("dashboard.noActivityTitle")}
               description={t("dashboard.noActivityDesc")}
@@ -228,22 +248,24 @@ export default function DashboardPage() {
                 </Button>
               }
             />
-          )}
-
-          {!activityLoading && recentActivity.length > 0 && (
-            <Card className="flex-1">
-              <ul className="divide-y divide-border">
-                {recentActivity.map((entry) => (
-                  <li key={entry.id} className="flex items-center gap-3 px-4 py-3 text-sm">
-                    <Clock className="size-3.5 shrink-0 text-muted-foreground" />
-                    <span className="flex-1 truncate font-medium">{entry.description}</span>
-                    <span className="shrink-0 text-xs text-muted-foreground">{formatRelative(entry.createdAt)}</span>
+          ) : (
+            <ul className="divide-y divide-border">
+              {recentActivity.map((entry) => {
+                const { icon: Icon, cls } = getActivityIcon(entry.type);
+                return (
+                  <li key={entry.id} className="flex items-center gap-3 px-4 py-3">
+                    <div className={cn("flex size-7 shrink-0 items-center justify-center rounded-lg", cls)}>
+                      <Icon className="size-3.5" />
+                    </div>
+                    <span className="flex-1 truncate text-sm font-medium">{entry.description}</span>
+                    <span className="shrink-0 text-xs text-muted-foreground tabular-nums">{formatRelative(entry.createdAt)}</span>
                   </li>
-                ))}
-              </ul>
-            </Card>
+                );
+              })}
+            </ul>
           )}
         </div>
+
       </div>
     </div>
   );
