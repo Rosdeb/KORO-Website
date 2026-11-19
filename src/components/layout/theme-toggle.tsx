@@ -9,6 +9,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "@/components/ui/glass-tooltip";
 import { cn } from "@/lib/utils/cn";
 
 const OPTIONS = [
@@ -32,14 +37,21 @@ export function ThemeToggle() {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <button
-          aria-label="Toggle theme"
-          className="rounded-full p-2.5 text-foreground hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        >
-          {mounted ? <ActiveIcon className="size-5" /> : <Sun className="size-5" />}
-        </button>
-      </DropdownMenuTrigger>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <DropdownMenuTrigger asChild>
+            <button
+              aria-label="Toggle theme"
+              className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-card/80 text-foreground hover:bg-muted shadow-xs backdrop-blur-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              {mounted ? <ActiveIcon className="size-4" /> : <Sun className="size-4" />}
+            </button>
+          </DropdownMenuTrigger>
+        </TooltipTrigger>
+        <TooltipContent side="bottom" sideOffset={8}>
+          Theme
+        </TooltipContent>
+      </Tooltip>
       <DropdownMenuContent align="end">
         {OPTIONS.map((option) => (
           <DropdownMenuItem

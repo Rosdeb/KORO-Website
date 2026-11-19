@@ -2,7 +2,8 @@
 
 import { useMemo, useState, useRef, useEffect } from "react";
 import {
-  Flame,
+  Trophy,
+  Zap,
   Calendar as CalendarIcon,
   CheckCircle2,
   TrendingUp,
@@ -251,7 +252,7 @@ export function ActivityHeatmap({
           contentClassName="p-4 flex flex-col justify-between h-full min-h-[92px]"
         >
           <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
-            <Flame className="size-4 text-warning shrink-0" />
+            <Trophy className="size-4 text-warning shrink-0" />
             <span className="truncate">{t("activity.longestStreak")}</span>
           </div>
           <p className="mt-2 text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
@@ -273,7 +274,7 @@ export function ActivityHeatmap({
           contentClassName="p-4 flex flex-col justify-between h-full min-h-[92px]"
         >
           <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
-            <Flame className="size-4 text-primary shrink-0" />
+            <Zap className="size-4 text-primary shrink-0" />
             <span className="truncate">{t("activity.currentStreak")}</span>
           </div>
           <p className="mt-2 text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">

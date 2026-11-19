@@ -80,9 +80,9 @@ export function SiteHeader() {
           <button
             aria-label="Search"
             onClick={() => setMobileSearchOpen((v) => !v)}
-            className="rounded-full p-2.5 text-foreground hover:bg-muted lg:hidden"
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-card/80 text-foreground hover:bg-muted shadow-xs backdrop-blur-xs lg:hidden"
           >
-            <Search className="size-5" />
+            <Search className="size-4" />
           </button>
 
           <LanguageToggle />
