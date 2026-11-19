@@ -40,25 +40,28 @@ function statValue(entry: LeaderboardEntry, type: LeaderboardType) {
   return entry.score;
 }
 
-const MEDAL: Record<number, { bg: string; text: string; ring: string }> = {
+const MEDAL: Record<number, { bg: string; text: string; ring: string; bar: string }> = {
   1: {
-    bg: "bg-muted",
-    text: "text-foreground",
-    ring: "ring-border",
+    bg: "bg-amber-100 dark:bg-amber-900/40",
+    text: "text-amber-600 dark:text-amber-400",
+    ring: "ring-amber-400/70",
+    bar: "border-amber-300 bg-amber-50 dark:border-amber-700 dark:bg-amber-900/20",
   },
   2: {
-    bg: "bg-muted",
-    text: "text-foreground",
-    ring: "ring-border",
+    bg: "bg-blue-100 dark:bg-blue-900/40",
+    text: "text-blue-600 dark:text-blue-400",
+    ring: "ring-blue-400/70",
+    bar: "border-blue-200 bg-blue-50 dark:border-blue-700 dark:bg-blue-900/20",
   },
   3: {
-    bg: "bg-muted",
-    text: "text-foreground",
-    ring: "ring-border",
+    bg: "bg-emerald-100 dark:bg-emerald-900/40",
+    text: "text-emerald-600 dark:text-emerald-400",
+    ring: "ring-emerald-400/70",
+    bar: "border-emerald-200 bg-emerald-50 dark:border-emerald-700 dark:bg-emerald-900/20",
   },
 };
 
-function RankBadge({ rank }: { rank: number }) {
+function RankBadge({ rank, isCurrent }: { rank: number; isCurrent?: boolean }) {
   const m = MEDAL[rank];
   if (m) {
     return (
@@ -69,6 +72,13 @@ function RankBadge({ rank }: { rank: number }) {
           m.text,
         )}
       >
+        {rank}
+      </span>
+    );
+  }
+  if (isCurrent) {
+    return (
+      <span className="inline-flex size-7 items-center justify-center rounded-full bg-accent/10 text-xs font-bold text-accent">
         {rank}
       </span>
     );
@@ -94,12 +104,6 @@ function PodiumCard({
   const topPad: Record<number, string> = { 1: "pt-6", 2: "pt-14", 3: "pt-20" };
   const avatarSize: Record<number, string> = { 1: "size-20", 2: "size-16", 3: "size-14" };
   const barH: Record<number, string> = { 1: "h-20", 2: "h-14", 3: "h-9" };
-  const barColor: Record<number, string> = {
-    1: "border-border bg-muted/60",
-    2: "border-border bg-muted/40",
-    3: "border-border bg-muted/20",
-  };
-
   return (
     <div className={cn("flex flex-1 flex-col items-center text-center", topPad[entry.rank])}>
       <div className="relative">
@@ -109,13 +113,7 @@ function PodiumCard({
             {initials(entry.name)}
           </AvatarFallback>
         </Avatar>
-        <span
-          className={cn(
-            "absolute -bottom-1 -right-1 flex size-4 items-center justify-center rounded-full text-[9px] font-bold",
-            m?.bg,
-            m?.text,
-          )}
-        >
+        <span className={cn("absolute -bottom-1 -right-1 flex size-4 items-center justify-center rounded-full text-[9px] font-bold", m?.bg, m?.text)}>
           {entry.rank}
         </span>
       </div>
@@ -124,7 +122,7 @@ function PodiumCard({
         {isCurrent && <span className="text-accent"> ·you</span>}
       </p>
       <p className={cn("mt-0.5 text-sm font-bold tabular-nums", m?.text)}>{val}</p>
-      <div className={cn("mt-2 w-full rounded-t border-x border-t", barH[entry.rank], barColor[entry.rank])} />
+      <div className={cn("mt-2 w-full rounded-t border-x border-t", barH[entry.rank], m?.bar ?? "border-border bg-muted/20")} />
     </div>
   );
 }
@@ -191,7 +189,7 @@ function ContributorRow({
         isCurrent && "bg-accent/5 ring-inset ring-1 ring-accent/20",
       )}
     >
-      <RankBadge rank={entry.rank} />
+      <RankBadge rank={entry.rank} isCurrent={isCurrent} />
       <Avatar className="size-8 shrink-0">
         <AvatarImage src={resolveApiFileUrl(entry.profileImage)} alt="" />
         <AvatarFallback className="text-xs">{initials(entry.name)}</AvatarFallback>
@@ -370,14 +368,42 @@ export function PublicLeaderboard() {
           )}
           {user && data.currentUserRank && (
             <div className="overflow-hidden rounded-xl border border-border bg-card">
-              <div className="flex items-center justify-between border-b border-border px-5 py-3">
-                <div className="flex items-center gap-2">
-                  <div className="size-1.5 rounded-full bg-accent" />
-                  <span className="text-sm font-medium">Your standing</span>
+              <div className="flex items-center gap-4 px-5 py-4">
+                <Avatar className="size-12 shrink-0">
+                  <AvatarImage src={resolveApiFileUrl(data.currentUserRank.profileImage)} alt="" />
+                  <AvatarFallback className="text-sm font-semibold">{initials(data.currentUserRank.name)}</AvatarFallback>
+                </Avatar>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-semibold">{data.currentUserRank.name}</p>
+                  {data.currentUserRank.nativeLanguage && (
+                    <p className="truncate text-xs text-muted-foreground">{data.currentUserRank.nativeLanguage}</p>
+                  )}
                 </div>
-                <span className="text-xs text-muted-foreground">not in top {limit}</span>
+                <div className="shrink-0 text-right">
+                  <p className="text-2xl font-bold tabular-nums leading-none">#{data.currentUserRank.rank}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">your rank</p>
+                </div>
               </div>
-              <ContributorRow entry={data.currentUserRank} type={type} isCurrent />
+              <div className="flex divide-x divide-border border-t border-border">
+                <div className={cn("flex-1 px-4 py-3 text-center", type === "SUBMISSIONS" && "bg-accent/5")}>
+                  <p className={cn("text-sm font-semibold tabular-nums", type === "SUBMISSIONS" ? "text-accent" : "text-foreground")}>
+                    {data.currentUserRank.submissionsCount.toLocaleString()}
+                  </p>
+                  <p className="text-xs text-muted-foreground">Submissions</p>
+                </div>
+                <div className={cn("flex-1 px-4 py-3 text-center", type === "TRANSLATIONS" && "bg-accent/5")}>
+                  <p className={cn("text-sm font-semibold tabular-nums", type === "TRANSLATIONS" ? "text-accent" : "text-foreground")}>
+                    {data.currentUserRank.translationsCount.toLocaleString()}
+                  </p>
+                  <p className="text-xs text-muted-foreground">Translations</p>
+                </div>
+                <div className={cn("flex-1 px-4 py-3 text-center", type === "OVERALL" && "bg-accent/5")}>
+                  <p className={cn("text-sm font-semibold tabular-nums", type === "OVERALL" ? "text-accent" : "text-foreground")}>
+                    {data.currentUserRank.score.toLocaleString()}
+                  </p>
+                  <p className="text-xs text-muted-foreground">Score</p>
+                </div>
+              </div>
             </div>
           )}
           {user && !data.currentUserRank && (
