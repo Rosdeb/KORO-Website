@@ -22,7 +22,7 @@ export function AppTopbar() {
   const { t } = useI18n();
 
   return (
-    <header className="sticky top-0 z-30 border-b border-border bg-background/85 backdrop-blur-md">
+    <header className="sticky top-0 z-30 border-b border-border bg-background">
       <div className="container-koro flex h-16 items-center gap-4">
         <Logo href="/app" />
         <div className="hidden flex-1 justify-end px-3 md:flex">
@@ -33,7 +33,7 @@ export function AppTopbar() {
           <ThemeToggle />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+              <button className="rounded-full ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
                 <Avatar>
                   <AvatarImage src={user?.avatarUrl} alt={user?.name} />
                   <AvatarFallback>{user?.name?.slice(0, 1).toUpperCase() ?? "U"}</AvatarFallback>

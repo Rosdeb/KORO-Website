@@ -1,8 +1,8 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useEffect, useState } from "react";
 import { Moon, Sun, Monitor } from "lucide-react";
-import { useTheme } from "next-themes";
+import { useTheme } from "@/features/theme/context";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,15 +22,10 @@ const OPTIONS = [
   { value: "system", label: "System", icon: Monitor },
 ] as const;
 
-const noopSubscribe = () => () => {};
-
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
-  const mounted = useSyncExternalStore(
-    noopSubscribe,
-    () => true,
-    () => false,
-  );
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
 
   const active = OPTIONS.find((o) => o.value === theme) ?? OPTIONS[2];
   const ActiveIcon = active.icon;

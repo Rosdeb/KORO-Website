@@ -1,69 +1,85 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #0a0a0a;
+  --background: #fafaf9;
+  --foreground: #1c1917;
   --card: #ffffff;
-  --card-foreground: #0a0a0a;
-  --muted: #f4f4f5;
-  --muted-foreground: #6b6b70;
-  --border: #e4e4e7;
-  --input: #e4e4e7;
-  --ring: #0a0a0a;
+  --card-foreground: #1c1917;
+  --muted: #f5f5f4;
+  --muted-foreground: #78716c;
+  --border: #e7e5e4;
+  --input: #e7e5e4;
+  --ring: #2a835f;
 
-  --primary: #0a0a0a;
-  --primary-hover: #262626;
-  --primary-foreground: #ffffff;
-  --primary-50: #f4f4f5;
-  --primary-100: #e4e4e7;
-  --primary-500: #3f3f46;
-  --primary-600: #18181b;
-  --primary-700: #0a0a0a;
+  --primary: #1c1917;
+  --primary-hover: #292524;
+  --primary-foreground: #fafaf9;
+  --primary-50: #fafaf9;
+  --primary-100: #f5f5f4;
+  --primary-500: #78716c;
+  --primary-600: #57534e;
+  --primary-700: #292524;
 
-  --accent: #0a0a0a;
-  --accent-hover: #262626;
+  --accent: #2a835f;
+  --accent-hover: #1f6349;
   --accent-foreground: #ffffff;
-  --accent-50: #f4f4f5;
-  --accent-100: #e4e4e7;
+  --accent-50: #f0fdf6;
+  --accent-100: #dcfce8;
+  --accent-200: #bbf7d2;
+  --accent-500: #2a835f;
+  --accent-600: #1f6349;
+  --accent-700: #165238;
 
-  --success: #16803c;
-  --warning: #a35b0a;
-  --danger: #c0272d;
+  --success: #15803d;
+  --warning: #d97706;
+  --danger: #dc2626;
   --danger-foreground: #ffffff;
 
-  --radius: 0.9rem;
+  --radius: 0.5rem;
+
+  --shadow-sm: 0 1px 2px rgba(28,25,23,0.06);
+  --shadow-md: 0 4px 12px rgba(28,25,23,0.08), 0 1px 3px rgba(28,25,23,0.04);
+  --shadow-lg: 0 8px 24px rgba(28,25,23,0.10), 0 2px 6px rgba(28,25,23,0.04);
 }
 
 .dark {
-  --background: #000000;
-  --foreground: #fafafa;
-  --card: #0a0a0a;
-  --card-foreground: #fafafa;
-  --muted: #18181b;
-  --muted-foreground: #a1a1aa;
-  --border: #27272a;
-  --input: #27272a;
-  --ring: #fafafa;
+  --background: #0c0a09;
+  --foreground: #fafaf9;
+  --card: #1c1917;
+  --card-foreground: #fafaf9;
+  --muted: #292524;
+  --muted-foreground: #a8a29e;
+  --border: #292524;
+  --input: #292524;
+  --ring: #34d399;
 
-  --primary: #fafafa;
-  --primary-hover: #d4d4d8;
-  --primary-foreground: #0a0a0a;
-  --primary-50: #27272a;
-  --primary-100: #3f3f46;
-  --primary-500: #a1a1aa;
-  --primary-600: #d4d4d8;
-  --primary-700: #fafafa;
+  --primary: #fafaf9;
+  --primary-hover: #e7e5e4;
+  --primary-foreground: #1c1917;
+  --primary-50: #292524;
+  --primary-100: #3f3c38;
+  --primary-500: #a8a29e;
+  --primary-600: #d6d3d1;
+  --primary-700: #fafaf9;
 
-  --accent: #fafafa;
-  --accent-hover: #d4d4d8;
-  --accent-foreground: #0a0a0a;
-  --accent-50: #27272a;
-  --accent-100: #3f3f46;
+  --accent: #34d399;
+  --accent-hover: #6ee7b7;
+  --accent-foreground: #052e16;
+  --accent-50: #052e16;
+  --accent-100: #064e3b;
+  --accent-200: #065f46;
+  --accent-500: #34d399;
+  --accent-600: #10b981;
+  --accent-700: #059669;
 
-  --success: #3fbf6f;
-  --warning: #e0a13f;
-  --danger: #e5595f;
-  --danger-foreground: #0a0a0a;
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --danger-foreground: #ffffff;
+
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.4), 0 1px 3px rgba(0,0,0,0.2);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.5), 0 2px 6px rgba(0,0,0,0.3);
 }
 
 @theme inline {
@@ -91,32 +107,42 @@
   --color-accent-foreground: var(--accent-foreground);
   --color-accent-50: var(--accent-50);
   --color-accent-100: var(--accent-100);
+  --color-accent-200: var(--accent-200);
+  --color-accent-500: var(--accent-500);
+  --color-accent-600: var(--accent-600);
+  --color-accent-700: var(--accent-700);
 
   --color-success: var(--success);
   --color-warning: var(--warning);
   --color-danger: var(--danger);
   --color-danger-foreground: var(--danger-foreground);
 
-  --radius-sm: calc(var(--radius) - 0.4rem);
-  --radius-md: calc(var(--radius) - 0.2rem);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 0.4rem);
+  --radius-sm: calc(var(--radius) - 0.125rem);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 0.25rem);
+  --radius-xl: calc(var(--radius) + 0.5rem);
+  --radius-2xl: calc(var(--radius) + 1rem);
 
-  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "SF Pro", var(--font-ui), "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-sans: var(--font-ui), "Inter", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, ui-sans-serif, system-ui, sans-serif;
   --font-bn: var(--font-bn);
   --font-ccp: var(--font-ccp);
   --font-mya: var(--font-mya);
 
   --animate-fade-in: fade-in 0.2s ease-out;
-  --animate-scale-in: scale-in 0.12s ease-out;
+  --animate-scale-in: scale-in 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-slide-up: slide-up 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 
   @keyframes fade-in {
     from { opacity: 0; }
     to { opacity: 1; }
   }
   @keyframes scale-in {
-    from { opacity: 0; transform: scale(0.97); }
+    from { opacity: 0; transform: scale(0.96); }
     to { opacity: 1; transform: scale(1); }
+  }
+  @keyframes slide-up {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 }
 
@@ -134,22 +160,23 @@
   body {
     background: var(--background);
     color: var(--foreground);
-    font-family: var(--font-sans), "Noto Sans Bengali", "Noto Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
-    letter-spacing: -0.011em;
+    font-family: var(--font-sans);
+    letter-spacing: -0.009em;
     font-weight: 400;
+    line-height: 1.6;
   }
   h1, h2, h3, h4, h5, h6 {
     letter-spacing: -0.025em;
-    font-weight: 600;
+    font-weight: 700;
+    line-height: 1.2;
   }
   ::selection {
-    background: var(--primary-100);
-    color: var(--primary-700);
+    background: var(--accent-100);
+    color: var(--accent-700);
   }
   @media (prefers-reduced-motion: reduce) {
-    html {
-      scroll-behavior: auto;
-    }
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
   }
 }
 

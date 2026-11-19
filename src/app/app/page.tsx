@@ -9,7 +9,7 @@ import {
   ArrowRight,
   Clock,
   Bookmark,
-  Sparkles,
+  Activity,
   BookOpen,
   Globe,
 } from "lucide-react";
@@ -40,64 +40,65 @@ export default function DashboardPage() {
   ];
 
   return (
-    <div className="flex flex-col gap-9">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div className="flex flex-col gap-10">
+
+      {/* ── Welcome ── */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
+          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
             {t("dashboard.welcome")}, {user?.name?.split(" ")[0] ?? "there"}
           </h1>
-          <p className="mt-1 text-sm text-muted-foreground">{t("dashboard.subtitle")}</p>
+          <p className="mt-1.5 text-sm text-muted-foreground">{t("dashboard.subtitle")}</p>
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          asChild
-          className="w-fit rounded-xl gap-2 shadow-xs transition-colors hover:border-primary/40 hover:text-primary"
-        >
+        <Button variant="outline" size="sm" asChild className="w-fit shrink-0">
           <Link href="/">
-            <Globe className="size-4 text-primary" />
+            <Globe className="size-4" />
             {t("nav.backToWebsite")}
           </Link>
         </Button>
       </div>
 
+      {/* ── Quick Actions ── */}
       <div>
-        <h2 className="mb-3.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
           {t("dashboard.quickActions")}
-        </h2>
-        <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-4">
+        </p>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           {quickActions.map((action) => (
-            <Link key={action.href} href={action.href} className="group">
-              <Card className="flex h-full flex-col items-center justify-center gap-3 p-5 text-center transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md">
-                <div className="flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary transition-transform group-hover:scale-105">
-                  <action.icon className="size-6" />
-                </div>
-                <span className="text-sm font-semibold text-foreground transition-colors group-hover:text-primary">
-                  {action.label}
-                </span>
-              </Card>
+            <Link
+              key={action.href}
+              href={action.href}
+              className="group flex flex-col items-center gap-3 rounded-lg border border-border bg-card px-3 py-6 text-sm font-medium transition-colors hover:border-accent/40 hover:bg-muted/30 sm:py-7"
+            >
+              <div className="flex size-12 items-center justify-center rounded-md bg-muted transition-colors group-hover:bg-accent">
+                <action.icon className="size-5 shrink-0 text-muted-foreground transition-colors group-hover:text-accent-foreground" />
+              </div>
+              <span className="text-center text-sm font-medium leading-tight text-foreground">
+                {action.label}
+              </span>
             </Link>
           ))}
         </div>
       </div>
 
+      {/* ── Continue Learning ── */}
       <div>
-        <div className="mb-3.5 flex items-center justify-between">
+        <div className="mb-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <BookOpen className="size-4 text-primary" />
-            <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            <BookOpen className="size-4 text-muted-foreground" />
+            <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
               {t("dashboard.continueLearning")}
-            </h2>
+            </p>
           </div>
-          <Link href="/app/books" className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline">
+          <Link href="/app/books" className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
             {t("dashboard.myBooks")} <ArrowRight className="size-3" />
           </Link>
         </div>
 
         {booksLoading && (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             {Array.from({ length: 3 }).map((_, i) => (
-              <Skeleton key={i} className="h-28 rounded-2xl" />
+              <Skeleton key={i} className="h-28 rounded-lg" />
             ))}
           </div>
         )}
@@ -116,22 +117,20 @@ export default function DashboardPage() {
         )}
 
         {!booksLoading && (books ?? []).length > 0 && (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             {books!.slice(0, 3).map((book) => (
-              <Link key={book.id} href={`/app/books/${book.id}`} className="group">
-                <Card className="flex h-full flex-col justify-between p-5 transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md">
+              <Link key={book.id} href={`/app/books/${book.id}`} className="group block">
+                <Card className="flex h-full flex-col justify-between p-5 transition-colors hover:border-accent/40 hover:bg-muted/30">
                   <div>
                     <div className="flex items-start justify-between gap-2">
-                      <p className="font-semibold text-foreground transition-colors group-hover:text-primary">
-                        {book.title}
-                      </p>
-                      <ArrowRight className="size-4 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 group-hover:text-primary" />
+                      <p className="font-semibold text-foreground">{book.title}</p>
+                      <ArrowRight className="size-4 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
                     </div>
                     {book.description && (
                       <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{book.description}</p>
                     )}
                   </div>
-                  <p className="mt-3 text-xs font-medium text-muted-foreground">
+                  <p className="mt-3 text-xs text-muted-foreground">
                     {book.wordCount ?? book.items?.length ?? 0} {book.wordCount === 1 ? t("dashboard.wordCount") : t("dashboard.wordsCount")}
                   </p>
                 </Card>
@@ -141,32 +140,34 @@ export default function DashboardPage() {
         )}
       </div>
 
+      {/* ── Activity columns ── */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        {/* Recently Saved Column (hidden on mobile, visible on desktop) */}
+
+        {/* Recently Saved */}
         <div className="hidden lg:flex flex-col">
           <div className="mb-3 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Bookmark className="size-4 text-primary" />
-              <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              <Bookmark className="size-4 text-muted-foreground" />
+              <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
                 {t("dashboard.recentlySaved")}
-              </h2>
+              </p>
             </div>
-            <Link href="/app/activity" className="text-xs font-medium text-primary hover:underline">
+            <Link href="/app/activity" className="text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
               {t("dashboard.viewAll")}
             </Link>
           </div>
 
           {activityLoading && (
-            <div className="flex flex-1 flex-col gap-2.5">
+            <div className="flex flex-1 flex-col gap-2">
               {Array.from({ length: 3 }).map((_, i) => (
-                <Skeleton key={i} className="h-16 rounded-xl" />
+                <Skeleton key={i} className="h-14 rounded-md" />
               ))}
             </div>
           )}
 
           {!activityLoading && savedActivity.length === 0 && (
             <EmptyState
-              className="flex-1 min-h-[220px]"
+              className="flex-1 min-h-[180px]"
               icon={Bookmark}
               title={t("dashboard.noSavedWordsTitle")}
               description={t("dashboard.noSavedWordsDesc")}
@@ -182,10 +183,10 @@ export default function DashboardPage() {
             <Card className="flex-1">
               <ul className="divide-y divide-border">
                 {savedActivity.map((entry) => (
-                  <li key={entry.id} className="flex items-center gap-3 px-4 py-3.5 text-sm">
-                    <Clock className="size-4 shrink-0 text-muted-foreground" />
-                    <span className="flex-1 font-medium">{entry.description}</span>
-                    <span className="text-xs text-muted-foreground">{formatRelative(entry.createdAt)}</span>
+                  <li key={entry.id} className="flex items-center gap-3 px-4 py-3 text-sm">
+                    <Clock className="size-3.5 shrink-0 text-muted-foreground" />
+                    <span className="flex-1 truncate font-medium">{entry.description}</span>
+                    <span className="shrink-0 text-xs text-muted-foreground">{formatRelative(entry.createdAt)}</span>
                   </li>
                 ))}
               </ul>
@@ -193,32 +194,32 @@ export default function DashboardPage() {
           )}
         </div>
 
-        {/* Recent Activity Column */}
+        {/* Recent Activity */}
         <div className="flex flex-col">
           <div className="mb-3 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Sparkles className="size-4 text-primary" />
-              <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              <Activity className="size-4 text-muted-foreground" />
+              <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
                 {t("dashboard.recentActivity")}
-              </h2>
+              </p>
             </div>
-            <Link href="/app/activity" className="text-xs font-medium text-primary hover:underline">
+            <Link href="/app/activity" className="text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
               {t("dashboard.viewAll")}
             </Link>
           </div>
 
           {activityLoading && (
-            <div className="flex flex-1 flex-col gap-2.5">
+            <div className="flex flex-1 flex-col gap-2">
               {Array.from({ length: 3 }).map((_, i) => (
-                <Skeleton key={i} className="h-16 rounded-xl" />
+                <Skeleton key={i} className="h-14 rounded-md" />
               ))}
             </div>
           )}
 
           {!activityLoading && recentActivity.length === 0 && (
             <EmptyState
-              className="flex-1 min-h-[220px]"
-              icon={Sparkles}
+              className="flex-1 min-h-[180px]"
+              icon={Activity}
               title={t("dashboard.noActivityTitle")}
               description={t("dashboard.noActivityDesc")}
               action={
@@ -233,10 +234,10 @@ export default function DashboardPage() {
             <Card className="flex-1">
               <ul className="divide-y divide-border">
                 {recentActivity.map((entry) => (
-                  <li key={entry.id} className="flex items-center gap-3 px-4 py-3.5 text-sm">
-                    <Clock className="size-4 shrink-0 text-muted-foreground" />
-                    <span className="flex-1 font-medium">{entry.description}</span>
-                    <span className="text-xs text-muted-foreground">{formatRelative(entry.createdAt)}</span>
+                  <li key={entry.id} className="flex items-center gap-3 px-4 py-3 text-sm">
+                    <Clock className="size-3.5 shrink-0 text-muted-foreground" />
+                    <span className="flex-1 truncate font-medium">{entry.description}</span>
+                    <span className="shrink-0 text-xs text-muted-foreground">{formatRelative(entry.createdAt)}</span>
                   </li>
                 ))}
               </ul>

@@ -20,6 +20,8 @@ const ToastContext = React.createContext<ToastContextValue | undefined>(undefine
 
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = React.useState<ToastItem[]>([]);
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => { setMounted(true); }, []);
 
   const toast = React.useCallback((item: Omit<ToastItem, "id">) => {
     setItems((prev) => [...prev, { ...item, id: Date.now() + Math.random() }]);
@@ -29,7 +31,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     <ToastContext.Provider value={{ toast }}>
       <ToastPrimitive.Provider swipeDirection="right" duration={4000}>
         {children}
-        {items.map((item) => (
+        {mounted && items.map((item) => (
           <ToastPrimitive.Root
             key={item.id}
             className={cn(
@@ -55,7 +57,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
             </ToastPrimitive.Close>
           </ToastPrimitive.Root>
         ))}
-        <ToastPrimitive.Viewport className="fixed bottom-0 right-0 z-[100] flex w-full max-w-sm flex-col gap-2 p-4 outline-none sm:bottom-4 sm:right-4" />
+        {mounted && <ToastPrimitive.Viewport className="fixed bottom-0 right-0 z-[100] flex w-full max-w-sm flex-col gap-2 p-4 outline-none sm:bottom-4 sm:right-4" />}
       </ToastPrimitive.Provider>
     </ToastContext.Provider>
   );

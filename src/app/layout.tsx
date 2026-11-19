@@ -62,6 +62,14 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${fontUI.variable} ${fontBn.variable} ${fontCcp.variable} ${fontMya.variable} h-full antialiased`}
       suppressHydrationWarning
     >
+      <head>
+        {/* Theme detection runs before hydration — lives in a server component so React never sees it as a React node */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{var t=localStorage.getItem('koro-theme')||'system';var d=t==='system'?(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):t;document.documentElement.classList.add(d);document.documentElement.style.colorScheme=d;}catch(e){}`,
+          }}
+        />
+      </head>
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <Providers>{children}</Providers>
       </body>

@@ -9,7 +9,6 @@ import {
   useId,
   useRef,
   useState,
-  useSyncExternalStore,
 } from "react";
 import { cn } from "@/lib/utils/cn";
 
@@ -55,13 +54,18 @@ function readDark(): boolean {
 }
 
 export function useGlassDark(): boolean {
-  return useSyncExternalStore(subscribeScheme, readDark, () => false);
+  const [dark, setDark] = useState(false);
+  useEffect(() => {
+    setDark(readDark());
+    return subscribeScheme(() => setDark(readDark()));
+  }, []);
+  return dark;
 }
 
-const emptySubscribe = () => () => undefined;
-
 export function useHydrated(): boolean {
-  return useSyncExternalStore(emptySubscribe, () => true, () => false);
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => { setHydrated(true); }, []);
+  return hydrated;
 }
 
 /** Chromium is the only engine that runs url() filters as a backdrop-filter. */
