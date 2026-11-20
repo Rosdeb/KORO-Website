@@ -51,10 +51,10 @@ export const translations = {
     "dashboard.startTranslating": "Start Translating",
 
     // Public Home Page
-    "home.badge": "Indigenous Languages of Bangladesh",
-    "home.heroTitle1": "Indigenous Language",
-    "home.heroTitle2": "preserved and discovered",
-    "home.heroSubtitle": "A platform for preserving, documenting, and learning the endangered languages of Bangladesh.",
+    "home.badge": "Bangladesh · Indigenous Languages",
+    "home.heroTitle1": "Every mother tongue,",
+    "home.heroTitle2": "in one dictionary.",
+    "home.heroSubtitle": "Search, hear, and help preserve the indigenous languages of Bangladesh.",
     "home.exploreLanguages": "Explore Languages",
     "home.searchPlaceholder": "Search words in English, Bangla, or Indigenous languages...",
     "home.featuredLanguages": "Featured languages",
@@ -473,9 +473,9 @@ export const translations = {
 
     // Public Home Page
     "home.badge": "বাংলাদেশের আদিবাসী ও বিপন্ন ভাষা সংরক্ষণে নিবেদিত",
-    "home.heroTitle1": "আদিবাসী ভাষা সংরক্ষণ",
-    "home.heroTitle2": "ও নতুন করে আবিষ্কার",
-    "home.heroSubtitle": "বাংলাদেশের আদিবাসী ও ক্ষুদ্র নৃগোষ্ঠীর বিপন্ন ভাষা সংরক্ষণ, নথিভুক্তকরণ ও শেখার একটি মুক্ত উন্মুক্ত প্ল্যাটফর্ম। শব্দ খুঁজুন, নেটিভ উচ্চারণ শুনুন এবং নিজস্ব শব্দভাণ্ডার তৈরি করুন।",
+    "home.heroTitle1": "প্রতিটি মাতৃভাষা,",
+    "home.heroTitle2": "এক অভিধানে।",
+    "home.heroSubtitle": "বাংলাদেশের আদিবাসী ভাষার শব্দ খুঁজুন, শুনুন ও সংরক্ষণ করুন।",
     "home.exploreLanguages": "ভাষাসমূহ দেখুন",
     "home.searchPlaceholder": "ইংরেজি, বাংলা বা আদিবাসী ভাষায় শব্দ অনুসন্ধান করুন...",
     "home.featuredLanguages": "জনপ্রিয় ভাষাসমূহ",

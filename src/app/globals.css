@@ -144,6 +144,23 @@
     from { opacity: 0; transform: translateY(12px); }
     to { opacity: 1; transform: translateY(0); }
   }
+  @keyframes float-y {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  @keyframes blob {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(40px, -60px) scale(1.15); }
+    66% { transform: translate(-30px, 30px) scale(0.9); }
+  }
+  @keyframes hero-enter {
+    0% { opacity: 0; transform: translateY(24px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
 }
 
 @layer base {
@@ -195,5 +212,25 @@
     max-width: 76rem;
     margin-inline: auto;
     padding-inline: 1.25rem;
+  }
+
+  /* ── Scroll reveal ── */
+  [data-reveal] {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 0.65s cubic-bezier(0.16,1,0.3,1), transform 0.65s cubic-bezier(0.16,1,0.3,1);
+  }
+  [data-reveal].is-revealed {
+    opacity: 1;
+    transform: none;
+  }
+  [data-reveal][data-delay="1"] { transition-delay: 0.08s; }
+  [data-reveal][data-delay="2"] { transition-delay: 0.16s; }
+  [data-reveal][data-delay="3"] { transition-delay: 0.24s; }
+  [data-reveal][data-delay="4"] { transition-delay: 0.32s; }
+  [data-reveal][data-delay="5"] { transition-delay: 0.40s; }
+  [data-reveal][data-delay="6"] { transition-delay: 0.48s; }
+  @media (prefers-reduced-motion: reduce) {
+    [data-reveal] { opacity: 1; transform: none; transition: none; }
   }
 }

@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, ChevronDown } from "lucide-react";
+import { useEffect } from "react";
+import { ArrowRight, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SearchBar } from "@/components/search/search-bar";
 import { LanguageCard } from "@/components/language/language-card";
@@ -12,14 +13,68 @@ import { ErrorState } from "@/components/state/error-state";
 import { useLanguages } from "@/features/languages/hooks";
 import { useCategories, usePopularConcepts } from "@/features/dictionary/hooks";
 import { useI18n } from "@/features/i18n/context";
-import { ScriptRain } from "@/components/home/script-rain";
 import { scriptClassFor } from "@/lib/utils/script-font";
+import { cn } from "@/lib/utils/cn";
+
+function useScrollReveal() {
+  useEffect(() => {
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            e.target.classList.add("is-revealed");
+            io.unobserve(e.target);
+          }
+        });
+      },
+      { threshold: 0, rootMargin: "0px 0px -40px 0px" },
+    );
+
+    function refresh() {
+      document
+        .querySelectorAll<HTMLElement>("[data-reveal]:not(.is-revealed)")
+        .forEach((el) => io.observe(el));
+    }
+
+    refresh();
+    // Re-observe elements that render after async data loads (language cards, etc.)
+    const t1 = setTimeout(refresh, 400);
+    const t2 = setTimeout(refresh, 1200);
+    // Safety net: if anything is still hidden after 3s, force it visible
+    const t3 = setTimeout(() => {
+      document
+        .querySelectorAll<HTMLElement>("[data-reveal]:not(.is-revealed)")
+        .forEach((el) => el.classList.add("is-revealed"));
+    }, 3000);
+
+    return () => {
+      io.disconnect();
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+    };
+  }, []);
+}
+
+const MARQUEE_WORDS = [
+  { word: "পানি",      meaning: "Water",   cls: "script-bn"  },
+  { word: "ရေ",        meaning: "Water",   cls: "script-mya" },
+  { word: "𑄎𑄣𑄴",     meaning: "Water",   cls: "script-ccp" },
+  { word: "আলো",      meaning: "Light",   cls: "script-bn"  },
+  { word: "မိသားစု",  meaning: "Family",  cls: "script-mya" },
+  { word: "ভালোবাসা", meaning: "Love",    cls: "script-bn"  },
+  { word: "𑄌𑄋𑄴𑄟𑄳𑄦", meaning: "Sky",    cls: "script-ccp" },
+  { word: "မြေ",      meaning: "Earth",   cls: "script-mya" },
+  { word: "আকাশ",     meaning: "Sky",     cls: "script-bn"  },
+  { word: "ချစ်",     meaning: "Love",    cls: "script-mya" },
+];
 
 export default function HomePage() {
   const { t, locale } = useI18n();
   const { data: languages, isLoading: languagesLoading, isError: languagesError, refetch: retryLanguages } = useLanguages();
   const { data: categories, isLoading: categoriesLoading, isError: categoriesError, refetch: retryCategories } = useCategories();
   const { data: popularConcepts, isLoading: conceptsLoading, isError: conceptsError, refetch: retryConcepts } = usePopularConcepts();
+  useScrollReveal();
 
   const languagesToShow = (languages ?? []).slice(0, 6);
 
@@ -27,98 +82,205 @@ export default function HomePage() {
     <div>
 
       {/* ══════════════════════════════════════════════════
-          HERO — light, full viewport
+          HERO — light tint, centered, product shot below
       ══════════════════════════════════════════════════ */}
-      <section className="relative flex min-h-[calc(100svh-4rem)] flex-col items-center justify-center overflow-hidden border-b border-border bg-background">
-        <ScriptRain />
+      <section className="relative -mt-16 overflow-hidden bg-accent-50">
+        {/* Faint grid backdrop */}
+        <div aria-hidden className="pointer-events-none absolute inset-0">
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundImage:
+                "linear-gradient(to right, rgba(28,25,23,0.06) 1px, transparent 1px), linear-gradient(to bottom, rgba(28,25,23,0.06) 1px, transparent 1px)",
+              backgroundSize: "64px 64px",
+              maskImage: "radial-gradient(ellipse 70% 55% at 50% 0%, black 20%, transparent 100%)",
+              WebkitMaskImage: "radial-gradient(ellipse 70% 55% at 50% 0%, black 20%, transparent 100%)",
+            }}
+          />
+        </div>
 
-        <div className="container-koro relative z-10 flex flex-col items-center py-20 text-center">
-
-          {/* Badge */}
-          <div className="inline-block rounded border border-border px-3 py-1 text-xs font-medium text-muted-foreground">
+        <div className="container-koro relative z-10 flex flex-col items-center pt-32 pb-20 text-center sm:pt-40 sm:pb-24">
+          <Link
+            href="/languages"
+            className="inline-flex items-center gap-2 rounded-full border border-border bg-card/70 py-1 pl-1 pr-3 shadow-sm text-xs font-medium text-muted-foreground backdrop-blur transition-colors hover:border-accent/40 hover:text-foreground"
+            style={{ animation: "hero-enter 0.6s cubic-bezier(0.16,1,0.3,1) 0.05s both" }}
+          >
+            <span className="rounded-full bg-accent px-2 py-0.5 text-[10px] font-semibold text-accent-foreground">
+              {locale === "bn" ? "নতুন" : "New"}
+            </span>
             {t("home.badge")}
-          </div>
+            <ArrowRight className="size-3" />
+          </Link>
 
-          {/* Headline */}
-          <h1 className="mt-6 max-w-3xl text-5xl font-bold tracking-tight sm:text-6xl lg:text-7xl">
-            {t("home.heroTitle1")}
-            <br />
-            <span className="text-accent">{t("home.heroTitle2")}</span>
+          <h1
+            className="mt-7 max-w-4xl text-4xl font-bold tracking-tight sm:text-6xl lg:text-7xl"
+            style={{ animation: "hero-enter 0.7s cubic-bezier(0.16,1,0.3,1) 0.15s both" }}
+          >
+            {t("home.heroTitle1")}{" "}
+            <br className="hidden sm:block" />
+            <span className="text-accent">
+              {t("home.heroTitle2")}
+            </span>
           </h1>
 
-          <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+          <p
+            className="mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg"
+            style={{ animation: "hero-enter 0.7s cubic-bezier(0.16,1,0.3,1) 0.25s both" }}
+          >
             {t("home.heroSubtitle")}
           </p>
 
-          {/* Search */}
-          <div className="mt-10 w-full max-w-xl">
-            <SearchBar size="lg" />
-            <p className="mt-3 text-sm text-muted-foreground">
-              {locale === "bn"
-                ? <>"পানি" বা "family" দিয়ে অনুসন্ধান করুন</>
-                : <>Try <span className="font-medium text-foreground">"family"</span> or <span className="font-medium text-foreground">"water"</span></>
-              }
-            </p>
-          </div>
-
-          {/* CTA buttons */}
-          <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <Button size="lg" variant="accent" asChild>
+          <div
+            className="relative z-20 mt-10 flex w-full max-w-xl flex-col gap-3 sm:flex-row"
+            style={{ animation: "hero-enter 0.7s cubic-bezier(0.16,1,0.3,1) 0.35s both" }}
+          >
+            <SearchBar size="lg" className="flex-1" />
+            <Button size="lg" variant="accent" className="h-14 shrink-0 rounded-full px-7" asChild>
               <Link href="/dictionary">
                 {t("home.exploreDictionaryBtn")} <ArrowRight className="size-4" />
               </Link>
             </Button>
-            <Button size="lg" variant="outline" asChild>
-              <Link href="/register">
-                {locale === "bn" ? "অ্যাকাউন্ট তৈরি করুন" : "Sign up for free"}
-              </Link>
-            </Button>
           </div>
 
-          {/* Script samples */}
-          <div className="mt-14 flex items-center gap-5 select-none">
-            <span className="script-bn text-xl text-foreground/20">বাংলা</span>
-            <span className="text-muted-foreground/30 text-sm">·</span>
-            <span className="script-mya text-xl text-foreground/20">မြန်မာ</span>
-            <span className="text-muted-foreground/30 text-sm">·</span>
-            <span className="script-ccp text-xl text-foreground/20">𑄌𑄋𑄴𑄟𑄳𑄦</span>
-          </div>
+          <Link
+            href="/register"
+            className="mt-5 inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
+            style={{ animation: "hero-enter 0.7s cubic-bezier(0.16,1,0.3,1) 0.45s both" }}
+          >
+            {locale === "bn" ? "নতুন? বিনামূল্যে অ্যাকাউন্ট তৈরি করুন" : "New here? Create a free account"}
+            <ArrowRight className="size-3.5" />
+          </Link>
+
         </div>
 
-        {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2">
-          <ChevronDown className="size-5 animate-bounce text-muted-foreground/30" />
+        {/* Stats */}
+        <div className="relative z-10 border-t border-border">
+          <div className="container-koro grid grid-cols-3 divide-x divide-border py-10">
+            {[
+              { value: languages?.length ?? 10, label: locale === "bn" ? "ভাষা নথিভুক্ত" : "Languages documented" },
+              { value: categories?.length ?? 20, label: locale === "bn" ? "বিষয় ক্যাটাগরি" : "Word categories" },
+              { value: popularConcepts?.length ?? 1000, label: locale === "bn" ? "শব্দ সংরক্ষিত" : "Words preserved" },
+            ].map((stat) => (
+              <div key={stat.label} className="px-2 text-center">
+                <p className="text-3xl font-bold tabular-nums sm:text-5xl">
+                  {stat.value}<span className="text-accent">+</span>
+                </p>
+                <p className="mt-1 text-xs text-muted-foreground sm:text-sm">{stat.label}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* ══════════════════════════════════════════════════
-          STATS
+          WORD MARQUEE
       ══════════════════════════════════════════════════ */}
-      <div className="border-b border-border">
-        <div className="container-koro py-4">
-          <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-1.5 text-sm text-muted-foreground">
-            {languages?.length != null && (
-              <span><strong className="font-bold text-foreground">{languages.length}</strong>{locale === "bn" ? " ভাষা" : " languages"}</span>
-            )}
-            {categories?.length != null && (
-              <><span className="text-border">·</span><span><strong className="font-bold text-foreground">{categories.length}</strong>{locale === "bn" ? " ক্যাটাগরি" : " categories"}</span></>
-            )}
-            {popularConcepts?.length != null && (
-              <><span className="text-border">·</span><span><strong className="font-bold text-foreground">{popularConcepts.length}+</strong>{locale === "bn" ? " শব্দ নথিভুক্ত" : " words documented"}</span></>
-            )}
-          </div>
+      <div className="overflow-hidden border-b border-border bg-muted/20 py-3 select-none">
+        <div
+          className="flex w-max items-center gap-10"
+          style={{ animation: "marquee 35s linear infinite" }}
+        >
+          {[...MARQUEE_WORDS, ...MARQUEE_WORDS, ...MARQUEE_WORDS].map((w, i) => (
+            <span key={i} className="flex shrink-0 items-center gap-3">
+              <span className={cn("text-base font-bold text-foreground/50", w.cls)}>{w.word}</span>
+              <span className="text-xs font-medium text-muted-foreground/40">{w.meaning}</span>
+              <span className="h-3 w-px bg-border/60" />
+            </span>
+          ))}
         </div>
       </div>
+
+      {/* ══════════════════════════════════════════════════
+          VISUAL SHOWCASE
+      ══════════════════════════════════════════════════ */}
+      <section className="border-b border-border bg-muted/20 py-16 sm:py-20">
+        <div className="container-koro">
+          <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
+
+            <div data-reveal>
+              <p className="text-xs font-semibold uppercase tracking-widest text-accent">
+                {locale === "bn" ? "কীভাবে কাজ করে" : "How it works"}
+              </p>
+              <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
+                {locale === "bn" ? "একটি শব্দ, অনেক ভাষা" : "One word,\nacross many languages"}
+              </h2>
+              <p className="mt-4 text-base leading-relaxed text-muted-foreground">
+                {locale === "bn"
+                  ? "যেকোনো শব্দ খুঁজুন এবং দেখুন কীভাবে সেটি বিভিন্ন ভাষায় উচ্চারিত ও লেখা হয়।"
+                  : "Search any word and instantly see how it's written and pronounced across Bengali, Burmese, Chakma and more."}
+              </p>
+              <div className="mt-8 space-y-4">
+                {[
+                  { step: "01", label: locale === "bn" ? "যেকোনো শব্দ খুঁজুন"             : "Search any word"          },
+                  { step: "02", label: locale === "bn" ? "সব অনুবাদ দেখুন"                : "See all translations"     },
+                  { step: "03", label: locale === "bn" ? "সংরক্ষণ করুন বা অবদান রাখুন"   : "Save it or contribute"    },
+                ].map(({ step, label }) => (
+                  <div key={step} className="flex items-center gap-4">
+                    <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-accent/10 text-xs font-bold text-accent">{step}</span>
+                    <span className="text-sm font-medium">{label}</span>
+                  </div>
+                ))}
+              </div>
+              <Button size="lg" variant="accent" className="mt-8" asChild>
+                <Link href="/dictionary">{locale === "bn" ? "এখনই চেষ্টা করুন" : "Try it now"} <ArrowRight className="size-4" /></Link>
+              </Button>
+            </div>
+
+            <div data-reveal data-delay="2" className="relative">
+              <div className="relative overflow-hidden rounded-2xl border border-border bg-card shadow-lg">
+                <div className="flex items-center gap-3 border-b border-border bg-muted/40 px-5 py-3.5">
+                  <Search className="size-4 shrink-0 text-muted-foreground" />
+                  <span className="text-sm text-muted-foreground">water</span>
+                  <div className="ml-auto flex size-5 items-center justify-center rounded-full bg-accent">
+                    <ArrowRight className="size-3 text-white" />
+                  </div>
+                </div>
+                <div className="p-5">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">English</p>
+                      <p className="mt-1 text-3xl font-bold">Water</p>
+                    </div>
+                    <span className="rounded-md bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">Nature</span>
+                  </div>
+                  <div className="mt-5 space-y-3">
+                    {[
+                      { lang: "Bengali", native: "বাংলা",       word: "পানি",  pronunciation: "pa-ni", cls: "script-bn"  },
+                      { lang: "Burmese", native: "မြန်မာ",      word: "ရေ",    pronunciation: "ye",    cls: "script-mya" },
+                      { lang: "Chakma",  native: "𑄌𑄋𑄴𑄟𑄳𑄦",   word: "𑄎𑄣𑄴",  pronunciation: "jol",   cls: "script-ccp" },
+                    ].map((tr) => (
+                      <div key={tr.lang} className="flex items-center gap-4 rounded-xl border border-border bg-muted/30 px-4 py-3">
+                        <div className="min-w-0 flex-1">
+                          <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">{tr.lang}</p>
+                          <p className={`mt-0.5 text-xl font-bold ${tr.cls}`}>{tr.word}</p>
+                        </div>
+                        <span className="shrink-0 rounded-md bg-background px-2 py-0.5 text-xs text-muted-foreground">{tr.pronunciation}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <div className="absolute -right-4 -top-4 hidden rounded-xl border border-border bg-card px-3 py-2 shadow-sm lg:block" style={{ animation: "float-y 4s ease-in-out infinite" }}>
+                <p className="text-xs text-muted-foreground">Words documented</p>
+                <p className="text-lg font-bold text-accent">{(popularConcepts?.length ?? 0) > 0 ? `${popularConcepts!.length}+` : "1000+"}</p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
 
       {/* ══════════════════════════════════════════════════
           LANGUAGES
       ══════════════════════════════════════════════════ */}
       <section className="container-koro py-16 sm:py-20">
-        <SectionHeading
-          eyebrow={t("common.languages")}
-          title={t("home.featuredLanguages")}
-          action={{ href: "/languages", label: t("home.viewAll") }}
-        />
+        <div data-reveal>
+          <SectionHeading
+            eyebrow={t("common.languages")}
+            title={t("home.featuredLanguages")}
+            action={{ href: "/languages", label: t("home.viewAll") }}
+          />
+        </div>
         <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {languagesLoading && Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-40 rounded-lg" />)}
           {languagesError && (
@@ -131,7 +293,11 @@ export default function HomePage() {
               <EmptyState title={t("home.noLanguages")} description={t("home.checkBack")} />
             </div>
           )}
-          {!languagesLoading && languagesToShow.map((lang) => <LanguageCard key={lang.code} language={lang} />)}
+          {!languagesLoading && languagesToShow.map((lang, i) => (
+            <div key={lang.code} data-reveal data-delay={String(Math.min(i + 1, 6))}>
+              <LanguageCard language={lang} />
+            </div>
+          ))}
         </div>
       </section>
 
@@ -140,7 +306,7 @@ export default function HomePage() {
       ══════════════════════════════════════════════════ */}
       <section className="border-y border-border bg-muted/40 py-12">
         <div className="container-koro">
-          <div className="flex items-center justify-between gap-4 mb-6">
+          <div data-reveal className="mb-6 flex items-center justify-between gap-4">
             <div>
               <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">{t("common.dictionary")}</p>
               <h2 className="mt-1 text-xl font-bold tracking-tight">{t("home.browseByCategory")}</h2>
@@ -149,7 +315,6 @@ export default function HomePage() {
               {t("home.viewDictionary")} <ArrowRight className="inline size-3.5" />
             </Link>
           </div>
-
           {categoriesLoading && (
             <div className="flex gap-3">
               {Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-9 w-24 shrink-0 rounded-md" />)}
@@ -157,7 +322,7 @@ export default function HomePage() {
           )}
           {categoriesError && <ErrorState title={locale === "bn" ? "ক্যাটাগরি লোড করা সম্ভব হয়নি।" : "Categories couldn't load."} onRetry={() => retryCategories()} />}
           {!categoriesLoading && !categoriesError && (
-            <div className="flex gap-2.5 overflow-x-auto pb-1 -mx-5 px-5 sm:mx-0 sm:px-0 sm:flex-wrap">
+            <div className="-mx-5 flex gap-2.5 overflow-x-auto px-5 pb-1 sm:mx-0 sm:flex-wrap sm:px-0">
               {(categories ?? []).map((cat) => (
                 <Link
                   key={cat.id}
@@ -177,14 +342,15 @@ export default function HomePage() {
       </section>
 
       {/* ══════════════════════════════════════════════════
-          POPULAR WORDS — dictionary list
+          POPULAR WORDS
       ══════════════════════════════════════════════════ */}
       <section className="container-koro py-16 sm:py-20">
-        <SectionHeading eyebrow={t("home.popularEyebrow")} title={t("home.popularWords")} />
-
+        <div data-reveal>
+          <SectionHeading eyebrow={t("home.popularEyebrow")} title={t("home.popularWords")} />
+        </div>
         <div className="mt-8">
           {conceptsLoading && (
-            <div className="rounded-lg border border-border overflow-hidden divide-y divide-border">
+            <div className="divide-y divide-border overflow-hidden rounded-lg border border-border">
               {Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-14 rounded-none" />)}
             </div>
           )}
@@ -193,7 +359,7 @@ export default function HomePage() {
             <EmptyState title={t("home.noWords")} description={t("home.startBrowsing")} />
           )}
           {!conceptsLoading && (popularConcepts ?? []).length > 0 && (
-            <div className="rounded-lg border border-border overflow-hidden">
+            <div className="overflow-hidden rounded-lg border border-border">
               {(popularConcepts ?? []).slice(0, 8).map((concept, i) => (
                 <Link
                   key={concept.id}
@@ -225,9 +391,7 @@ export default function HomePage() {
       ══════════════════════════════════════════════════ */}
       <section className="border-t border-border py-16 pb-28 md:pb-16">
         <div className="container-koro">
-          <div className="grid gap-px overflow-hidden rounded-xl border border-border bg-border sm:grid-cols-2">
-
-            {/* Left — browse now */}
+          <div data-reveal className="grid gap-px overflow-hidden rounded-xl border border-border bg-border sm:grid-cols-2">
             <div className="flex flex-col justify-between gap-6 bg-foreground p-8 sm:p-10">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-widest text-background/40">
@@ -242,14 +406,12 @@ export default function HomePage() {
                     : "Browse words across languages freely. No account, no barrier."}
                 </p>
               </div>
-              <Button size="lg" className="w-fit bg-background text-foreground hover:bg-muted font-semibold" asChild>
+              <Button size="lg" className="w-fit bg-background font-semibold text-foreground hover:bg-muted" asChild>
                 <Link href="/dictionary">
                   {t("home.exploreDictionaryBtn")} <ArrowRight className="size-4" />
                 </Link>
               </Button>
             </div>
-
-            {/* Right — create account */}
             <div className="flex flex-col justify-between gap-6 bg-card p-8 sm:p-10">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
@@ -270,7 +432,6 @@ export default function HomePage() {
                 </Link>
               </Button>
             </div>
-
           </div>
         </div>
       </section>

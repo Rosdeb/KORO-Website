@@ -28,10 +28,20 @@ export function SiteHeader() {
   const { t } = useI18n();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => { setMounted(true); }, []);
+
+  // The homepage hero has its own search; only show the header one once it scrolls away.
+  const showHeaderSearch = pathname !== "/" || scrolled;
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   const navLinks = [
     { href: "/languages", label: t("nav.languages") },
@@ -39,12 +49,6 @@ export function SiteHeader() {
     { href: "/leaderboard", label: t("nav.leaderboard") },
     { href: "/about", label: t("nav.about") },
   ];
-
-  useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 8);
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   useEffect(() => {
     if (!mobileOpen) return;
@@ -61,129 +65,139 @@ export function SiteHeader() {
   }, [mobileOpen]);
 
   return (
-    <header
-      className={cn(
-        "sticky top-0 z-30 border-b border-border bg-background/95 backdrop-blur-sm transition-shadow duration-200",
-        scrolled && "shadow-sm",
-      )}
-    >
-      <div className="container-koro flex h-16 items-center gap-4">
-        <Logo />
+    <>
+      {/* Spacer so content isn't hidden under fixed bar */}
+      <div className="h-16 shrink-0" />
 
-        <nav className="ml-4 hidden items-center gap-0.5 md:flex">
-          {navLinks.map((link) => {
-            const isActive = pathname === link.href || pathname.startsWith(link.href + "/");
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={cn(
-                  "relative rounded-md px-3 py-1.5 text-sm font-medium transition-colors duration-150",
-                  isActive
-                    ? "text-foreground"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted",
-                )}
-              >
-                {link.label}
-                {isActive && (
-                  <span className="absolute bottom-0.5 left-1/2 h-0.5 w-4 -translate-x-1/2 rounded-full bg-accent" />
-                )}
-              </Link>
-            );
-          })}
-        </nav>
-
-        <div className="hidden flex-1 justify-end px-4 lg:flex">
-          <SearchBar size="md" collapsible className="max-w-sm" />
-        </div>
-
-        <div className="ml-auto flex items-center gap-1.5">
-          <button
-            aria-label="Search"
-            onClick={() => setMobileSearchOpen((v) => !v)}
-            className="flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors lg:hidden"
-          >
-            <Search className="size-4" />
-          </button>
-
-          <LanguageToggle />
-          <ThemeToggle />
-
-          {!isLoading && !isAuthenticated && (
-            <div className="hidden items-center gap-2 sm:flex">
-              <Button variant="ghost" size="sm" asChild>
-                <Link href="/login">{t("nav.login")}</Link>
-              </Button>
-              <Button variant="brand" size="sm" asChild>
-                <Link href="/register">{t("nav.register")}</Link>
-              </Button>
-            </div>
+      <header
+        className={cn(
+          "fixed inset-x-0 z-30 transition-all duration-300 ease-out",
+          scrolled ? "top-3 px-4 sm:px-6" : "top-0",
+        )}
+      >
+        <div
+          className={cn(
+            "mx-auto flex items-center gap-3 border transition-all duration-300 ease-out",
+            scrolled
+              ? "h-14 max-w-5xl rounded-2xl border-border/60 bg-background/80 px-4 shadow-lg backdrop-blur-xl"
+              : "h-16 max-w-[76rem] rounded-none border-transparent bg-transparent px-5",
           )}
+        >
+          <Logo />
 
-          {!isLoading && isAuthenticated && user && (
-            <div className="hidden items-center gap-2 sm:flex">
-              <Button variant="subtle" size="sm" asChild>
-                <Link href="/app">
-                  <LayoutGrid className="size-3.5" />
-                  Dashboard
+          <nav className="ml-2 hidden items-center gap-0.5 md:flex">
+            {navLinks.map((link) => {
+              const isActive = pathname === link.href || pathname.startsWith(link.href + "/");
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={cn(
+                    "relative rounded-lg px-3 py-1.5 text-sm font-medium transition-colors duration-150",
+                    isActive
+                      ? "text-foreground"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted/60",
+                  )}
+                >
+                  {link.label}
+                  {isActive && (
+                    <span className="absolute bottom-0.5 left-1/2 h-0.5 w-4 -translate-x-1/2 rounded-full bg-accent" />
+                  )}
                 </Link>
-              </Button>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button className="rounded-full ring-2 ring-transparent hover:ring-accent/30 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-                    <Avatar className="h-8 w-8">
-                      <AvatarImage src={user.avatarUrl} alt={user.name} />
-                      <AvatarFallback className="text-xs">
-                        {user.name.slice(0, 1).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-52">
-                  <div className="px-2 py-1.5">
-                    <p className="text-sm font-semibold truncate">{user.name}</p>
-                    <p className="text-xs text-muted-foreground truncate">{user.email}</p>
-                  </div>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link href="/app">
-                      <LayoutGrid className="size-4" /> Dashboard
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/app/books">
-                      <BookMarked className="size-4" /> My Books
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/app/settings">
-                      <Settings className="size-4" /> Settings
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => logout()} className="text-danger focus:text-danger">
-                    <LogOut className="size-4" /> Log out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              );
+            })}
+          </nav>
+
+          <div className="hidden flex-1 justify-end px-3 lg:flex">
+            {showHeaderSearch && <SearchBar size="md" className="w-64 xl:w-72" />}
+          </div>
+
+          <div className="ml-auto flex items-center gap-1">
+            {showHeaderSearch && (
+              <button
+                aria-label="Search"
+                onClick={() => setMobileSearchOpen((v) => !v)}
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted/60 hover:text-foreground transition-colors lg:hidden"
+              >
+                <Search className="size-4" />
+              </button>
+            )}
+
+            <LanguageToggle />
+            <ThemeToggle />
+
+            {!isLoading && !isAuthenticated && (
+              <div className="hidden items-center gap-1.5 sm:flex">
+                <Button variant="ghost" size="sm" asChild>
+                  <Link href="/login">{t("nav.login")}</Link>
+                </Button>
+                <Button variant="brand" size="sm" asChild>
+                  <Link href="/register">{t("nav.register")}</Link>
+                </Button>
+              </div>
+            )}
+
+            {!isLoading && isAuthenticated && user && (
+              <div className="hidden items-center gap-1.5 sm:flex">
+                <Button variant="subtle" size="sm" asChild>
+                  <Link href="/app">
+                    <LayoutGrid className="size-3.5" />
+                    Dashboard
+                  </Link>
+                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className="rounded-full ring-2 ring-transparent hover:ring-accent/30 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage src={user.avatarUrl} alt={user.name} />
+                        <AvatarFallback className="text-xs">
+                          {user.name.slice(0, 1).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-52">
+                    <div className="px-2 py-1.5">
+                      <p className="text-sm font-semibold truncate">{user.name}</p>
+                      <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                    </div>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link href="/app"><LayoutGrid className="size-4" /> Dashboard</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/app/books"><BookMarked className="size-4" /> My Books</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/app/settings"><Settings className="size-4" /> Settings</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => logout()} className="text-danger focus:text-danger">
+                      <LogOut className="size-4" /> Log out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            )}
+
+            <button
+              aria-label="Open menu"
+              onClick={() => setMobileOpen(true)}
+              className="rounded-lg p-1.5 text-foreground hover:bg-muted/60 transition-colors md:hidden"
+            >
+              <Menu className="size-5" />
+            </button>
+          </div>
+        </div>
+
+        {mobileSearchOpen && (
+          <div className="container-koro pb-3">
+            <div className="rounded-2xl border border-border/50 bg-background/90 p-3 shadow-lg backdrop-blur-xl animate-slide-up">
+              <SearchBar autoFocus onNavigate={() => setMobileSearchOpen(false)} />
             </div>
-          )}
-
-          <button
-            aria-label="Open menu"
-            onClick={() => setMobileOpen(true)}
-            className="rounded-md p-2 text-foreground hover:bg-muted transition-colors md:hidden"
-          >
-            <Menu className="size-5" />
-          </button>
-        </div>
-      </div>
-
-      {mobileSearchOpen && (
-        <div className="border-t border-border p-3 lg:hidden animate-slide-up">
-          <SearchBar autoFocus onNavigate={() => setMobileSearchOpen(false)} />
-        </div>
-      )}
+          </div>
+        )}
+      </header>
 
       {mounted && mobileOpen && createPortal(
         <div
@@ -250,6 +264,6 @@ export function SiteHeader() {
         </div>,
         document.body,
       )}
-    </header>
+    </>
   );
 }

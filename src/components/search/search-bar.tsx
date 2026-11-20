@@ -3,12 +3,11 @@
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { Search, Languages, BookOpen, Shapes, Loader2 } from "lucide-react";
+import { Search, Languages, BookOpen, Shapes, Loader2, ArrowRight } from "lucide-react";
 import { useDebouncedValue } from "@/lib/utils/use-debounced-value";
 import { useGlobalSearch } from "@/features/search/hooks";
 import { cn } from "@/lib/utils/cn";
 import { scriptClassFor } from "@/lib/utils/script-font";
-
 import { useI18n } from "@/features/i18n/context";
 
 interface SearchBarProps {
@@ -17,9 +16,10 @@ interface SearchBarProps {
   autoFocus?: boolean;
   onNavigate?: () => void;
   className?: string;
-  /** Start as a small icon button and expand into the full input on click/focus. */
   collapsible?: boolean;
 }
+
+const EXAMPLES = ["family", "water", "পানি", "မြန်မာ", "love", "আলো"];
 
 export function SearchBar({
   size = "md",
@@ -35,8 +35,6 @@ export function SearchBar({
   const [open, setOpen] = useState(false);
   const [expanded, setExpanded] = useState(!collapsible);
   const debounced = useDebouncedValue(query, 300);
-  // useGlobalSearch debounces the backend call itself; pass the raw query so
-  // the cheap language/category substring filters stay instant.
   const { data, isFetching } = useGlobalSearch(query);
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -44,6 +42,23 @@ export function SearchBar({
 
   const hasResults =
     !!data && (data.languages.length > 0 || data.concepts.length > 0 || data.categories.length > 0);
+
+  // Press "/" to focus search when not already in an input
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (
+        e.key === "/" &&
+        document.activeElement?.tagName !== "INPUT" &&
+        document.activeElement?.tagName !== "TEXTAREA"
+      ) {
+        e.preventDefault();
+        setExpanded(true);
+        setTimeout(() => inputRef.current?.focus(), 50);
+      }
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   function expand() {
     if (collapsible) setExpanded(true);
@@ -65,9 +80,7 @@ export function SearchBar({
   }
 
   useEffect(() => {
-    if (expanded && collapsible) {
-      inputRef.current?.focus();
-    }
+    if (expanded && collapsible) inputRef.current?.focus();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [expanded]);
 
@@ -76,6 +89,9 @@ export function SearchBar({
     router.push(`/search?q=${encodeURIComponent(query.trim())}`);
     handleNavigated();
   }
+
+  const showIdle = open && !query.trim();
+  const showResults = open && debounced.trim().length > 1;
 
   return (
     <div
@@ -86,13 +102,7 @@ export function SearchBar({
         className,
       )}
     >
-      <form
-        role="search"
-        onSubmit={(e) => {
-          e.preventDefault();
-          goToFullSearch();
-        }}
-      >
+      <form role="search" onSubmit={(e) => { e.preventDefault(); goToFullSearch(); }}>
         <div className="relative">
           <button
             type="button"
@@ -110,53 +120,88 @@ export function SearchBar({
             ref={inputRef}
             autoFocus={autoFocus}
             value={query}
-            onChange={(e) => {
-              setQuery(e.target.value);
-              setOpen(true);
-            }}
-            onFocus={() => {
-              setOpen(true);
-              expand();
-            }}
-            onBlur={() => setTimeout(() => {
-              setOpen(false);
-              collapseIfIdle();
-            }, 150)}
+            onChange={(e) => { setQuery(e.target.value); setOpen(true); }}
+            onFocus={() => { setOpen(true); expand(); }}
+            onBlur={() => setTimeout(() => { setOpen(false); collapseIfIdle(); }, 150)}
             placeholder={expanded ? effectivePlaceholder : ""}
             aria-hidden={collapsible && !expanded}
             tabIndex={collapsible && !expanded ? -1 : 0}
             className={cn(
-              "w-full rounded-full border border-input bg-card pl-11 pr-4 text-foreground placeholder:text-muted-foreground shadow-sm transition-shadow",
+              "w-full rounded-full border border-input bg-card pl-11 pr-10 text-foreground placeholder:text-muted-foreground shadow-sm transition-shadow",
               "focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent",
-              size === "lg" ? "h-14 text-base pl-12" : "h-9 text-sm",
+              size === "lg" ? "h-14 text-base pl-12 pr-14" : "h-9 text-sm",
               collapsible && !expanded && "cursor-pointer",
             )}
           />
+          {/* Shortcut hint or loader */}
+          {!isFetching && expanded && !query && (
+            <kbd className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 hidden rounded border border-border bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground sm:inline-block">
+              /
+            </kbd>
+          )}
           {isFetching && expanded && (
             <Loader2 className="absolute right-4 top-1/2 size-4 -translate-y-1/2 animate-spin text-muted-foreground" />
           )}
         </div>
       </form>
 
-      {open && debounced.trim().length > 1 && (
+      {/* Idle — focus with no query */}
+      {showIdle && (
+        <div className="absolute z-40 mt-2 w-full overflow-hidden rounded-2xl border border-border bg-card shadow-xl animate-scale-in">
+          <div className="px-4 pt-3 pb-2">
+            <p className="text-xs font-medium text-muted-foreground">Search for</p>
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {[
+                { label: "Languages", hint: "e.g. Bengali, Burmese" },
+                { label: "Categories", hint: "e.g. Family, Nature" },
+                { label: "Words", hint: "any script or language" },
+              ].map((item) => (
+                <span key={item.label} className="inline-flex items-center gap-1 rounded-full border border-border bg-muted/50 px-2.5 py-1 text-xs font-medium text-foreground">
+                  {item.label}
+                  <span className="text-muted-foreground">· {item.hint}</span>
+                </span>
+              ))}
+            </div>
+          </div>
+          <div className="border-t border-border px-4 py-2.5">
+            <p className="mb-1.5 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Try searching</p>
+            <div className="flex flex-wrap gap-1.5">
+              {EXAMPLES.map((ex) => (
+                <button
+                  key={ex}
+                  type="button"
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => { setQuery(ex); setOpen(true); inputRef.current?.focus(); }}
+                  className="rounded-full border border-border bg-background px-3 py-1 text-sm font-medium hover:bg-muted hover:border-accent/40 transition-colors"
+                >
+                  {ex}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Results */}
+      {showResults && (
         <div className="absolute z-40 mt-2 w-full overflow-hidden rounded-2xl border border-border bg-card shadow-xl animate-scale-in">
           {!hasResults && !isFetching && (
             <p className="px-4 py-6 text-center text-sm text-muted-foreground">
-              {t("search.noMatches")} &ldquo;{debounced}&rdquo;.
+              {t("search.noMatches")} &ldquo;{debounced}&rdquo;
             </p>
           )}
 
           {data?.languages && data.languages.length > 0 && (
             <ResultGroup icon={Languages} label={t("common.languages")}>
-              {data.languages.slice(0, 4).map((l) => (
+              {data.languages.slice(0, 3).map((l) => (
                 <Link
                   key={l.code}
                   href={`/languages/${l.code}`}
                   onClick={handleNavigated}
-                  className="flex items-center justify-between px-4 py-2.5 text-sm hover:bg-muted"
+                  className="flex items-center justify-between px-4 py-2.5 text-sm hover:bg-muted transition-colors"
                 >
-                  <span>{l.name}</span>
-                  <span className={cn("text-muted-foreground", scriptClassFor(l.code))}>{l.nativeName}</span>
+                  <span className="font-medium">{l.name}</span>
+                  <span className={cn("text-muted-foreground text-sm", scriptClassFor(l.code))}>{l.nativeName}</span>
                 </Link>
               ))}
             </ResultGroup>
@@ -164,14 +209,17 @@ export function SearchBar({
 
           {data?.categories && data.categories.length > 0 && (
             <ResultGroup icon={Shapes} label={t("common.categories")}>
-              {data.categories.slice(0, 4).map((c) => (
+              {data.categories.slice(0, 3).map((c) => (
                 <Link
                   key={c.id}
                   href={`/dictionary/${c.slug}`}
                   onClick={handleNavigated}
-                  className="flex items-center px-4 py-2.5 text-sm hover:bg-muted"
+                  className="flex items-center justify-between px-4 py-2.5 text-sm hover:bg-muted transition-colors"
                 >
-                  {c.name}
+                  <span className="font-medium">{c.name}</span>
+                  {typeof c.conceptCount === "number" && (
+                    <span className="text-xs text-muted-foreground">{c.conceptCount} words</span>
+                  )}
                 </Link>
               ))}
             </ResultGroup>
@@ -184,9 +232,23 @@ export function SearchBar({
                   key={c.id}
                   href={`/dictionary/${c.categorySlug}/${c.id}`}
                   onClick={handleNavigated}
-                  className="flex items-center px-4 py-2.5 text-sm hover:bg-muted"
+                  className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted transition-colors"
                 >
-                  {c.name}
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium">{c.name}</p>
+                    {c.translations.length > 0 && (
+                      <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                        {c.translations.slice(0, 3).map((tr) => (
+                          <span key={tr.languageCode} className={cn("mr-2", scriptClassFor(tr.languageCode))}>
+                            {tr.text}
+                          </span>
+                        ))}
+                      </p>
+                    )}
+                  </div>
+                  <span className="shrink-0 rounded bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground capitalize">
+                    {c.categoryName}
+                  </span>
                 </Link>
               ))}
             </ResultGroup>
@@ -196,9 +258,10 @@ export function SearchBar({
             <button
               onMouseDown={(e) => e.preventDefault()}
               onClick={goToFullSearch}
-              className="w-full border-t border-border px-4 py-3 text-left text-sm font-medium text-primary hover:bg-primary-50"
+              className="flex w-full items-center justify-between border-t border-border px-4 py-3 text-sm font-medium text-accent hover:bg-accent/5 transition-colors"
             >
-              {t("search.seeAll")} &ldquo;{query.trim()}&rdquo;
+              <span>See all results for &ldquo;{query.trim()}&rdquo;</span>
+              <ArrowRight className="size-3.5" />
             </button>
           )}
         </div>
@@ -217,9 +280,9 @@ function ResultGroup({
   children: React.ReactNode;
 }) {
   return (
-    <div className="border-b border-border py-1.5 last:border-b-0">
-      <div className="flex items-center gap-1.5 px-4 pb-1 pt-1.5 text-xs font-medium text-muted-foreground">
-        <Icon className="size-3.5" />
+    <div className="border-b border-border py-1 last:border-b-0">
+      <div className="flex items-center gap-1.5 px-4 pb-1 pt-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+        <Icon className="size-3" />
         {label}
       </div>
       {children}
