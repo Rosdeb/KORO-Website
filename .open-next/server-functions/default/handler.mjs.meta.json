@@ -3884,12 +3884,12 @@
       "imports": [],
       "format": "cjs"
     },
-    ".open-next/server-functions/default/.next/server/app/api/auth/session/route_client-reference-manifest.js": {
+    ".open-next/server-functions/default/.next/server/app/api/auth/refresh/route_client-reference-manifest.js": {
       "bytes": 362,
       "imports": [],
       "format": "cjs"
     },
-    ".open-next/server-functions/default/.next/server/app/api/auth/refresh/route_client-reference-manifest.js": {
+    ".open-next/server-functions/default/.next/server/app/api/auth/session/route_client-reference-manifest.js": {
       "bytes": 362,
       "imports": [],
       "format": "cjs"
@@ -3920,7 +3920,7 @@
       "format": "cjs"
     },
     ".open-next/server-functions/default/node_modules/next/dist/server/load-manifest.external.js": {
-      "bytes": 399820,
+      "bytes": 399822,
       "imports": [
         {
           "path": "path",
@@ -3968,14 +3968,14 @@
           "original": "/Users/rosdebkoch/All_Project/KORO-Website/.open-next/server-functions/default/.next/server/app/api/auth/register/route_client-reference-manifest.js"
         },
         {
-          "path": ".open-next/server-functions/default/.next/server/app/api/auth/session/route_client-reference-manifest.js",
-          "kind": "require-call",
-          "original": "/Users/rosdebkoch/All_Project/KORO-Website/.open-next/server-functions/default/.next/server/app/api/auth/session/route_client-reference-manifest.js"
-        },
-        {
           "path": ".open-next/server-functions/default/.next/server/app/api/auth/refresh/route_client-reference-manifest.js",
           "kind": "require-call",
           "original": "/Users/rosdebkoch/All_Project/KORO-Website/.open-next/server-functions/default/.next/server/app/api/auth/refresh/route_client-reference-manifest.js"
+        },
+        {
+          "path": ".open-next/server-functions/default/.next/server/app/api/auth/session/route_client-reference-manifest.js",
+          "kind": "require-call",
+          "original": "/Users/rosdebkoch/All_Project/KORO-Website/.open-next/server-functions/default/.next/server/app/api/auth/session/route_client-reference-manifest.js"
         },
         {
           "path": ".open-next/server-functions/default/.next/server/app/api/auth/logout/route_client-reference-manifest.js",
@@ -5419,7 +5419,7 @@
       "format": "cjs"
     },
     ".open-next/server-functions/default/.next/server/app/(public)/leaderboard/page.js": {
-      "bytes": 18413,
+      "bytes": 20507,
       "imports": [
         {
           "path": ".open-next/server-functions/default/node_modules/next/dist/server/app-render/after-task-async-storage.external.js",
@@ -10930,10 +10930,10 @@
         ".open-next/server-functions/default/.next/server/app/api/auth/register/route_client-reference-manifest.js": {
           "bytesInOutput": 529
         },
-        ".open-next/server-functions/default/.next/server/app/api/auth/session/route_client-reference-manifest.js": {
+        ".open-next/server-functions/default/.next/server/app/api/auth/refresh/route_client-reference-manifest.js": {
           "bytesInOutput": 526
         },
-        ".open-next/server-functions/default/.next/server/app/api/auth/refresh/route_client-reference-manifest.js": {
+        ".open-next/server-functions/default/.next/server/app/api/auth/session/route_client-reference-manifest.js": {
           "bytesInOutput": 526
         },
         ".open-next/server-functions/default/.next/server/app/api/auth/logout/route_client-reference-manifest.js": {
@@ -10952,7 +10952,7 @@
           "bytesInOutput": 509
         },
         ".open-next/server-functions/default/node_modules/next/dist/server/load-manifest.external.js": {
-          "bytesInOutput": 348717
+          "bytesInOutput": 348719
         },
         ".open-next/server-functions/default/node_modules/next/dist/lib/interop-default.js": {
           "bytesInOutput": 363
@@ -11105,7 +11105,7 @@
           "bytesInOutput": 18296
         },
         ".open-next/server-functions/default/.next/server/app/(public)/leaderboard/page.js": {
-          "bytesInOutput": 18726
+          "bytesInOutput": 20829
         },
         ".open-next/server-functions/default/.next/server/app/(auth)/verify-email/page.js": {
           "bytesInOutput": 14228
@@ -11363,7 +11363,7 @@
           "bytesInOutput": 76288
         }
       },
-      "bytes": 4597605
+      "bytes": 4599710
     }
   }
 }
