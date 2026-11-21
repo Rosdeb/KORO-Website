@@ -85,7 +85,7 @@ export function SiteHeader() {
         >
           <Logo />
 
-          <nav className="ml-2 hidden items-center gap-0.5 md:flex">
+          <nav className="ml-2 hidden items-center gap-0.5 lg:flex">
             {navLinks.map((link) => {
               const isActive = pathname === link.href || pathname.startsWith(link.href + "/");
               return (
@@ -93,7 +93,7 @@ export function SiteHeader() {
                   key={link.href}
                   href={link.href}
                   className={cn(
-                    "relative rounded-lg px-3 py-1.5 text-sm font-medium transition-colors duration-150",
+                    "relative whitespace-nowrap rounded-lg px-3 py-1.5 text-sm font-medium transition-colors duration-150",
                     isActive
                       ? "text-foreground"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted/60",
@@ -108,30 +108,38 @@ export function SiteHeader() {
             })}
           </nav>
 
-          <div className="hidden flex-1 justify-end px-3 lg:flex">
-            {showHeaderSearch && <SearchBar size="md" className="w-64 xl:w-72" />}
+          <div className="hidden min-w-0 flex-1 justify-end px-3 xl:flex">
+            {showHeaderSearch && <SearchBar size="md" className="w-56 2xl:w-72" />}
           </div>
 
-          <div className="ml-auto flex items-center gap-1">
+          <div className="ml-auto flex shrink-0 items-center gap-1 sm:gap-1.5">
             {showHeaderSearch && (
               <button
                 aria-label="Search"
                 onClick={() => setMobileSearchOpen((v) => !v)}
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted/60 hover:text-foreground transition-colors lg:hidden"
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted/60 hover:text-foreground transition-colors xl:hidden"
               >
                 <Search className="size-4" />
               </button>
             )}
 
-            <LanguageToggle />
-            <ThemeToggle />
+            {/* Toggles live in the mobile menu on phones to keep the bar uncluttered */}
+            <div className="hidden items-center gap-1.5 sm:flex">
+              <LanguageToggle />
+              <ThemeToggle />
+            </div>
 
             {!isLoading && !isAuthenticated && (
-              <div className="hidden items-center gap-1.5 sm:flex">
-                <Button variant="ghost" size="sm" asChild>
+              <div className="flex items-center gap-1.5">
+                <Button variant="ghost" size="sm" asChild className="hidden whitespace-nowrap sm:inline-flex">
                   <Link href="/login">{t("nav.login")}</Link>
                 </Button>
-                <Button variant="brand" size="sm" asChild>
+                <Button
+                  variant="brand"
+                  size="sm"
+                  asChild
+                  className="h-8 whitespace-nowrap px-3 text-xs sm:h-9 sm:px-4 sm:text-sm"
+                >
                   <Link href="/register">{t("nav.register")}</Link>
                 </Button>
               </div>
@@ -140,7 +148,7 @@ export function SiteHeader() {
             {!isLoading && isAuthenticated && user && (
               <div className="hidden items-center gap-1.5 sm:flex">
                 <Button variant="subtle" size="sm" asChild>
-                  <Link href="/app">
+                  <Link href="/app" className="whitespace-nowrap">
                     <LayoutGrid className="size-3.5" />
                     Dashboard
                   </Link>
@@ -183,7 +191,7 @@ export function SiteHeader() {
             <button
               aria-label="Open menu"
               onClick={() => setMobileOpen(true)}
-              className="rounded-lg p-1.5 text-foreground hover:bg-muted/60 transition-colors md:hidden"
+              className="rounded-lg p-1.5 text-foreground hover:bg-muted/60 transition-colors lg:hidden"
             >
               <Menu className="size-5" />
             </button>
@@ -201,7 +209,7 @@ export function SiteHeader() {
 
       {mounted && mobileOpen && createPortal(
         <div
-          className="fixed inset-0 z-50 flex h-dvh flex-col bg-background/95 backdrop-blur-xl md:hidden animate-fade-in"
+          className="fixed inset-0 z-50 flex h-dvh flex-col bg-background/95 backdrop-blur-xl lg:hidden animate-fade-in"
           role="dialog"
           aria-modal="true"
           aria-label="Mobile menu"
