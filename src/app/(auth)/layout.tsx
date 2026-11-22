@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { Logo } from "@/components/layout/logo";
+import { GuestGuard } from "@/components/auth/guest-guard";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -14,7 +16,11 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         </Link>
       </header>
       <main className="flex flex-1 items-center justify-center px-4 py-10">
-        <div className="w-full max-w-md">{children}</div>
+        <div className="w-full max-w-md">
+          <Suspense fallback={null}>
+            <GuestGuard>{children}</GuestGuard>
+          </Suspense>
+        </div>
       </main>
     </div>
   );

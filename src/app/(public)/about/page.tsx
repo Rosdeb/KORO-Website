@@ -3,10 +3,12 @@
 import Link from "next/link";
 import { ArrowRight, Compass, BookOpenText, BookmarkPlus, Globe2, Users, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/features/auth/context";
 import { useI18n } from "@/features/i18n/context";
 
 export default function AboutPage() {
   const { t, locale } = useI18n();
+  const { isAuthenticated } = useAuth();
 
   const values = [
     { icon: Globe2, title: t("about.values1Title"), description: t("about.values1Desc") },
@@ -42,8 +44,10 @@ export default function AboutPage() {
         locale === "bn"
           ? "ব্যক্তিগত বইয়ে শব্দ সংরক্ষণ করতে একটি অ্যাকাউন্ট খুলুন।"
           : "Create an account to save words in personal books and return to what you want to learn.",
-      href: "/register",
-      label: locale === "bn" ? "অ্যাকাউন্ট তৈরি করুন" : "Create an account",
+      href: isAuthenticated ? "/app/books" : "/register",
+      label: isAuthenticated
+        ? (locale === "bn" ? "আপনার বইসমূহ দেখুন" : "View your books")
+        : (locale === "bn" ? "অ্যাকাউন্ট তৈরি করুন" : "Create an account"),
     },
   ];
 
@@ -174,8 +178,10 @@ export default function AboutPage() {
               </p>
             </div>
             <Button size="lg" className="w-fit bg-background text-foreground hover:bg-muted font-semibold" asChild>
-              <Link href="/register">
-                {t("about.joinKorot")} <ArrowRight className="size-4" />
+              <Link href={isAuthenticated ? "/app" : "/register"}>
+                {isAuthenticated
+                  ? (locale === "bn" ? "ড্যাশবোর্ড খুলুন" : "Open Dashboard")
+                  : t("about.joinKorot")} <ArrowRight className="size-4" />
               </Link>
             </Button>
           </div>

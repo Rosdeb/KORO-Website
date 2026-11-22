@@ -12,6 +12,7 @@ import { EmptyState } from "@/components/state/empty-state";
 import { ErrorState } from "@/components/state/error-state";
 import { useLanguages } from "@/features/languages/hooks";
 import { useCategories, usePopularConcepts } from "@/features/dictionary/hooks";
+import { useAuth } from "@/features/auth/context";
 import { useI18n } from "@/features/i18n/context";
 import { scriptClassFor } from "@/lib/utils/script-font";
 import { cn } from "@/lib/utils/cn";
@@ -71,6 +72,7 @@ const MARQUEE_WORDS = [
 
 export default function HomePage() {
   const { t, locale } = useI18n();
+  const { isAuthenticated } = useAuth();
   const { data: languages, isLoading: languagesLoading, isError: languagesError, refetch: retryLanguages } = useLanguages();
   const { data: categories, isLoading: categoriesLoading, isError: categoriesError, refetch: retryCategories } = useCategories();
   const { data: popularConcepts, isLoading: conceptsLoading, isError: conceptsError, refetch: retryConcepts } = usePopularConcepts();
@@ -142,14 +144,25 @@ export default function HomePage() {
             </Button>
           </div>
 
-          <Link
-            href="/register"
-            className="mt-5 inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
-            style={{ animation: "hero-enter 0.7s cubic-bezier(0.16,1,0.3,1) 0.45s both" }}
-          >
-            {locale === "bn" ? "নতুন? বিনামূল্যে অ্যাকাউন্ট তৈরি করুন" : "New here? Create a free account"}
-            <ArrowRight className="size-3.5" />
-          </Link>
+          {isAuthenticated ? (
+            <Link
+              href="/app"
+              className="mt-5 inline-flex items-center gap-1 text-sm font-medium text-accent hover:underline"
+              style={{ animation: "hero-enter 0.7s cubic-bezier(0.16,1,0.3,1) 0.45s both" }}
+            >
+              {locale === "bn" ? "আপনার ড্যাশবোর্ডে যান" : "Go to your dashboard"}
+              <ArrowRight className="size-3.5" />
+            </Link>
+          ) : (
+            <Link
+              href="/register"
+              className="mt-5 inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
+              style={{ animation: "hero-enter 0.7s cubic-bezier(0.16,1,0.3,1) 0.45s both" }}
+            >
+              {locale === "bn" ? "নতুন? বিনামূল্যে অ্যাকাউন্ট তৈরি করুন" : "New here? Create a free account"}
+              <ArrowRight className="size-3.5" />
+            </Link>
+          )}
 
         </div>
 
@@ -427,8 +440,10 @@ export default function HomePage() {
                 </p>
               </div>
               <Button size="lg" variant="brand" className="w-fit" asChild>
-                <Link href="/register">
-                  {locale === "bn" ? "বিনামূল্যে যোগ দিন" : "Create free account"} <ArrowRight className="size-4" />
+                <Link href={isAuthenticated ? "/app" : "/register"}>
+                  {isAuthenticated
+                    ? (locale === "bn" ? "ড্যাশবোর্ড খুলুন" : "Open your dashboard")
+                    : (locale === "bn" ? "বিনামূল্যে যোগ দিন" : "Create free account")} <ArrowRight className="size-4" />
                 </Link>
               </Button>
             </div>
