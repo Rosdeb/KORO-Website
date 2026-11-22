@@ -117,7 +117,7 @@ export default function LanguageDetailPage({ params }: { params: Promise<{ code:
         </div>
       </section>
 
-      <section className="container-koro pb-16">
+      <section className="container-koro pb-28 md:pb-16">
         <h2 className="text-xl font-bold">Popular concepts in {language.name}</h2>
         <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {popularInThisLanguage.length === 0 && (

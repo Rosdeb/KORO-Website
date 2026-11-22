@@ -29,7 +29,7 @@ function SearchPageInner() {
   const totalResults = (data?.languages.length ?? 0) + (data?.concepts.length ?? 0) + (data?.categories.length ?? 0);
 
   return (
-    <div className="container-koro py-10">
+    <div className="container-koro pb-28 pt-8 sm:py-10 md:pb-10">
       <h1 className="text-2xl font-extrabold sm:text-3xl">{t("search.title")}</h1>
 
       <form onSubmit={handleSubmit} className="relative mt-5 max-w-xl">

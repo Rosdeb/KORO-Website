@@ -37,15 +37,15 @@ export default function ConceptDetailPage({
   }
 
   return (
-    <div className="container-koro max-w-3xl py-10">
+    <div className="container-koro max-w-3xl pb-28 pt-8 sm:py-10 md:pb-10">
       <Link
         href={`/dictionary/${category}`}
-        className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground"
+        className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground -ml-2"
       >
         <ArrowLeft className="size-4" /> Back to category
       </Link>
 
-      <div className="mt-4 flex flex-wrap items-center justify-between gap-4">
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-3 sm:mt-4 sm:gap-4">
         <div className="flex items-center gap-3">
           <h1 className="text-3xl font-extrabold uppercase tracking-tight sm:text-4xl">{concept.name}</h1>
           <TtsSpeechButton
@@ -78,7 +78,7 @@ export default function ConceptDetailPage({
                   size="sm"
                 />
               </div>
-              <p className={`text-3xl ${scriptClassFor(t.languageCode)}`}>{t.text}</p>
+              <p className={`text-2xl sm:text-3xl ${scriptClassFor(t.languageCode)}`}>{t.text}</p>
               {t.notes && <p className="text-sm text-muted-foreground">{t.notes}</p>}
             </div>
           </Card>

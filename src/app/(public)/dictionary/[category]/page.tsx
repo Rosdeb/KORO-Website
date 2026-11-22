@@ -37,7 +37,7 @@ export default function CategoryPage({ params }: { params: Promise<{ category: s
   const refetch = searching ? search.refetch : browse.refetch;
 
   return (
-    <div className="container-koro py-10">
+    <div className="container-koro pb-28 pt-8 sm:py-10 md:pb-10">
       <Link href="/dictionary" className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground">
         <ArrowLeft className="size-4" /> Dictionary
       </Link>

@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { Menu, Search, X, LayoutGrid, LogOut, Settings, BookMarked, ChevronRight } from "lucide-react";
+import { Glass } from "glisse";
 import { Logo } from "@/components/layout/logo";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { LanguageToggle } from "@/components/layout/language-toggle";
@@ -27,13 +28,11 @@ export function SiteHeader() {
   const { user, isAuthenticated, isLoading, logout } = useAuth();
   const { t } = useI18n();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => { setMounted(true); }, []);
 
-  // The homepage hero has its own search; only show the header one once it scrolls away.
   const showHeaderSearch = pathname !== "/" || scrolled;
 
   useEffect(() => {
@@ -64,9 +63,117 @@ export function SiteHeader() {
     };
   }, [mobileOpen]);
 
+  const headerContent = (
+    <>
+      <Logo />
+
+      <nav className="ml-2 hidden items-center gap-0.5 lg:flex">
+        {navLinks.map((link) => {
+          const isActive = pathname === link.href || pathname.startsWith(link.href + "/");
+          return (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={cn(
+                "relative whitespace-nowrap rounded-lg px-3 py-1.5 text-sm font-medium transition-colors duration-150",
+                isActive
+                  ? "text-foreground"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted/60",
+              )}
+            >
+              {link.label}
+              {isActive && (
+                <span className="absolute bottom-0.5 left-1/2 h-0.5 w-4 -translate-x-1/2 rounded-full bg-accent" />
+              )}
+            </Link>
+          );
+        })}
+      </nav>
+
+      {showHeaderSearch && (
+        <div className="ml-2 min-w-0 flex-1 lg:ml-auto lg:flex-none">
+          <SearchBar size="md" className="w-full lg:w-56 xl:w-72" />
+        </div>
+      )}
+
+      <div className="ml-auto flex shrink-0 items-center gap-1.5 sm:gap-2 lg:ml-0">
+        <div className="hidden items-center gap-2 sm:flex">
+          <LanguageToggle />
+          <ThemeToggle />
+        </div>
+
+        {!isLoading && !isAuthenticated && (
+          <div className="flex items-center gap-1.5">
+            <Button variant="ghost" size="sm" asChild className="hidden whitespace-nowrap sm:inline-flex">
+              <Link href="/login">{t("nav.login")}</Link>
+            </Button>
+            <Button
+              variant="brand"
+              size="sm"
+              asChild
+              className="h-8 whitespace-nowrap px-3 text-xs sm:h-9 sm:px-4 sm:text-sm"
+            >
+              <Link href="/register">{t("nav.register")}</Link>
+            </Button>
+          </div>
+        )}
+
+        {!isLoading && isAuthenticated && user && (
+          <div className="hidden items-center gap-1.5 sm:flex">
+            <Button variant="subtle" size="sm" asChild>
+              <Link href="/app" className="whitespace-nowrap">
+                <LayoutGrid className="size-3.5" />
+                Dashboard
+              </Link>
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="rounded-full ring-2 ring-transparent hover:ring-accent/30 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src={user.avatarUrl} alt={user.name} />
+                    <AvatarFallback className="text-xs">
+                      {user.name.slice(0, 1).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-52">
+                <div className="px-2 py-1.5">
+                  <p className="text-sm font-semibold truncate">{user.name}</p>
+                  <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                </div>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href="/app"><LayoutGrid className="size-4" /> Dashboard</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/app/books"><BookMarked className="size-4" /> My Books</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/app/settings"><Settings className="size-4" /> Settings</Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => logout()} className="text-danger focus:text-danger">
+                  <LogOut className="size-4" /> Log out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        )}
+
+        <button
+          aria-label="Open menu"
+          onClick={() => setMobileOpen(true)}
+          className="rounded-lg p-1.5 text-foreground hover:bg-muted/60 transition-colors lg:hidden"
+        >
+          <Menu className="size-5" />
+        </button>
+      </div>
+    </>
+  );
+
   return (
     <>
-      {/* Spacer so content isn't hidden under fixed bar */}
       <div className="h-16 shrink-0" />
 
       <header
@@ -75,136 +182,16 @@ export function SiteHeader() {
           scrolled ? "top-3 px-4 sm:px-6" : "top-0",
         )}
       >
-        <div
-          className={cn(
-            "mx-auto flex items-center gap-3 border transition-all duration-300 ease-out",
-            scrolled
-              ? "h-14 max-w-5xl rounded-full border-border/60 bg-background/80 px-4 shadow-lg backdrop-blur-xl"
-              : "h-16 max-w-[76rem] rounded-none border-transparent bg-transparent px-5",
-          )}
-        >
-          <Logo />
-
-          <nav className="ml-2 hidden items-center gap-0.5 lg:flex">
-            {navLinks.map((link) => {
-              const isActive = pathname === link.href || pathname.startsWith(link.href + "/");
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={cn(
-                    "relative whitespace-nowrap rounded-lg px-3 py-1.5 text-sm font-medium transition-colors duration-150",
-                    isActive
-                      ? "text-foreground"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted/60",
-                  )}
-                >
-                  {link.label}
-                  {isActive && (
-                    <span className="absolute bottom-0.5 left-1/2 h-0.5 w-4 -translate-x-1/2 rounded-full bg-accent" />
-                  )}
-                </Link>
-              );
-            })}
-          </nav>
-
-          <div className="hidden min-w-0 flex-1 justify-end px-3 xl:flex">
-            {showHeaderSearch && <SearchBar size="md" className="w-56 2xl:w-72" />}
-          </div>
-
-          <div className="ml-auto flex shrink-0 items-center gap-1 sm:gap-1.5">
-            {showHeaderSearch && (
-              <button
-                aria-label="Search"
-                onClick={() => setMobileSearchOpen((v) => !v)}
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted/60 hover:text-foreground transition-colors xl:hidden"
-              >
-                <Search className="size-4" />
-              </button>
-            )}
-
-            {/* Toggles live in the mobile menu on phones to keep the bar uncluttered */}
-            <div className="hidden items-center gap-2 sm:flex">
-              <LanguageToggle />
-              <ThemeToggle />
-            </div>
-
-            {!isLoading && !isAuthenticated && (
-              <div className="flex items-center gap-1.5">
-                <Button variant="ghost" size="sm" asChild className="hidden whitespace-nowrap sm:inline-flex">
-                  <Link href="/login">{t("nav.login")}</Link>
-                </Button>
-                <Button
-                  variant="brand"
-                  size="sm"
-                  asChild
-                  className="h-8 whitespace-nowrap px-3 text-xs sm:h-9 sm:px-4 sm:text-sm"
-                >
-                  <Link href="/register">{t("nav.register")}</Link>
-                </Button>
-              </div>
-            )}
-
-            {!isLoading && isAuthenticated && user && (
-              <div className="hidden items-center gap-1.5 sm:flex">
-                <Button variant="subtle" size="sm" asChild>
-                  <Link href="/app" className="whitespace-nowrap">
-                    <LayoutGrid className="size-3.5" />
-                    Dashboard
-                  </Link>
-                </Button>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button className="rounded-full ring-2 ring-transparent hover:ring-accent/30 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-                      <Avatar className="h-8 w-8">
-                        <AvatarImage src={user.avatarUrl} alt={user.name} />
-                        <AvatarFallback className="text-xs">
-                          {user.name.slice(0, 1).toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-52">
-                    <div className="px-2 py-1.5">
-                      <p className="text-sm font-semibold truncate">{user.name}</p>
-                      <p className="text-xs text-muted-foreground truncate">{user.email}</p>
-                    </div>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                      <Link href="/app"><LayoutGrid className="size-4" /> Dashboard</Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link href="/app/books"><BookMarked className="size-4" /> My Books</Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link href="/app/settings"><Settings className="size-4" /> Settings</Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => logout()} className="text-danger focus:text-danger">
-                      <LogOut className="size-4" /> Log out
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            )}
-
-            <button
-              aria-label="Open menu"
-              onClick={() => setMobileOpen(true)}
-              className="rounded-lg p-1.5 text-foreground hover:bg-muted/60 transition-colors lg:hidden"
-            >
-              <Menu className="size-5" />
-            </button>
-          </div>
-        </div>
-
-        {mobileSearchOpen && (
-          <div className="container-koro pb-3">
-            <div className="rounded-2xl border border-border/50 bg-background/90 p-3 shadow-lg backdrop-blur-xl animate-slide-up">
-              <SearchBar autoFocus onNavigate={() => setMobileSearchOpen(false)} />
-            </div>
+        {scrolled ? (
+          <Glass className="mx-auto flex h-14 max-w-5xl items-center gap-3 rounded-full border border-border/40 px-4 shadow-lg">
+            {headerContent}
+          </Glass>
+        ) : (
+          <div className="mx-auto flex h-16 max-w-[76rem] items-center gap-3 border border-transparent bg-transparent px-5">
+            {headerContent}
           </div>
         )}
+
       </header>
 
       {mounted && mobileOpen && createPortal(

@@ -30,7 +30,7 @@ export function SiteFooter() {
   ];
 
   return (
-    <footer className="border-t border-border pb-24 md:pb-0">
+    <footer className="border-t border-border pb-28 md:pb-0">
       <div className="container-koro py-14">
         <div className="grid gap-10 sm:grid-cols-2 md:grid-cols-4 lg:gap-16">
           {/* Brand */}

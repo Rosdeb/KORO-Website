@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Noto_Sans_Bengali, Noto_Sans_Chakma, Noto_Sans_Myanmar } from "next/font/google";
+import "glisse/styles.css";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 

@@ -102,7 +102,7 @@ function PodiumCard({
   const m = MEDAL[entry.rank];
   const val = statValue(entry, type).toLocaleString();
   const topPad: Record<number, string> = { 1: "pt-6", 2: "pt-14", 3: "pt-20" };
-  const avatarSize: Record<number, string> = { 1: "size-20", 2: "size-16", 3: "size-14" };
+  const avatarSize: Record<number, string> = { 1: "size-14 sm:size-20", 2: "size-12 sm:size-16", 3: "size-10 sm:size-14" };
   const barH: Record<number, string> = { 1: "h-20", 2: "h-14", 3: "h-9" };
   return (
     <div className={cn("flex flex-1 flex-col items-center text-center", topPad[entry.rank])}>
@@ -147,8 +147,8 @@ function Podium({
       : [top[0]];
 
   return (
-    <div className="overflow-hidden rounded-xl border border-border bg-card px-8 pb-0 pt-12">
-      <div className="flex items-end justify-center gap-6">
+    <div className="overflow-hidden rounded-xl border border-border bg-card px-4 pb-0 pt-10 sm:px-8 sm:pt-12">
+      <div className="flex items-end justify-center gap-3 sm:gap-6">
         {ordered.map((e) => (
           <PodiumCard
             key={e.userId}
@@ -267,7 +267,7 @@ export function PublicLeaderboard() {
     type === "OVERALL" ? "score" : type === "SUBMISSIONS" ? "approved submissions" : "translations";
 
   return (
-    <div className="container-koro py-10 sm:py-14">
+    <div className="container-koro pb-28 pt-8 sm:py-14 md:pb-14">
 
       {/* header */}
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">

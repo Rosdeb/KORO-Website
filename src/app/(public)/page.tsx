@@ -102,7 +102,7 @@ export default function HomePage() {
         <div className="container-koro relative z-10 flex flex-col items-center pt-32 pb-20 text-center sm:pt-40 sm:pb-24">
           <Link
             href="/languages"
-            className="inline-flex items-center gap-2 rounded-full border border-border bg-card/70 py-1 pl-1 pr-3 shadow-sm text-xs font-medium text-muted-foreground backdrop-blur transition-colors hover:border-accent/40 hover:text-foreground"
+            className="hidden sm:inline-flex items-center gap-2 rounded-full border border-border bg-card/70 py-1 pl-1 pr-3 shadow-sm text-xs font-medium text-muted-foreground backdrop-blur transition-colors hover:border-accent/40 hover:text-foreground"
             style={{ animation: "hero-enter 0.6s cubic-bezier(0.16,1,0.3,1) 0.05s both" }}
           >
             <span className="rounded-full bg-accent px-2 py-0.5 text-[10px] font-semibold text-accent-foreground">
@@ -155,17 +155,17 @@ export default function HomePage() {
 
         {/* Stats */}
         <div className="relative z-10 border-t border-border">
-          <div className="container-koro grid grid-cols-3 divide-x divide-border py-10">
+          <div className="container-koro grid grid-cols-3 divide-x divide-border py-8 sm:py-10">
             {[
               { value: languages?.length ?? 10, label: locale === "bn" ? "ভাষা নথিভুক্ত" : "Languages documented" },
               { value: categories?.length ?? 20, label: locale === "bn" ? "বিষয় ক্যাটাগরি" : "Word categories" },
               { value: popularConcepts?.length ?? 1000, label: locale === "bn" ? "শব্দ সংরক্ষিত" : "Words preserved" },
             ].map((stat) => (
-              <div key={stat.label} className="px-2 text-center">
-                <p className="text-3xl font-bold tabular-nums sm:text-5xl">
+              <div key={stat.label} className="px-1 text-center sm:px-2">
+                <p className="text-2xl font-bold tabular-nums sm:text-5xl">
                   {stat.value}<span className="text-accent">+</span>
                 </p>
-                <p className="mt-1 text-xs text-muted-foreground sm:text-sm">{stat.label}</p>
+                <p className="mt-1 text-[10px] leading-tight text-muted-foreground sm:text-sm">{stat.label}</p>
               </div>
             ))}
           </div>
@@ -366,7 +366,7 @@ export default function HomePage() {
                   href={`/dictionary/${concept.categorySlug}/${concept.id}`}
                   className={`group flex items-center gap-4 px-5 py-4 transition-colors hover:bg-muted/30 ${i > 0 ? "border-t border-border" : ""}`}
                 >
-                  <span className="w-36 shrink-0 font-semibold sm:w-44">{concept.name}</span>
+                  <span className="min-w-0 flex-1 truncate font-semibold sm:w-44 sm:flex-none">{concept.name}</span>
                   <span className="hidden shrink-0 rounded bg-muted px-1.5 py-0.5 text-xs text-muted-foreground sm:inline">
                     {concept.categorySlug}
                   </span>

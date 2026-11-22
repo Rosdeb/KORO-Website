@@ -32,7 +32,7 @@ export default function DictionaryPage() {
   }, [categories, query]);
 
   return (
-    <div className="container-koro py-12">
+    <div className="container-koro pb-28 pt-10 sm:py-12 md:pb-12">
       <div className="mx-auto max-w-2xl text-center">
         <h1 className="text-3xl font-extrabold sm:text-4xl">{t("dictionary.title")}</h1>
         <p className="mt-2 text-muted-foreground">
