@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm, Controller } from "react-hook-form";
@@ -30,6 +30,7 @@ import { useLanguages } from "@/features/languages/hooks";
 import { useCategories } from "@/features/dictionary/hooks";
 import { useCreateSubmission } from "@/features/submissions/hooks";
 import { ApiError } from "@/lib/api/client";
+import { getAccessToken } from "@/lib/auth/token-store";
 import { cn } from "@/lib/utils/cn";
 import { useI18n } from "@/features/i18n/context";
 
@@ -56,7 +57,9 @@ export default function NewSubmissionPage() {
   const [preview, setPreview] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [translatingField, setTranslatingField] = useState<"bangla" | "english" | null>(null);
+  const [translationNotice, setTranslationNotice] = useState<{ field: "bangla" | "english"; message: string } | null>(null);
   const [lastEdited, setLastEdited] = useState<{ field: "bn" | "en"; text: string } | null>(null);
+  const lastTrackedSourceWord = useRef<string>("");
 
   const {
     control,
@@ -94,9 +97,13 @@ export default function NewSubmissionPage() {
     const controller = new AbortController();
     const timer = setTimeout(async () => {
       try {
+        const token = getAccessToken();
         const res = await fetch("/api/translate", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
           body: JSON.stringify({
             text: text.trim(),
             from: field,
@@ -119,11 +126,17 @@ export default function NewSubmissionPage() {
                 shouldDirty: true,
               });
             }
+            setTranslationNotice(null);
+          } else {
+            setTranslationNotice({ field: target, message: t("suggest.translateUnavailable") });
           }
+        } else {
+          setTranslationNotice({ field: target, message: t("suggest.translateUnavailable") });
         }
       } catch (err) {
         if ((err as Error).name !== "AbortError") {
           console.error("Auto-translate error:", err);
+          setTranslationNotice({ field: target, message: t("suggest.translateUnavailable") });
         }
       } finally {
         setTranslatingField((curr) => (curr === target ? null : curr));
@@ -134,7 +147,7 @@ export default function NewSubmissionPage() {
       clearTimeout(timer);
       controller.abort();
     };
-  }, [lastEdited, setValue]);
+  }, [lastEdited, setValue, t]);
 
   async function onSubmit(values: FormValues) {
     setFormError(null);

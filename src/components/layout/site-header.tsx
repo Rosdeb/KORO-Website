@@ -90,13 +90,13 @@ export function SiteHeader() {
         })}
       </nav>
 
-      {showHeaderSearch && (
-        <div className="ml-2 min-w-0 flex-1 lg:ml-auto lg:flex-none">
-          <SearchBar size="md" className="w-full lg:w-56 xl:w-72" />
-        </div>
-      )}
+      <div className="ml-2 min-w-0 flex-1">
+        {showHeaderSearch && (
+          <SearchBar size="md" className="w-full lg:ml-auto lg:w-56 xl:w-72" />
+        )}
+      </div>
 
-      <div className="ml-auto flex shrink-0 items-center gap-1.5 sm:gap-2 lg:ml-0">
+      <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
         <div className="hidden items-center gap-2 sm:flex">
           <LanguageToggle />
           <ThemeToggle />
