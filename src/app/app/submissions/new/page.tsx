@@ -279,7 +279,10 @@ export default function NewSubmissionPage() {
                 iconClassName="bg-primary/10 text-primary"
                 error={errors.sourceWord?.message}
                 showClear={Boolean(watch("sourceWord"))}
-                onClear={() => setValue("sourceWord", "", { shouldValidate: true, shouldDirty: true })}
+                onClear={() => {
+                  setValue("sourceWord", "", { shouldValidate: true, shouldDirty: true });
+                  lastTrackedSourceWord.current = "";
+                }}
               >
                 <Controller
                   control={control}
@@ -289,7 +292,34 @@ export default function NewSubmissionPage() {
                       className="pl-12 pr-11 text-base sm:text-sm h-11"
                       placeholder={t("suggest.wordPlaceholder")}
                       value={field.value}
-                      onChange={field.onChange}
+                      onChange={(e) => {
+                        field.onChange(e);
+                        const word = e.target.value;
+                        const prevSource = lastTrackedSourceWord.current;
+                        lastTrackedSourceWord.current = word;
+
+                        const selectedSourceLang = languages?.find((l) => l.id === watch("sourceLanguageId"));
+                        const currentBn = getValues("banglaTranslation");
+                        const currentEn = getValues("englishTranslation");
+
+                        if (selectedSourceLang?.code === "en") {
+                          if (!currentEn || currentEn === prevSource) {
+                            setValue("englishTranslation", word, { shouldValidate: true, shouldDirty: true });
+                            setTranslationNotice(null);
+                            if (word.trim()) {
+                              setLastEdited({ field: "en", text: word });
+                            }
+                          }
+                        } else if (selectedSourceLang?.code === "bn") {
+                          if (!currentBn || currentBn === prevSource) {
+                            setValue("banglaTranslation", word, { shouldValidate: true, shouldDirty: true });
+                            setTranslationNotice(null);
+                            if (word.trim()) {
+                              setLastEdited({ field: "bn", text: word });
+                            }
+                          }
+                        }
+                      }}
                     />
                   )}
                 />
@@ -301,9 +331,15 @@ export default function NewSubmissionPage() {
                 icon={<span className="text-sm">🇧🇩</span>}
                 iconClassName="bg-success/10"
                 helper={
-                  translatingField === "bangla"
-                    ? t("suggest.banglaTranslating")
-                    : t("suggest.banglaHelper")
+                  translatingField === "bangla" ? (
+                    t("suggest.banglaTranslating")
+                  ) : translationNotice?.field === "bangla" ? (
+                    <span className="text-amber-600 dark:text-amber-400 font-medium">
+                      {translationNotice.message}
+                    </span>
+                  ) : (
+                    t("suggest.banglaHelper")
+                  )
                 }
                 isLoading={translatingField === "bangla"}
                 showClear={Boolean(watch("banglaTranslation"))}
@@ -311,6 +347,7 @@ export default function NewSubmissionPage() {
                   setValue("banglaTranslation", "", { shouldValidate: true, shouldDirty: true });
                   setLastEdited(null);
                   setTranslatingField(null);
+                  setTranslationNotice(null);
                 }}
                 error={errors.banglaTranslation?.message}
               >
@@ -324,6 +361,7 @@ export default function NewSubmissionPage() {
                       value={field.value}
                       onChange={(e) => {
                         field.onChange(e);
+                        setTranslationNotice(null);
                         setLastEdited({ field: "bn", text: e.target.value });
                       }}
                     />
@@ -337,9 +375,15 @@ export default function NewSubmissionPage() {
                 icon={<span className="text-sm">🇺🇸</span>}
                 iconClassName="bg-primary-100"
                 helper={
-                  translatingField === "english"
-                    ? t("suggest.englishTranslating")
-                    : t("suggest.englishHelper")
+                  translatingField === "english" ? (
+                    t("suggest.englishTranslating")
+                  ) : translationNotice?.field === "english" ? (
+                    <span className="text-amber-600 dark:text-amber-400 font-medium">
+                      {translationNotice.message}
+                    </span>
+                  ) : (
+                    t("suggest.englishHelper")
+                  )
                 }
                 isLoading={translatingField === "english"}
                 showClear={Boolean(watch("englishTranslation"))}
@@ -347,6 +391,7 @@ export default function NewSubmissionPage() {
                   setValue("englishTranslation", "", { shouldValidate: true, shouldDirty: true });
                   setLastEdited(null);
                   setTranslatingField(null);
+                  setTranslationNotice(null);
                 }}
                 error={errors.englishTranslation?.message}
               >
@@ -360,6 +405,7 @@ export default function NewSubmissionPage() {
                       value={field.value}
                       onChange={(e) => {
                         field.onChange(e);
+                        setTranslationNotice(null);
                         setLastEdited({ field: "en", text: e.target.value });
                       }}
                     />
@@ -494,7 +540,7 @@ function IconField({
   required?: boolean;
   icon: React.ReactNode;
   iconClassName?: string;
-  helper?: string;
+  helper?: React.ReactNode;
   error?: string;
   isLoading?: boolean;
   showClear?: boolean;
@@ -534,7 +580,7 @@ function IconField({
           </button>
         ) : null}
       </div>
-      {helper && !error && <p className="text-[11px] sm:text-xs text-muted-foreground">{helper}</p>}
+      {helper && !error && <div className="text-[11px] sm:text-xs text-muted-foreground">{helper}</div>}
       {error && <p className="text-xs text-danger">{error}</p>}
     </div>
   );
