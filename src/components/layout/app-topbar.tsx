@@ -1,7 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { Globe, LogOut, Settings } from "lucide-react";
+import { Globe, LogOut, Search, Settings, X } from "lucide-react";
 import { Glass } from "glisse";
 import { Logo } from "@/components/layout/logo";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
@@ -21,6 +22,7 @@ import { useI18n } from "@/features/i18n/context";
 export function AppTopbar() {
   const { user, logout } = useAuth();
   const { t } = useI18n();
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
 
   return (
     <>
@@ -29,13 +31,18 @@ export function AppTopbar() {
       <header className="fixed top-3 left-0 right-0 z-30 px-4 sm:px-6">
         <Glass className="mx-auto flex h-14 max-w-6xl items-center gap-3 rounded-full border border-border/40 px-4 shadow-lg sm:gap-4">
           <Logo href="/app" />
-          <div className="hidden flex-1 items-center md:flex">
+          <div className="hidden min-w-0 flex-1 items-center md:flex">
             <SearchBar size="md" className="w-full max-w-lg" />
           </div>
           <div className="flex items-center gap-2 sm:gap-3 ml-auto md:ml-3 shrink-0">
-            <div className="md:hidden">
-              <SearchBar size="md" collapsible />
-            </div>
+            <button
+              type="button"
+              aria-label="Search"
+              onClick={() => setMobileSearchOpen((v) => !v)}
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted/60 hover:text-foreground transition-colors md:hidden"
+            >
+              {mobileSearchOpen ? <X className="size-4" /> : <Search className="size-4" />}
+            </button>
             <LanguageToggle />
             <ThemeToggle />
             <DropdownMenu>
@@ -71,6 +78,14 @@ export function AppTopbar() {
             </DropdownMenu>
           </div>
         </Glass>
+
+        {mobileSearchOpen && (
+          <div className="mt-2 px-1 md:hidden">
+            <div className="rounded-2xl border border-border/50 bg-card/95 p-3 shadow-lg backdrop-blur-xl">
+              <SearchBar autoFocus onNavigate={() => setMobileSearchOpen(false)} />
+            </div>
+          </div>
+        )}
       </header>
     </>
   );
