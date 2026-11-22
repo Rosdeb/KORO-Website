@@ -79,7 +79,7 @@ export function SiteHeader() {
           className={cn(
             "mx-auto flex items-center gap-3 border transition-all duration-300 ease-out",
             scrolled
-              ? "h-14 max-w-5xl rounded-2xl border-border/60 bg-background/80 px-4 shadow-lg backdrop-blur-xl"
+              ? "h-14 max-w-5xl rounded-full border-border/60 bg-background/80 px-4 shadow-lg backdrop-blur-xl"
               : "h-16 max-w-[76rem] rounded-none border-transparent bg-transparent px-5",
           )}
         >
@@ -124,7 +124,7 @@ export function SiteHeader() {
             )}
 
             {/* Toggles live in the mobile menu on phones to keep the bar uncluttered */}
-            <div className="hidden items-center gap-1.5 sm:flex">
+            <div className="hidden items-center gap-2 sm:flex">
               <LanguageToggle />
               <ThemeToggle />
             </div>

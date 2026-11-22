@@ -31,6 +31,10 @@ export const translations = {
 
     // Dashboard
     "dashboard.welcome": "Welcome back",
+    "dashboard.greetingMorning": "Good morning",
+    "dashboard.greetingAfternoon": "Good afternoon",
+    "dashboard.greetingEvening": "Good evening",
+    "dashboard.greetingNight": "Hey there",
     "dashboard.subtitle": "Your learning overview.",
     "dashboard.quickActions": "Quick actions",
     "dashboard.continueLearning": "Continue learning",
@@ -452,6 +456,10 @@ export const translations = {
 
     // Dashboard
     "dashboard.welcome": "স্বাগতম",
+    "dashboard.greetingMorning": "সুপ্রভাত",
+    "dashboard.greetingAfternoon": "শুভ অপরাহ্ন",
+    "dashboard.greetingEvening": "শুভ সন্ধ্যা",
+    "dashboard.greetingNight": "হ্যালো",
     "dashboard.subtitle": "আপনার করত্ লার্নিং স্পেসের সাম্প্রতিক আপডেটসমূহ।",
     "dashboard.quickActions": "কুইক অ্যাকশন",
     "dashboard.continueLearning": "শেখা চালিয়ে যান",

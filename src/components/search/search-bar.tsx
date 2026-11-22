@@ -98,52 +98,56 @@ export function SearchBar({
       ref={containerRef}
       className={cn(
         "relative transition-[width] duration-200 ease-out",
-        expanded ? "w-full" : "w-10",
+        collapsible && !expanded ? "w-9" : "w-full",
         className,
       )}
     >
-      <form role="search" onSubmit={(e) => { e.preventDefault(); goToFullSearch(); }}>
-        <div className="relative">
-          <button
-            type="button"
-            aria-label="Search"
-            tabIndex={collapsible && !expanded ? 0 : -1}
-            onClick={expand}
-            className={cn(
-              "absolute left-0 top-1/2 flex -translate-y-1/2 items-center justify-center text-muted-foreground",
-              collapsible && !expanded ? "size-10 cursor-pointer" : "pointer-events-none pl-4",
+      {collapsible && !expanded ? (
+        <button
+          type="button"
+          aria-label="Search"
+          onClick={expand}
+          className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-card/80 text-muted-foreground hover:bg-muted hover:text-foreground shadow-xs backdrop-blur-xs transition-colors"
+        >
+          <Search className="size-4" />
+        </button>
+      ) : (
+        <form role="search" onSubmit={(e) => { e.preventDefault(); goToFullSearch(); }}>
+          <div className="relative">
+            <button
+              type="button"
+              aria-label="Search"
+              tabIndex={-1}
+              className="pointer-events-none absolute left-0 top-1/2 flex -translate-y-1/2 items-center justify-center pl-3.5 text-muted-foreground"
+            >
+              <Search className={size === "lg" ? "size-5" : "size-4"} />
+            </button>
+            <input
+              ref={inputRef}
+              autoFocus={autoFocus}
+              value={query}
+              onChange={(e) => { setQuery(e.target.value); setOpen(true); }}
+              onFocus={() => { setOpen(true); expand(); }}
+              onBlur={() => setTimeout(() => { setOpen(false); collapseIfIdle(); }, 150)}
+              placeholder={effectivePlaceholder}
+              className={cn(
+                "w-full rounded-full border border-input bg-card pl-10 pr-10 text-foreground placeholder:text-muted-foreground shadow-xs transition-shadow",
+                "focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent",
+                size === "lg" ? "h-14 text-base pl-12 pr-14" : "h-9 text-sm",
+              )}
+            />
+            {/* Shortcut hint or loader */}
+            {!isFetching && !query && (
+              <kbd className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 hidden rounded border border-border bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground sm:inline-block">
+                /
+              </kbd>
             )}
-          >
-            <Search className={size === "lg" ? "size-5" : "size-4"} />
-          </button>
-          <input
-            ref={inputRef}
-            autoFocus={autoFocus}
-            value={query}
-            onChange={(e) => { setQuery(e.target.value); setOpen(true); }}
-            onFocus={() => { setOpen(true); expand(); }}
-            onBlur={() => setTimeout(() => { setOpen(false); collapseIfIdle(); }, 150)}
-            placeholder={expanded ? effectivePlaceholder : ""}
-            aria-hidden={collapsible && !expanded}
-            tabIndex={collapsible && !expanded ? -1 : 0}
-            className={cn(
-              "w-full rounded-full border border-input bg-card pl-11 pr-10 text-foreground placeholder:text-muted-foreground shadow-sm transition-shadow",
-              "focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent",
-              size === "lg" ? "h-14 text-base pl-12 pr-14" : "h-9 text-sm",
-              collapsible && !expanded && "cursor-pointer",
+            {isFetching && (
+              <Loader2 className="absolute right-3.5 top-1/2 size-4 -translate-y-1/2 animate-spin text-muted-foreground" />
             )}
-          />
-          {/* Shortcut hint or loader */}
-          {!isFetching && expanded && !query && (
-            <kbd className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 hidden rounded border border-border bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground sm:inline-block">
-              /
-            </kbd>
-          )}
-          {isFetching && expanded && (
-            <Loader2 className="absolute right-4 top-1/2 size-4 -translate-y-1/2 animate-spin text-muted-foreground" />
-          )}
-        </div>
-      </form>
+          </div>
+        </form>
+      )}
 
       {/* Idle — focus with no query */}
       {showIdle && (

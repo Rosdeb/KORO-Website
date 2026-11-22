@@ -26,6 +26,14 @@ import { useI18n } from "@/features/i18n/context";
 import { ActivityType } from "@/types";
 import { cn } from "@/lib/utils/cn";
 
+function getGreetingKey() {
+  const hour = new Date().getHours();
+  if (hour >= 5 && hour < 12) return "dashboard.greetingMorning" as const;
+  if (hour >= 12 && hour < 17) return "dashboard.greetingAfternoon" as const;
+  if (hour >= 17 && hour < 21) return "dashboard.greetingEvening" as const;
+  return "dashboard.greetingNight" as const;
+}
+
 function getActivityIcon(type: ActivityType) {
   switch (type) {
     case "TRANSLATION": return { icon: Languages, cls: "bg-accent/10 text-accent" };
@@ -49,6 +57,8 @@ export default function DashboardPage() {
   const savedActivity = activityEntries.filter((a) => a.type === "SAVE_WORD").slice(0, 5);
   const recentActivity = activityEntries.slice(0, 6);
 
+  const greeting = t(getGreetingKey());
+
   const quickActions = [
     { href: "/app/translate", label: t("nav.translate"), icon: Languages },
     { href: "/app/scan", label: t("nav.scan"), icon: Camera },
@@ -63,7 +73,7 @@ export default function DashboardPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
-            {t("dashboard.welcome")}, {user?.name?.split(" ")[0] ?? "there"}
+            {greeting}, {user?.name?.split(" ")[0] ?? "there"}
           </h1>
           <p className="mt-1.5 text-sm text-muted-foreground">{t("dashboard.subtitle")}</p>
         </div>

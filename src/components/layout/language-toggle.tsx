@@ -1,6 +1,6 @@
 "use client";
 
-import { Globe } from "lucide-react";
+import { Globe, Languages } from "lucide-react";
 import { useI18n } from "@/features/i18n/context";
 import { cn } from "@/lib/utils/cn";
 import {
@@ -23,6 +23,9 @@ export function LanguageToggle({ className }: { className?: string }) {
         role="group"
         aria-label="Language selection"
       >
+        <span className="flex items-center pl-2 pr-1 text-muted-foreground select-none" aria-hidden="true">
+          <Languages className="size-3.5" />
+        </span>
         <Tooltip>
           <TooltipTrigger asChild>
             <button
@@ -30,7 +33,7 @@ export function LanguageToggle({ className }: { className?: string }) {
               onClick={() => setLocale("en")}
               aria-pressed={locale === "en"}
               className={cn(
-                "flex h-7 items-center justify-center gap-1 rounded-lg px-3 text-xs transition-all active:scale-95",
+                "flex h-7 items-center justify-center gap-1 rounded-lg px-2.5 text-xs transition-all active:scale-95",
                 locale === "en"
                   ? "bg-primary text-primary-foreground shadow-xs font-bold"
                   : "text-muted-foreground hover:text-foreground"
@@ -51,7 +54,7 @@ export function LanguageToggle({ className }: { className?: string }) {
               onClick={() => setLocale("bn")}
               aria-pressed={locale === "bn"}
               className={cn(
-                "flex h-7 items-center justify-center gap-1 rounded-lg px-3 text-xs transition-all active:scale-95",
+                "flex h-7 items-center justify-center gap-1 rounded-lg px-2.5 text-xs transition-all active:scale-95",
                 locale === "bn"
                   ? "bg-primary text-primary-foreground shadow-xs font-bold font-bn"
                   : "text-muted-foreground hover:text-foreground font-bn"
