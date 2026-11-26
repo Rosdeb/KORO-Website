@@ -53,7 +53,6 @@ export interface RawTranslation {
   pronunciation?: string | null;
   verified: boolean;
   notes?: string | null;
-  exampleSentence?: string | null;
 }
 
 export interface RawUser {

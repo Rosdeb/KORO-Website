@@ -35,8 +35,6 @@ export interface Translation {
   pronunciation?: string | null;
   verified?: boolean;
   notes?: string | null;
-  exampleSentence?: string | null;
-  categoryName?: string | null;
 }
 
 export interface Concept {

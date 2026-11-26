@@ -5,9 +5,8 @@ import { fetchLanguages } from "@/features/languages/hooks";
 import { slugify } from "@/lib/utils/slugify";
 
 export interface TranslationSearchResult {
-  concept: { id: string; name: string; slug: string; categorySlug: string; categoryName?: string };
+  concept: { id: string; name: string; slug: string; categorySlug: string };
   translation: ReturnType<typeof mapTranslation>;
-  isAi?: boolean;
 }
 
 // The backend has no per-concept-detail endpoint reachable from a search
@@ -33,11 +32,9 @@ export function useTranslationSearch() {
           id: t.conceptId,
           name: t.conceptName,
           slug: slugify(t.conceptName),
-          categorySlug: slugify(t.categoryName || ""),
-          categoryName: t.categoryName,
+          categorySlug: slugify(t.categoryName),
         },
         translation: mapTranslation(t, languageMap),
-        isAi: t.categoryName === "AI Translation" || !t.verified,
       }));
     },
   });
