@@ -30,7 +30,7 @@ export function SearchAnimationLoader({
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    // Ensure video is strictly muted, plays silently, and runs at 1.2x speed
+    // Ensure video is strictly muted, plays silently, and loops continuously at 1.2x speed
     if (videoRef.current) {
       videoRef.current.muted = true;
       videoRef.current.defaultMuted = true;
@@ -61,7 +61,7 @@ export function SearchAnimationLoader({
   return (
     <Card
       className={cn(
-        "relative w-full overflow-hidden rounded-2xl border border-border bg-card p-4 sm:p-5 shadow-xs transition-shadow duration-200",
+        "relative w-full overflow-hidden rounded-2xl border border-border bg-card/90 p-4 sm:p-5 shadow-xs backdrop-blur-sm transition-shadow duration-200",
         className,
       )}
     >
@@ -100,11 +100,11 @@ export function SearchAnimationLoader({
       </div>
 
       <div className="relative flex flex-col items-center justify-center text-center">
-        {/* 3. Silent MP4 Video Animation Player */}
-        <div className="relative mb-3 flex items-center justify-center overflow-hidden rounded-xl border border-border/60 bg-black/5 dark:bg-black/40 shadow-xs">
+        {/* 3. Transparent, Seamlessly Looping MP4 Video Loader (1:1 aspect ratio) */}
+        <div className="relative mb-3 flex size-24 sm:size-28 items-center justify-center bg-transparent">
           <video
             ref={videoRef}
-            src="/search_loader_animation.mp4"
+            src="/Loader.mp4"
             autoPlay
             loop
             muted
@@ -119,7 +119,8 @@ export function SearchAnimationLoader({
             onPlay={(e) => {
               e.currentTarget.playbackRate = 1.2;
             }}
-            className="h-28 sm:h-36 w-auto max-w-full rounded-xl object-contain pointer-events-none select-none"
+            className="size-full object-contain pointer-events-none select-none bg-transparent"
+            style={{ backgroundColor: "transparent" }}
           />
         </div>
 
