@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Search, Cpu } from "lucide-react";
+import { useEffect, useState, useRef } from "react";
+import { Cpu } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils/cn";
 
@@ -19,12 +19,6 @@ const STEPS = [
   { label: "Compiling verified dictionary entries", detail: "Validating community approval & grammar" },
 ];
 
-const GLYPHS = [
-  { char: "অ", angle: 0 },
-  { char: "A", angle: 120 },
-  { char: "က", angle: 240 },
-];
-
 export function SearchAnimationLoader({
   query,
   sourceLangName = "English",
@@ -32,13 +26,23 @@ export function SearchAnimationLoader({
   className,
 }: SearchAnimationLoaderProps) {
   const [stepIndex, setStepIndex] = useState(0);
-  const [progress, setProgress] = useState(24);
+  const [progress, setProgress] = useState(28);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
+    // Ensure video is strictly muted and playing silently
+    if (videoRef.current) {
+      videoRef.current.muted = true;
+      videoRef.current.defaultMuted = true;
+      videoRef.current.play().catch(() => {
+        // Fallback if browser policy blocks autoplay before interaction
+      });
+    }
+
     const progressTimer = setInterval(() => {
       setProgress((prev) => {
         if (prev >= 95) return 95;
-        const jump = Math.floor(Math.random() * 9) + 4;
+        const jump = Math.floor(Math.random() * 8) + 4;
         return Math.min(95, prev + jump);
       });
     }, 300);
@@ -60,7 +64,7 @@ export function SearchAnimationLoader({
         className,
       )}
     >
-      {/* 1. Subtle Laser Scan Beam */}
+      {/* 1. Subtle Laser Scan Beam in background */}
       <div
         className="pointer-events-none absolute inset-x-0 h-10 bg-gradient-to-b from-transparent via-accent/10 to-transparent animate-pulse"
         style={{ animationDuration: "2.2s" }}
@@ -68,7 +72,7 @@ export function SearchAnimationLoader({
       <div className="pointer-events-none absolute -top-20 left-1/2 -translate-x-1/2 h-36 w-72 rounded-full bg-accent/5 blur-2xl animate-pulse" />
 
       {/* 2. Compact Top HUD Bar */}
-      <div className="relative mb-3.5 flex items-center justify-between border-b border-border pb-2 text-[11px]">
+      <div className="relative mb-3 flex items-center justify-between border-b border-border pb-2 text-[11px]">
         <div className="flex items-center gap-1.5 font-medium">
           <span className="relative flex size-2">
             <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-75" />
@@ -95,66 +99,21 @@ export function SearchAnimationLoader({
       </div>
 
       <div className="relative flex flex-col items-center justify-center text-center">
-        {/* 3. Compact Multi-Ring Hologram Radar (size-20 / 80px) */}
-        <div className="relative mb-3 flex size-20 items-center justify-center">
-          {/* Sonar Expanding Waves */}
-          <span className="absolute inline-flex size-20 animate-ping rounded-full bg-accent/10 duration-1000 opacity-40" />
-          <span className="absolute inline-flex size-16 animate-pulse rounded-full border border-accent/25 bg-accent/5 duration-700" />
-
-          {/* SVG Tech Ring with Dash Markers */}
-          <svg
-            className="absolute inset-0 size-full animate-[spin_10s_linear_infinite]"
-            viewBox="0 0 80 80"
-            fill="none"
-          >
-            <circle
-              cx="40"
-              cy="40"
-              r="37"
-              stroke="currentColor"
-              strokeWidth="1.2"
-              strokeDasharray="3 6"
-              className="text-accent/35"
-            />
-            <circle
-              cx="40"
-              cy="40"
-              r="31"
-              stroke="currentColor"
-              strokeWidth="1"
-              strokeDasharray="12 24"
-              className="text-primary/20"
-            />
-          </svg>
-
-          {/* Reverse Rotating Crosshairs */}
-          <div className="absolute inset-0 animate-[spin_16s_linear_infinite_reverse]">
-            <div className="absolute left-1/2 top-0 -translate-x-1/2 h-full w-[1px] bg-gradient-to-b from-accent/30 via-transparent to-accent/30" />
-            <div className="absolute top-1/2 left-0 -translate-y-1/2 w-full h-[1px] bg-gradient-to-r from-accent/30 via-transparent to-accent/30" />
-          </div>
-
-          {/* Orbiting Language Glyphs */}
-          <div className="absolute inset-0 animate-[spin_8s_linear_infinite]">
-            {GLYPHS.map((g, idx) => {
-              const rad = (g.angle * Math.PI) / 180;
-              const x = 50 + 38 * Math.cos(rad);
-              const y = 50 + 38 * Math.sin(rad);
-              return (
-                <div
-                  key={idx}
-                  className="absolute flex size-4.5 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-accent/30 bg-background text-[9px] font-bold text-accent shadow-2xs"
-                  style={{ left: `${x}%`, top: `${y}%` }}
-                >
-                  <span className="animate-[spin_8s_linear_infinite_reverse]">{g.char}</span>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Center Glowing Energy Core */}
-          <div className="relative flex size-10 items-center justify-center rounded-xl bg-gradient-to-tr from-accent to-accent-600 text-white shadow-md shadow-accent/25">
-            <Search className="size-4 animate-pulse" />
-          </div>
+        {/* 3. Silent MP4 Video Animation Player */}
+        <div className="relative mb-3 flex items-center justify-center overflow-hidden rounded-xl border border-border/60 bg-black/5 dark:bg-black/40 shadow-xs">
+          <video
+            ref={videoRef}
+            src="/search_loader_animation.mp4"
+            autoPlay
+            loop
+            muted
+            playsInline
+            controls={false}
+            disablePictureInPicture
+            disableRemotePlayback
+            aria-hidden="true"
+            className="h-28 sm:h-36 w-auto max-w-full rounded-xl object-contain pointer-events-none select-none"
+          />
         </div>
 
         {/* 4. Translation Route HUD Badge */}
@@ -180,7 +139,7 @@ export function SearchAnimationLoader({
           </p>
         </div>
 
-        {/* 6. Compact Equalizer Waveform Visualizer (10-band Spectrum) */}
+        {/* 6. Compact Equalizer Waveform Visualizer */}
         <div className="mt-2.5 flex items-center justify-center gap-1" aria-hidden="true">
           {[0.5, 1.1, 0.7, 1.4, 0.9, 1.3, 0.6, 1.2, 0.8, 1.0].map((scale, i) => (
             <span
