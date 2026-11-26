@@ -3,11 +3,13 @@
 import { useEffect, useState } from "react";
 import { Search, Cpu } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { cn } from "@/lib/utils/cn";
 
 interface SearchAnimationLoaderProps {
   query?: string;
   sourceLangName?: string;
   targetLangName?: string;
+  className?: string;
 }
 
 const STEPS = [
@@ -27,6 +29,7 @@ export function SearchAnimationLoader({
   query,
   sourceLangName = "English",
   targetLangName = "Target Language",
+  className,
 }: SearchAnimationLoaderProps) {
   const [stepIndex, setStepIndex] = useState(0);
   const [progress, setProgress] = useState(24);
@@ -51,16 +54,21 @@ export function SearchAnimationLoader({
   }, []);
 
   return (
-    <Card className="relative mx-auto max-w-lg overflow-hidden border border-accent/20 bg-gradient-to-b from-card via-card/95 to-accent-50/15 p-4 sm:p-5 shadow-sm">
+    <Card
+      className={cn(
+        "relative w-full overflow-hidden rounded-2xl border border-border bg-card p-4 sm:p-5 shadow-xs transition-shadow duration-200",
+        className,
+      )}
+    >
       {/* 1. Subtle Laser Scan Beam */}
       <div
-        className="pointer-events-none absolute inset-x-0 h-10 bg-gradient-to-b from-transparent via-accent/15 to-transparent animate-pulse"
-        style={{ animationDuration: "2s" }}
+        className="pointer-events-none absolute inset-x-0 h-10 bg-gradient-to-b from-transparent via-accent/10 to-transparent animate-pulse"
+        style={{ animationDuration: "2.2s" }}
       />
-      <div className="pointer-events-none absolute -top-20 left-1/2 -translate-x-1/2 h-36 w-72 rounded-full bg-accent/10 blur-2xl animate-pulse" />
+      <div className="pointer-events-none absolute -top-20 left-1/2 -translate-x-1/2 h-36 w-72 rounded-full bg-accent/5 blur-2xl animate-pulse" />
 
       {/* 2. Compact Top HUD Bar */}
-      <div className="relative mb-3.5 flex items-center justify-between border-b border-border/50 pb-2 text-[11px]">
+      <div className="relative mb-3.5 flex items-center justify-between border-b border-border pb-2 text-[11px]">
         <div className="flex items-center gap-1.5 font-medium">
           <span className="relative flex size-2">
             <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-75" />
@@ -151,12 +159,12 @@ export function SearchAnimationLoader({
 
         {/* 4. Translation Route HUD Badge */}
         {query && (
-          <div className="mb-2 inline-flex items-center gap-1.5 rounded-full border border-accent/25 bg-background/80 px-3 py-0.5 text-[11px] font-medium text-foreground shadow-2xs backdrop-blur-xs animate-fade-in">
+          <div className="mb-2 inline-flex max-w-full items-center gap-1.5 rounded-full border border-border bg-muted/50 px-3 py-0.5 text-[11px] font-medium text-foreground shadow-2xs animate-fade-in">
             <span className="text-muted-foreground">{sourceLangName}</span>
             <span className="text-accent font-bold">→</span>
             <span className="font-semibold text-accent">{targetLangName}</span>
             <span className="mx-0.5 text-border">|</span>
-            <span className="max-w-[10rem] truncate italic text-muted-foreground">
+            <span className="max-w-[12rem] truncate italic text-muted-foreground">
               &ldquo;{query}&rdquo;
             </span>
           </div>
