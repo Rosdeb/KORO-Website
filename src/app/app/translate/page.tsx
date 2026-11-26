@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowLeftRight, AlertTriangle, Search, Volume2 } from "lucide-react";
+import { ArrowLeftRight, AlertTriangle, Search, Volume2, Sparkles, Loader2, CheckCircle2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -90,9 +90,29 @@ export default function TranslatePage() {
       </Card>
 
       {search.isPending && (
-        <div className="flex flex-col gap-3">
-          <Skeleton className="h-40 rounded-2xl" />
-        </div>
+        <Card className="border-primary/30 bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 p-6 shadow-sm">
+          <div className="flex flex-col items-center justify-center gap-3 py-6 text-center">
+            <div className="flex size-14 items-center justify-center rounded-full bg-primary/15 text-primary shadow-inner">
+              <Sparkles className="size-7 animate-pulse text-primary" />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-foreground">
+                {query.trim().includes(" ")
+                  ? "Assembling Sentence Translation..."
+                  : "Searching Dictionary Vocabulary..."}
+              </h3>
+              <p className="mt-1 max-w-md text-sm text-muted-foreground">
+                {query.trim().includes(" ")
+                  ? "Analyzing authentic Koch vocabulary and composing natural grammar. This may take 1-2 seconds..."
+                  : "Scanning verified dictionary words and phonetic pronunciations..."}
+              </p>
+            </div>
+            <div className="inline-flex items-center gap-2 rounded-full bg-background/80 px-3 py-1 text-xs font-medium text-primary shadow-xs">
+              <Loader2 className="size-3.5 animate-spin" />
+              <span>Grounded in Authentic Database Corpus</span>
+            </div>
+          </div>
+        </Card>
       )}
 
       {search.isError && (
@@ -115,60 +135,90 @@ export default function TranslatePage() {
 
       {search.isSuccess && search.data.length > 0 && (
         <div className="flex flex-col gap-4">
-          {search.data.map(({ concept, translation }) => (
-            <Card key={concept.id}>
-              <div className="flex flex-col gap-4 p-6">
-                <div className="flex flex-wrap items-start justify-between gap-3">
+          {search.data.map(({ concept, translation, isAi }, index) => {
+            const isAiTranslation = isAi || translation.categoryName === "AI Translation" || !translation.verified;
+            return (
+              <Card
+                key={concept.id}
+                className={isAiTranslation && index === 0 ? "border-primary/40 bg-gradient-to-b from-primary/5 to-card shadow-md" : ""}
+              >
+                <div className="flex flex-col gap-4 p-6">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div className="flex flex-col gap-1.5">
+                      <div className="flex items-center gap-2">
+                        {isAiTranslation && index === 0 ? (
+                          <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/15 px-2.5 py-0.5 text-xs font-semibold text-primary">
+                            <Sparkles className="size-3.5" />
+                            AI Sentence Translation
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                            <CheckCircle2 className="size-3.5" />
+                            Verified Dictionary
+                          </span>
+                        )}
+                        <span className="text-xs text-muted-foreground uppercase tracking-wide">
+                          {t("translate.concept")}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <p className="text-lg font-bold">{concept.name}</p>
+                        <TtsSpeechButton
+                          text={concept.name}
+                          langCode="en"
+                          label={`Listen: ${concept.name}`}
+                          size="sm"
+                        />
+                      </div>
+                    </div>
+                    <SaveToBookButton
+                      concept={{
+                        id: concept.id,
+                        slug: concept.slug,
+                        name: concept.name,
+                        categoryId: "",
+                        categoryName: "",
+                        categorySlug: concept.categorySlug,
+                        translations: [translation],
+                      }}
+                      defaultLanguageId={translation.languageId}
+                    />
+                  </div>
+
                   <div>
-                    <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t("translate.concept")}</p>
-                    <div className="flex items-center gap-2">
-                      <p className="text-lg font-bold">{concept.name}</p>
-                      <TtsSpeechButton
-                        text={concept.name}
-                        langCode="en"
-                        label={`Listen: ${concept.name}`}
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t("translate.translation")}</p>
+                      <PronunciationPlayer
+                        text={translation.text}
+                        pronunciation={translation.pronunciation}
+                        languageCode={translation.languageCode}
                         size="sm"
                       />
                     </div>
+                    <p className={`mt-1 text-2xl font-semibold text-primary ${scriptClassFor(translation.languageCode)}`}>
+                      {translation.text}
+                    </p>
                   </div>
-                  <SaveToBookButton
-                    concept={{
-                      id: concept.id,
-                      slug: concept.slug,
-                      name: concept.name,
-                      categoryId: "",
-                      categoryName: "",
-                      categorySlug: concept.categorySlug,
-                      translations: [translation],
-                    }}
-                    defaultLanguageId={translation.languageId}
-                  />
-                </div>
 
-                <div>
-                  <div className="flex items-center justify-between">
-                    <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t("translate.translation")}</p>
-                    <PronunciationPlayer
-                      text={translation.text}
-                      pronunciation={translation.pronunciation}
-                      languageCode={translation.languageCode}
-                      size="sm"
-                    />
-                  </div>
-                  <p className={`mt-1 text-2xl text-primary ${scriptClassFor(translation.languageCode)}`}>
-                    {translation.text}
-                  </p>
-                </div>
+                  {translation.notes && (
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t("translate.notes")}</p>
+                      <p className="text-sm text-muted-foreground">{translation.notes}</p>
+                    </div>
+                  )}
 
-                {translation.notes && (
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t("translate.notes")}</p>
-                    <p className="text-sm text-muted-foreground">{translation.notes}</p>
-                  </div>
-                )}
-              </div>
-            </Card>
-          ))}
+                  {translation.exampleSentence && (
+                    <div className="rounded-xl border border-muted bg-muted/40 p-3.5 text-sm">
+                      <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        Example Usage
+                      </p>
+                      <p className="font-medium text-foreground">{translation.exampleSentence}</p>
+                    </div>
+                  )}
+                </div>
+              </Card>
+            );
+          })}
         </div>
       )}
     </div>

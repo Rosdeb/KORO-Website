@@ -76,6 +76,8 @@ export function mapTranslation(raw: RawTranslation, languages: LanguageMap): Tra
     pronunciation: raw.pronunciation,
     verified: raw.verified,
     notes: raw.notes,
+    exampleSentence: raw.exampleSentence,
+    categoryName: raw.categoryName,
   };
 }
 
