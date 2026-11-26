@@ -93,10 +93,20 @@ export function SearchAnimationLoader({
       </div>
 
       <div className="relative flex flex-col items-center justify-center text-center">
-        {/* 2. Seamlessly Blended Video Loader (mix-blend-multiply eliminates square white background box) */}
-        <div className="relative my-2 flex size-24 sm:size-28 items-center justify-center bg-transparent">
+        {/* 2. Crisp, Visible Continuous Video Loader */}
+        <div className="relative my-3 flex size-28 sm:size-32 items-center justify-center rounded-2xl bg-white overflow-hidden">
           <video
-            ref={videoRef}
+            ref={(el) => {
+              videoRef.current = el;
+              if (el) {
+                el.muted = true;
+                el.defaultMuted = true;
+                try {
+                  el.playbackRate = 1.2;
+                } catch {}
+                el.play().catch(() => {});
+              }
+            }}
             src="/Loader.mp4"
             autoPlay
             loop
@@ -107,13 +117,16 @@ export function SearchAnimationLoader({
             disableRemotePlayback
             aria-hidden="true"
             onLoadedMetadata={(e) => {
-              e.currentTarget.playbackRate = 1.2;
+              try {
+                e.currentTarget.playbackRate = 1.2;
+              } catch {}
             }}
             onPlay={(e) => {
-              e.currentTarget.playbackRate = 1.2;
+              try {
+                e.currentTarget.playbackRate = 1.2;
+              } catch {}
             }}
-            className="size-full object-contain pointer-events-none select-none mix-blend-multiply dark:mix-blend-screen bg-transparent"
-            style={{ backgroundColor: "transparent" }}
+            className="size-full object-contain pointer-events-none select-none bg-white"
           />
         </div>
 
