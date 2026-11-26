@@ -30,10 +30,11 @@ export function SearchAnimationLoader({
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    // Ensure video is strictly muted and playing silently
+    // Ensure video is strictly muted, plays silently, and runs at 1.2x speed
     if (videoRef.current) {
       videoRef.current.muted = true;
       videoRef.current.defaultMuted = true;
+      videoRef.current.playbackRate = 1.2;
       videoRef.current.play().catch(() => {
         // Fallback if browser policy blocks autoplay before interaction
       });
@@ -45,11 +46,11 @@ export function SearchAnimationLoader({
         const jump = Math.floor(Math.random() * 8) + 4;
         return Math.min(95, prev + jump);
       });
-    }, 300);
+    }, 240);
 
     const stepTimer = setInterval(() => {
       setStepIndex((prev) => (prev + 1) % STEPS.length);
-    }, 1100);
+    }, 900);
 
     return () => {
       clearInterval(progressTimer);
@@ -112,6 +113,12 @@ export function SearchAnimationLoader({
             disablePictureInPicture
             disableRemotePlayback
             aria-hidden="true"
+            onLoadedMetadata={(e) => {
+              e.currentTarget.playbackRate = 1.2;
+            }}
+            onPlay={(e) => {
+              e.currentTarget.playbackRate = 1.2;
+            }}
             className="h-28 sm:h-36 w-auto max-w-full rounded-xl object-contain pointer-events-none select-none"
           />
         </div>
