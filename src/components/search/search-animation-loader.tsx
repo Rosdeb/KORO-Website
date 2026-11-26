@@ -61,38 +61,31 @@ export function SearchAnimationLoader({
   return (
     <Card
       className={cn(
-        "relative w-full overflow-hidden rounded-2xl border border-border bg-card/90 p-4 sm:p-5 shadow-xs backdrop-blur-sm transition-shadow duration-200",
+        "relative w-full overflow-hidden rounded-2xl border border-border bg-white dark:bg-card p-5 sm:p-6 shadow-xs transition-shadow duration-200",
         className,
       )}
     >
-      {/* 1. Subtle Laser Scan Beam in background */}
-      <div
-        className="pointer-events-none absolute inset-x-0 h-10 bg-gradient-to-b from-transparent via-accent/10 to-transparent animate-pulse"
-        style={{ animationDuration: "2.2s" }}
-      />
-      <div className="pointer-events-none absolute -top-20 left-1/2 -translate-x-1/2 h-36 w-72 rounded-full bg-accent/5 blur-2xl animate-pulse" />
-
-      {/* 2. Compact Top HUD Bar */}
-      <div className="relative mb-3 flex items-center justify-between border-b border-border pb-2 text-[11px]">
-        <div className="flex items-center gap-1.5 font-medium">
+      {/* 1. Clean Top HUD Bar (No gradient overlays) */}
+      <div className="relative mb-4 flex items-center justify-between border-b border-border/70 pb-3 text-[11px]">
+        <div className="flex items-center gap-2 font-medium">
           <span className="relative flex size-2">
             <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-75" />
             <span className="relative inline-flex size-2 rounded-full bg-emerald-500" />
           </span>
-          <span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
+          <span className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
             Neural Radar
           </span>
         </div>
 
-        <div className="flex items-center gap-2 font-mono text-[10px] text-muted-foreground">
+        <div className="flex items-center gap-2.5 font-mono text-[11px] text-muted-foreground">
           <span className="hidden sm:inline-flex items-center gap-1">
-            <Cpu className="size-2.5 text-accent" />
+            <Cpu className="size-3 text-accent" />
             <span>AI SCAN</span>
           </span>
           <span className="font-semibold text-accent">{progress}%</span>
-          <div className="h-1 w-12 overflow-hidden rounded-full bg-muted">
+          <div className="h-1.5 w-14 overflow-hidden rounded-full bg-muted">
             <div
-              className="h-full bg-gradient-to-r from-accent to-accent-600 transition-all duration-300 ease-out"
+              className="h-full bg-accent transition-all duration-300 ease-out"
               style={{ width: `${progress}%` }}
             />
           </div>
@@ -100,8 +93,8 @@ export function SearchAnimationLoader({
       </div>
 
       <div className="relative flex flex-col items-center justify-center text-center">
-        {/* 3. Transparent, Seamlessly Looping MP4 Video Loader (1:1 aspect ratio) */}
-        <div className="relative mb-3 flex size-24 sm:size-28 items-center justify-center bg-transparent">
+        {/* 2. Seamlessly Blended Video Loader (mix-blend-multiply eliminates square white background box) */}
+        <div className="relative my-2 flex size-24 sm:size-28 items-center justify-center bg-transparent">
           <video
             ref={videoRef}
             src="/Loader.mp4"
@@ -119,40 +112,40 @@ export function SearchAnimationLoader({
             onPlay={(e) => {
               e.currentTarget.playbackRate = 1.2;
             }}
-            className="size-full object-contain pointer-events-none select-none bg-transparent"
+            className="size-full object-contain pointer-events-none select-none mix-blend-multiply dark:mix-blend-screen bg-transparent"
             style={{ backgroundColor: "transparent" }}
           />
         </div>
 
-        {/* 4. Translation Route HUD Badge */}
+        {/* 3. Translation Route HUD Badge */}
         {query && (
-          <div className="mb-2 inline-flex max-w-full items-center gap-1.5 rounded-full border border-border bg-muted/50 px-3 py-0.5 text-[11px] font-medium text-foreground shadow-2xs animate-fade-in">
+          <div className="mt-2 mb-2.5 inline-flex max-w-full items-center gap-1.5 rounded-full border border-border bg-muted/40 px-3.5 py-1 text-xs font-medium text-foreground shadow-2xs animate-fade-in">
             <span className="text-muted-foreground">{sourceLangName}</span>
             <span className="text-accent font-bold">→</span>
             <span className="font-semibold text-accent">{targetLangName}</span>
-            <span className="mx-0.5 text-border">|</span>
-            <span className="max-w-[12rem] truncate italic text-muted-foreground">
+            <span className="mx-1 text-border">|</span>
+            <span className="max-w-[14rem] truncate italic text-muted-foreground">
               &ldquo;{query}&rdquo;
             </span>
           </div>
         )}
 
-        {/* 5. Dynamic Step Headline & Subtitle */}
-        <div className="min-h-[2.5rem]">
-          <h3 className="text-sm font-semibold tracking-tight text-foreground transition-all duration-300">
+        {/* 4. Dynamic Step Headline & Subtitle */}
+        <div className="min-h-[2.75rem]">
+          <h3 className="text-sm sm:text-base font-semibold tracking-tight text-foreground transition-all duration-300">
             {STEPS[stepIndex].label}
           </h3>
-          <p className="mt-0.5 text-[11px] text-muted-foreground transition-all duration-300">
+          <p className="mt-0.5 text-xs text-muted-foreground transition-all duration-300">
             {STEPS[stepIndex].detail}
           </p>
         </div>
 
-        {/* 6. Compact Equalizer Waveform Visualizer */}
-        <div className="mt-2.5 flex items-center justify-center gap-1" aria-hidden="true">
+        {/* 5. Clean Solid Equalizer Waveform Bars (No gradient) */}
+        <div className="mt-3 flex items-center justify-center gap-1" aria-hidden="true">
           {[0.5, 1.1, 0.7, 1.4, 0.9, 1.3, 0.6, 1.2, 0.8, 1.0].map((scale, i) => (
             <span
               key={i}
-              className="w-1 rounded-full bg-gradient-to-t from-accent to-accent-600 animate-pulse"
+              className="w-1 rounded-full bg-accent/80 animate-pulse"
               style={{
                 height: `${Math.round(14 * scale)}px`,
                 animationDelay: `${(i % 4) * 130}ms`,
