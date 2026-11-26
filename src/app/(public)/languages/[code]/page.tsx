@@ -2,7 +2,7 @@
 
 import { use, useState } from "react";
 import Link from "next/link";
-import { Search, MapPin, Hash, Loader2 } from "lucide-react";
+import { Search, MapPin, Hash, Loader2, AlertTriangle } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ErrorState } from "@/components/state/error-state";
 import { EmptyState } from "@/components/state/empty-state";
@@ -87,6 +87,13 @@ export default function LanguageDetailPage({ params }: { params: Promise<{ code:
               {search.isPending ? <Loader2 className="size-4 animate-spin" /> : "Search"}
             </button>
           </form>
+
+          {search.isError && (
+            <div className="mt-4 flex max-w-lg items-start gap-2.5 rounded-2xl border border-danger/30 bg-danger/5 p-4 text-xs sm:text-sm text-danger shadow-xs">
+              <AlertTriangle className="size-4 shrink-0 mt-0.5" />
+              <span>{search.error?.message || "Search failed. Please try again."}</span>
+            </div>
+          )}
 
           {search.data && (
             <div className="mt-4 max-w-lg rounded-2xl border border-border bg-card p-2 shadow-sm">

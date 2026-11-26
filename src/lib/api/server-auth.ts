@@ -2,8 +2,24 @@ import type { NextResponse } from "next/server";
 
 export const REFRESH_COOKIE = "koro_refresh_token";
 
-export function backendBaseUrl() {
-  return process.env.API_BASE_URL ?? process.env.NEXT_PUBLIC_API_BASE_URL ?? "https://api.korot.site";
+export function backendBaseUrl(): string {
+  if (process.env.NODE_ENV === "development") {
+    if (process.env.API_BASE_URL && !process.env.API_BASE_URL.includes("api.korot.site")) {
+      return process.env.API_BASE_URL;
+    }
+    if (process.env.NEXT_PUBLIC_API_BASE_URL && !process.env.NEXT_PUBLIC_API_BASE_URL.includes("api.korot.site")) {
+      return process.env.NEXT_PUBLIC_API_BASE_URL;
+    }
+    return "http://localhost:8080";
+  }
+
+  if (process.env.API_BASE_URL && !process.env.API_BASE_URL.includes("localhost")) {
+    return process.env.API_BASE_URL;
+  }
+  if (process.env.NEXT_PUBLIC_API_BASE_URL && !process.env.NEXT_PUBLIC_API_BASE_URL.includes("localhost")) {
+    return process.env.NEXT_PUBLIC_API_BASE_URL;
+  }
+  return "https://api.korot.site";
 }
 
 export function setRefreshCookie(res: NextResponse, token: string) {

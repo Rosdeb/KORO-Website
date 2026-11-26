@@ -11,6 +11,7 @@ import { EmptyState } from "@/components/state/empty-state";
 import { ErrorState } from "@/components/state/error-state";
 import { useGlobalSearch } from "@/features/search/hooks";
 import { useI18n } from "@/features/i18n/context";
+import { ApiError } from "@/lib/api/client";
 
 function SearchPageInner() {
   const { t } = useI18n();
@@ -18,7 +19,7 @@ function SearchPageInner() {
   const router = useRouter();
   const initialQuery = searchParams.get("q") ?? "";
   const [query, setQuery] = useState(initialQuery);
-  const { data, isLoading, isError, refetch } = useGlobalSearch(initialQuery);
+  const { data, isLoading, isError, error, refetch } = useGlobalSearch(initialQuery);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -46,7 +47,14 @@ function SearchPageInner() {
         <EmptyState className="mt-10" icon={SearchIcon} title={t("search.emptyTitle")} description={t("search.emptyDesc")} />
       )}
 
-      {initialQuery && isError && <ErrorState className="mt-10" onRetry={() => refetch()} />}
+      {initialQuery && isError && (
+        <ErrorState
+          className="mt-10"
+          title={error instanceof ApiError && error.status === 429 ? "Search limit reached" : undefined}
+          description={error?.message || "Please try again."}
+          onRetry={error instanceof ApiError && error.status === 429 ? undefined : () => refetch()}
+        />
+      )}
 
       {initialQuery && isLoading && !isError && (
         <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">

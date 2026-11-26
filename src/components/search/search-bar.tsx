@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { Search, Languages, BookOpen, Shapes, Loader2, ArrowRight } from "lucide-react";
+import { Search, Languages, BookOpen, Shapes, Loader2, ArrowRight, AlertTriangle } from "lucide-react";
 import { useDebouncedValue } from "@/lib/utils/use-debounced-value";
 import { useGlobalSearch } from "@/features/search/hooks";
 import { cn } from "@/lib/utils/cn";
@@ -35,7 +35,7 @@ export function SearchBar({
   const [open, setOpen] = useState(false);
   const [expanded, setExpanded] = useState(!collapsible);
   const debounced = useDebouncedValue(query, 300);
-  const { data, isFetching } = useGlobalSearch(query);
+  const { data, isFetching, isError, error } = useGlobalSearch(query);
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -189,7 +189,14 @@ export function SearchBar({
       {/* Results */}
       {showResults && (
         <div className="absolute z-40 mt-2 w-full overflow-hidden rounded-2xl border border-border bg-card shadow-xl animate-scale-in">
-          {!hasResults && !isFetching && (
+          {isError && (
+            <div className="flex items-center gap-2.5 border-b border-border bg-danger/5 px-4 py-3 text-xs text-danger">
+              <AlertTriangle className="size-4 shrink-0" />
+              <span>{error?.message || "Search limit reached. Please try again tomorrow."}</span>
+            </div>
+          )}
+
+          {!hasResults && !isFetching && !isError && (
             <p className="px-4 py-6 text-center text-sm text-muted-foreground">
               {t("search.noMatches")} &ldquo;{debounced}&rdquo;
             </p>

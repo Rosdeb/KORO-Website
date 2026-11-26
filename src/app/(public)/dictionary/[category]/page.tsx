@@ -11,6 +11,7 @@ import { ErrorState } from "@/components/state/error-state";
 import { useCategories, useConceptsByCategory } from "@/features/dictionary/hooks";
 import { useDictionarySearch } from "@/features/search/hooks";
 import { useDebouncedValue } from "@/lib/utils/use-debounced-value";
+import { ApiError } from "@/lib/api/client";
 
 export default function CategoryPage({ params }: { params: Promise<{ category: string }> }) {
   const { category: categorySlug } = use(params);
@@ -64,7 +65,14 @@ export default function CategoryPage({ params }: { params: Promise<{ category: s
         />
       </div>
 
-      {isError && <ErrorState className="mt-10" onRetry={() => refetch()} />}
+      {isError && (
+        <ErrorState
+          className="mt-10"
+          title={searching && search.error instanceof ApiError && search.error.status === 429 ? "Search limit reached" : undefined}
+          description={searching ? search.error?.message : undefined}
+          onRetry={searching && search.error instanceof ApiError && search.error.status === 429 ? undefined : () => refetch()}
+        />
+      )}
 
       {isLoading && !isError && (
         <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">

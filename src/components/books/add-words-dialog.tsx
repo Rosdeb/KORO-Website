@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Check, Loader2, Plus, Search } from "lucide-react";
+import { Check, Loader2, Plus, Search, AlertTriangle } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -124,6 +124,18 @@ export function AddWordsDialog({
                 title={`No words for "${trimmed}"`}
                 description="Try a different spelling."
               />
+            )}
+
+            {search.isError && (
+              <div className="flex flex-col items-center gap-2 px-4 py-8 text-center text-sm text-danger">
+                <AlertTriangle className="size-5 text-danger" />
+                <p className="font-medium">
+                  {search.error instanceof ApiError && search.error.status === 429
+                    ? "Search limit reached"
+                    : "Unable to search words"}
+                </p>
+                <p className="text-xs text-muted-foreground max-w-xs">{search.error.message}</p>
+              </div>
             )}
 
             {trimmed.length > 0 && results.length > 0 && (

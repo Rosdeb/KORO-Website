@@ -116,6 +116,7 @@ export function useGlobalSearch(query: string) {
       (!!q && !conceptSearch.data && !conceptSearch.isError),
     isFetching: languages.isFetching || categories.isFetching || conceptSearch.isFetching,
     isError: languages.isError || categories.isError || conceptSearch.isError,
+    error: conceptSearch.error || languages.error || categories.error,
     refetch: () => {
       languages.refetch();
       categories.refetch();

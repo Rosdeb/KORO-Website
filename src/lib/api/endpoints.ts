@@ -120,6 +120,13 @@ export const translationsApi = {
   //   - targetLanguageId → search within that one language
   //   - both ids         → match in the source language, return the target-language entries
   // A blank/whitespace query returns 400 ("Query string is empty").
+  // Rate limiting & quota:
+  //   - Standard search returns 200 OK with RawTranslation[].
+  //   - Remaining search quotas are delivered in HTTP headers:
+  //     X-RateLimit-Limit-Daily, X-RateLimit-Remaining-Daily,
+  //     X-RateLimit-Limit-Monthly, X-RateLimit-Remaining-Monthly.
+  //   - When quota is exceeded, returns 429 Too Many Requests with:
+  //     { message: "Daily search limit of 50 reached. Please try again tomorrow." }
   search: (payload: { query: string; sourceLanguageId?: string; targetLanguageId?: string }, signal?: AbortSignal) =>
     apiClient.post<RawTranslation[]>("/translations/search", payload, { signal }),
 };

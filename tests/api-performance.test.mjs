@@ -39,6 +39,60 @@ test('bodyless reads omit JSON Content-Type; writes retain JSON encoding', async
   assert.equal(calls[1].body, '{"query":"word"}');
 });
 
+test('translation search within quota returns response and captures rate-limit headers', async () => {
+  const { apiClient, getLatestSearchRateLimit } = client(async () => {
+    return new Response(JSON.stringify([{ id: 't1', conceptId: 'c1', text: 'water' }]), {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'X-RateLimit-Limit-Daily': '50',
+        'X-RateLimit-Remaining-Daily': '49',
+        'X-RateLimit-Limit-Monthly': '500',
+        'X-RateLimit-Remaining-Monthly': '499',
+      },
+    });
+  });
+  const results = await apiClient.post('/translations/search', { query: 'water' });
+  assert.equal(Array.isArray(results), true);
+  assert.equal(results.length, 1);
+  assert.equal(results[0].text, 'water');
+
+  const quota = getLatestSearchRateLimit();
+  assert.equal(quota?.dailyLimit, 50);
+  assert.equal(quota?.dailyRemaining, 49);
+  assert.equal(quota?.monthlyLimit, 500);
+  assert.equal(quota?.monthlyRemaining, 499);
+});
+
+test('translation search exceeding quota (429) throws ApiError with message and headers', async () => {
+  const { apiClient, ApiError } = client(async () => {
+    return new Response(JSON.stringify({
+      message: 'Daily search limit of 50 reached. Please try again tomorrow.',
+    }), {
+      status: 429,
+      headers: {
+        'Content-Type': 'application/json',
+        'X-RateLimit-Limit-Daily': '50',
+        'X-RateLimit-Remaining-Daily': '0',
+        'X-RateLimit-Limit-Monthly': '500',
+        'X-RateLimit-Remaining-Monthly': '450',
+      },
+    });
+  });
+
+  await assert.rejects(
+    apiClient.post('/translations/search', { query: 'water' }),
+    (err) => {
+      assert.ok(err instanceof ApiError);
+      assert.equal(err.status, 429);
+      assert.equal(err.message, 'Daily search limit of 50 reached. Please try again tomorrow.');
+      assert.equal(err.rateLimit?.dailyRemaining, 0);
+      assert.equal(err.rateLimit?.dailyLimit, 50);
+      return true;
+    }
+  );
+});
+
 test('cancelled searches abort fetch without becoming timeout errors', async () => {
   const { apiClient } = client((_url, { signal }) => new Promise((_resolve, reject) => {
     signal.addEventListener('abort', () => reject(signal.reason), { once: true });
@@ -100,6 +154,30 @@ test('homepage fetches only six concepts without waiting on language metadata', 
     return { content: Array.from({ length: 6 }, (_, id) => ({ id })) };
   } } }, { ensureQueryData: () => assert.fail('List should not fetch languages') });
   assert.equal((await hooks.usePopularConcepts().queryFn({ signal })).length, 6);
+});
+
+test('getApiBaseUrl resolves localhost:8080 when running locally and https://api.korot.site on server', () => {
+  const { getApiBaseUrl: getLocalUrl } = client(() => {}, {
+    process: { env: { NODE_ENV: 'development' } },
+  });
+  assert.equal(getLocalUrl(), 'http://localhost:8080');
+
+  const { getApiBaseUrl: getLocalBrowserUrl } = client(() => {}, {
+    process: { env: { NODE_ENV: 'production' } },
+    window: { location: { hostname: 'localhost' } },
+  });
+  assert.equal(getLocalBrowserUrl(), 'http://localhost:8080');
+
+  const { getApiBaseUrl: getProdUrl } = client(() => {}, {
+    process: { env: { NODE_ENV: 'production' } },
+    window: { location: { hostname: 'korot.site' } },
+  });
+  assert.equal(getProdUrl(), 'https://api.korot.site');
+
+  const { getApiBaseUrl: getExplicitOverride } = client(() => {}, {
+    process: { env: { NODE_ENV: 'production', NEXT_PUBLIC_API_BASE_URL: 'https://staging.korot.site' } },
+  });
+  assert.equal(getExplicitOverride(), 'https://staging.korot.site');
 });
 
 test('concept, translations, and language requests start together and forward cancellation', async () => {

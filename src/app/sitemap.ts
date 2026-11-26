@@ -6,12 +6,10 @@ import type {
 } from "@/lib/api/raw-types";
 import { getSiteUrl } from "@/lib/site-url";
 import { slugify } from "@/lib/utils/slugify";
+import { backendBaseUrl } from "@/lib/api/server-auth";
 
 async function publicRecords<T>(resource: string): Promise<T[]> {
-  const apiUrl =
-    process.env.API_BASE_URL ??
-    process.env.NEXT_PUBLIC_API_BASE_URL ??
-    "https://api.korot.site";
+  const apiUrl = backendBaseUrl();
 
   try {
     const response = await fetch(

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowLeftRight, Search, Volume2 } from "lucide-react";
+import { ArrowLeftRight, AlertTriangle, Search, Volume2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -14,6 +14,7 @@ import { scriptClassFor } from "@/lib/utils/script-font";
 import { TtsSpeechButton } from "@/components/ui/tts-speech-button";
 import { PronunciationPlayer } from "@/components/dictionary/pronunciation-player";
 import { useI18n } from "@/features/i18n/context";
+import { ApiError } from "@/lib/api/client";
 
 export default function TranslatePage() {
   const { t } = useI18n();
@@ -91,6 +92,20 @@ export default function TranslatePage() {
       {search.isPending && (
         <div className="flex flex-col gap-3">
           <Skeleton className="h-40 rounded-2xl" />
+        </div>
+      )}
+
+      {search.isError && (
+        <div className="flex flex-col items-center gap-3 rounded-2xl border border-danger/30 bg-danger/5 px-6 py-10 text-center">
+          <div className="flex size-12 items-center justify-center rounded-full bg-danger/10 text-danger">
+            <AlertTriangle className="size-6" />
+          </div>
+          <h3 className="text-base font-semibold text-danger">
+            {search.error instanceof ApiError && search.error.status === 429
+              ? "Search Limit Reached"
+              : "Search Failed"}
+          </h3>
+          <p className="max-w-md text-sm text-muted-foreground">{search.error.message}</p>
         </div>
       )}
 

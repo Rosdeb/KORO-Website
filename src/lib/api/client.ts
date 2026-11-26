@@ -1,14 +1,107 @@
 import { broadcastLoggedOut, getAccessToken, getAuthVersion, setAccessToken } from "@/lib/auth/token-store";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "https://api.korot.site";
+export function getApiBaseUrl(): string {
+  // 1. Browser runtime: automatically use localhost:8080 when running locally
+  if (typeof window !== "undefined") {
+    const hostname = window.location.hostname;
+    const isLocal =
+      hostname === "localhost" ||
+      hostname === "127.0.0.1" ||
+      hostname === "[::1]" ||
+      hostname.endsWith(".local");
+
+    if (isLocal) {
+      if (
+        process.env.NEXT_PUBLIC_API_BASE_URL &&
+        !process.env.NEXT_PUBLIC_API_BASE_URL.includes("api.korot.site")
+      ) {
+        return process.env.NEXT_PUBLIC_API_BASE_URL;
+      }
+      return "http://localhost:8080";
+    }
+
+    // On deployed/production domain in browser:
+    if (
+      process.env.NEXT_PUBLIC_API_BASE_URL &&
+      !process.env.NEXT_PUBLIC_API_BASE_URL.includes("localhost")
+    ) {
+      return process.env.NEXT_PUBLIC_API_BASE_URL;
+    }
+    return "https://api.korot.site";
+  }
+
+  // 2. Server runtime in development
+  if (process.env.NODE_ENV === "development") {
+    if (
+      process.env.NEXT_PUBLIC_API_BASE_URL &&
+      !process.env.NEXT_PUBLIC_API_BASE_URL.includes("api.korot.site")
+    ) {
+      return process.env.NEXT_PUBLIC_API_BASE_URL;
+    }
+    return "http://localhost:8080";
+  }
+
+  // 3. Production / Deployed environment default
+  if (
+    process.env.NEXT_PUBLIC_API_BASE_URL &&
+    !process.env.NEXT_PUBLIC_API_BASE_URL.includes("localhost")
+  ) {
+    return process.env.NEXT_PUBLIC_API_BASE_URL;
+  }
+  return "https://api.korot.site";
+}
+
 const API_PREFIX = "/api/v1";
+
+export interface SearchRateLimitInfo {
+  dailyLimit: number | null;
+  dailyRemaining: number | null;
+  monthlyLimit: number | null;
+  monthlyRemaining: number | null;
+  lastUpdated: number;
+}
+
+let latestSearchRateLimit: SearchRateLimitInfo | null = null;
+
+export function getLatestSearchRateLimit(): SearchRateLimitInfo | null {
+  return latestSearchRateLimit;
+}
+
+function parseRateLimitHeader(val: string | null): number | null {
+  if (!val) return null;
+  const num = Number.parseInt(val, 10);
+  return Number.isNaN(num) ? null : num;
+}
+
+function extractRateLimitHeaders(headers: Headers): SearchRateLimitInfo | undefined {
+  const dailyLimit = parseRateLimitHeader(headers.get("X-RateLimit-Limit-Daily"));
+  const dailyRemaining = parseRateLimitHeader(headers.get("X-RateLimit-Remaining-Daily"));
+  const monthlyLimit = parseRateLimitHeader(headers.get("X-RateLimit-Limit-Monthly"));
+  const monthlyRemaining = parseRateLimitHeader(headers.get("X-RateLimit-Remaining-Monthly"));
+
+  if (dailyLimit === null && dailyRemaining === null && monthlyLimit === null && monthlyRemaining === null) {
+    return undefined;
+  }
+
+  const info: SearchRateLimitInfo = {
+    dailyLimit,
+    dailyRemaining,
+    monthlyLimit,
+    monthlyRemaining,
+    lastUpdated: Date.now(),
+  };
+  latestSearchRateLimit = info;
+  return info;
+}
 
 export class ApiError extends Error {
   status: number;
-  constructor(message: string, status: number) {
+  rateLimit?: SearchRateLimitInfo;
+  constructor(message: string, status: number, rateLimit?: SearchRateLimitInfo) {
     super(message);
     this.name = "ApiError";
     this.status = status;
+    this.rateLimit = rateLimit;
   }
 }
 
@@ -105,7 +198,7 @@ async function performRequest<T>(path: string, options: RequestOptions): Promise
   const token = getAccessToken();
   if (token) finalHeaders.set("Authorization", `Bearer ${token}`);
 
-  const res = await fetch(`${API_BASE_URL}${API_PREFIX}${path}`, {
+  const res = await fetch(`${getApiBaseUrl()}${API_PREFIX}${path}`, {
     ...rest,
     headers: finalHeaders,
     body: body === undefined ? undefined : isFormData ? (body as FormData) : JSON.stringify(body),
@@ -128,6 +221,8 @@ async function performRequest<T>(path: string, options: RequestOptions): Promise
     throw new ApiError("Please log in to continue.", 401);
   }
 
+  const rateLimit = extractRateLimitHeaders(res.headers);
+
   if (!res.ok) {
     // Most error bodies are `{ message }`, but some (e.g. the submissions
     // duplicate-word 409) are a bare JSON string — handle both.
@@ -141,7 +236,7 @@ async function performRequest<T>(path: string, options: RequestOptions): Promise
         return undefined;
       })
       .catch(() => undefined);
-    throw new ApiError(message ?? "Something went wrong. Please try again.", res.status);
+    throw new ApiError(message ?? "Something went wrong. Please try again.", res.status, rateLimit);
   }
 
   if (res.status === 204) return undefined as T;
@@ -154,7 +249,12 @@ async function performRequest<T>(path: string, options: RequestOptions): Promise
 export function resolveApiFileUrl(url: string | null | undefined): string {
   if (!url) return "";
   if (/^https?:\/\//i.test(url)) return url;
-  return `${API_BASE_URL}${url.startsWith("/") ? "" : "/"}${url}`;
+  // If it is a frontend static asset in the public/ folder (e.g. /korot-logo.png)
+  if (url === "/korot-logo.png" || url.startsWith("/icons/") || url.startsWith("/images/")) {
+    return url;
+  }
+  const baseUrl = getApiBaseUrl();
+  return `${baseUrl}${url.startsWith("/") ? "" : "/"}${url}`;
 }
 
 export const apiClient = {
