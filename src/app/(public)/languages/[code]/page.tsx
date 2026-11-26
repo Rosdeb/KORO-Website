@@ -96,7 +96,7 @@ export default function LanguageDetailPage({ params }: { params: Promise<{ code:
           )}
 
           {search.data && (
-            <div className="mt-4 max-w-lg rounded-2xl border border-border bg-card p-2 shadow-sm">
+            <div className="mt-4 max-w-lg rounded-2xl border border-border bg-card p-2 shadow-sm animate-scale-in">
               {search.data.length === 0 && (
                 <p className="px-3 py-4 text-sm text-muted-foreground">No results in {language.name}.</p>
               )}

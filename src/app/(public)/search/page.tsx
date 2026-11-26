@@ -12,6 +12,7 @@ import { ErrorState } from "@/components/state/error-state";
 import { useGlobalSearch } from "@/features/search/hooks";
 import { useI18n } from "@/features/i18n/context";
 import { ApiError } from "@/lib/api/client";
+import { SearchAnimationLoader } from "@/components/search/search-animation-loader";
 
 function SearchPageInner() {
   const { t } = useI18n();
@@ -57,10 +58,8 @@ function SearchPageInner() {
       )}
 
       {initialQuery && isLoading && !isError && (
-        <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <Skeleton key={i} className="h-32 rounded-2xl" />
-          ))}
+        <div className="mt-10 max-w-xl animate-fade-in">
+          <SearchAnimationLoader query={initialQuery} targetLangName="All Languages" />
         </div>
       )}
 

@@ -15,6 +15,7 @@ import { TtsSpeechButton } from "@/components/ui/tts-speech-button";
 import { PronunciationPlayer } from "@/components/dictionary/pronunciation-player";
 import { useI18n } from "@/features/i18n/context";
 import { ApiError } from "@/lib/api/client";
+import { SearchAnimationLoader } from "@/components/search/search-animation-loader";
 
 export default function TranslatePage() {
   const { t } = useI18n();
@@ -90,13 +91,15 @@ export default function TranslatePage() {
       </Card>
 
       {search.isPending && (
-        <div className="flex flex-col gap-3">
-          <Skeleton className="h-40 rounded-2xl" />
-        </div>
+        <SearchAnimationLoader
+          query={query.trim()}
+          sourceLangName="English"
+          targetLangName={targetLanguage?.name || "Target Language"}
+        />
       )}
 
       {search.isError && (
-        <div className="flex flex-col items-center gap-3 rounded-2xl border border-danger/30 bg-danger/5 px-6 py-10 text-center">
+        <div className="flex flex-col items-center gap-3 rounded-2xl border border-danger/30 bg-danger/5 px-6 py-10 text-center animate-scale-in">
           <div className="flex size-12 items-center justify-center rounded-full bg-danger/10 text-danger">
             <AlertTriangle className="size-6" />
           </div>
@@ -114,9 +117,13 @@ export default function TranslatePage() {
       )}
 
       {search.isSuccess && search.data.length > 0 && (
-        <div className="flex flex-col gap-4">
-          {search.data.map(({ concept, translation }) => (
-            <Card key={concept.id}>
+        <div className="flex flex-col gap-4 animate-slide-up">
+          {search.data.map(({ concept, translation }, index) => (
+            <Card
+              key={concept.id}
+              className="border-border/80 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md animate-scale-in"
+              style={{ animationDelay: `${index * 50}ms` }}
+            >
               <div className="flex flex-col gap-4 p-6">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
