@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { Search, Languages, BookOpen, Shapes, Loader2, ArrowRight, AlertTriangle } from "lucide-react";
+import { Search, Languages, BookOpen, Shapes, Loader2, ArrowRight, AlertTriangle, X } from "lucide-react";
 import { useDebouncedValue } from "@/lib/utils/use-debounced-value";
 import { useGlobalSearch } from "@/features/search/hooks";
 import { cn } from "@/lib/utils/cn";
@@ -136,14 +136,28 @@ export function SearchBar({
                 size === "lg" ? "h-14 text-base pl-12 pr-14" : "h-9 text-sm",
               )}
             />
-            {/* Shortcut hint or loader */}
+            {/* Shortcut hint, clear button, or loader */}
             {!isFetching && !query && (
               <kbd className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 hidden rounded border border-border bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground sm:inline-block">
                 /
               </kbd>
             )}
+            {!isFetching && query && (
+              <button
+                type="button"
+                aria-label="Clear search"
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  setQuery("");
+                  inputRef.current?.focus();
+                }}
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 flex size-5 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+              >
+                <X className="size-3.5" />
+              </button>
+            )}
             {isFetching && (
-              <Loader2 className="absolute right-3.5 top-1/2 size-4 -translate-y-1/2 animate-spin text-muted-foreground" />
+              <Loader2 className="absolute right-3.5 top-1/2 size-4 -translate-y-1/2 animate-spin text-accent" />
             )}
           </div>
         </form>

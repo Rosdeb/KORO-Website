@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowLeftRight, AlertTriangle, Search, Volume2 } from "lucide-react";
+import { ArrowLeftRight, AlertTriangle, Search, Volume2, X, Sparkles } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -81,11 +81,47 @@ export default function TranslatePage() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder={t("translate.searchPlaceholder")}
-              className="h-12 w-full rounded-full border border-input bg-card pl-11 pr-28 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              className="h-12 w-full rounded-full border border-input bg-card pl-11 pr-36 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring"
             />
+            {query && (
+              <button
+                type="button"
+                aria-label="Clear input"
+                onClick={() => setQuery("")}
+                className="absolute right-28 top-1/2 -translate-y-1/2 flex size-6 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+              >
+                <X className="size-3.5" />
+              </button>
+            )}
             <Button type="submit" size="sm" className="absolute right-1.5 top-1.5" loading={search.isPending}>
               {t("translate.searchBtn")}
             </Button>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
+            <span className="inline-flex items-center gap-1 font-medium text-foreground">
+              <Sparkles className="size-3 text-accent" />
+              Quick search:
+            </span>
+            {["water", "family", "peace", "mother", "light", "friend"].map((sample) => (
+              <button
+                key={sample}
+                type="button"
+                onClick={() => {
+                  setQuery(sample);
+                  if (targetLanguage) {
+                    search.mutate({
+                      query: sample,
+                      sourceLanguageId: sourceLanguage?.id,
+                      targetLanguageId: targetLanguage.id,
+                    });
+                  }
+                }}
+                className="rounded-full border border-border bg-muted/40 px-2.5 py-0.5 text-xs font-medium text-muted-foreground hover:border-accent/40 hover:bg-accent/10 hover:text-accent transition-all"
+              >
+                {sample}
+              </button>
+            ))}
           </div>
         </form>
       </Card>

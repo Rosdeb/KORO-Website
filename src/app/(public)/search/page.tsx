@@ -2,7 +2,7 @@
 
 import { Suspense, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { Search as SearchIcon } from "lucide-react";
+import { Search as SearchIcon, X, Sparkles, CheckCircle2 } from "lucide-react";
 import { LanguageCard } from "@/components/language/language-card";
 import { CategoryCard } from "@/components/dictionary/category-card";
 import { ConceptCard } from "@/components/dictionary/concept-card";
@@ -40,9 +40,45 @@ function SearchPageInner() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={t("search.placeholder")}
-          className="h-12 w-full rounded-full border border-input bg-card pl-11 pr-4 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring"
+          className="h-12 w-full rounded-full border border-input bg-card pl-11 pr-28 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring"
         />
+        {query && (
+          <button
+            type="button"
+            aria-label="Clear input"
+            onClick={() => setQuery("")}
+            className="absolute right-20 top-1/2 -translate-y-1/2 flex size-6 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+          >
+            <X className="size-3.5" />
+          </button>
+        )}
+        <button
+          type="submit"
+          className="absolute right-1.5 top-1.5 inline-flex h-9 items-center justify-center rounded-full bg-primary px-3 text-xs font-semibold text-primary-foreground shadow-xs hover:bg-primary/90 transition-colors"
+        >
+          {t("common.search")}
+        </button>
       </form>
+
+      <div className="mt-3 flex max-w-xl flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
+        <span className="inline-flex items-center gap-1 font-medium text-foreground">
+          <Sparkles className="size-3 text-accent" />
+          Trending:
+        </span>
+        {["water", "family", "peace", "mother", "sun", "earth", "Bengali"].map((term) => (
+          <button
+            key={term}
+            type="button"
+            onClick={() => {
+              setQuery(term);
+              router.push(`/search?q=${encodeURIComponent(term)}`);
+            }}
+            className="rounded-full border border-border bg-muted/40 px-2.5 py-0.5 text-xs font-medium text-muted-foreground hover:border-accent/40 hover:bg-accent/10 hover:text-accent transition-all"
+          >
+            {term}
+          </button>
+        ))}
+      </div>
 
       {!initialQuery && (
         <EmptyState className="mt-10" icon={SearchIcon} title={t("search.emptyTitle")} description={t("search.emptyDesc")} />
@@ -65,6 +101,16 @@ function SearchPageInner() {
 
       {initialQuery && !isLoading && !isError && totalResults === 0 && (
         <EmptyState className="mt-10" icon={SearchIcon} title={`${t("search.noResults")} "${initialQuery}"`} description={t("languages.tryDifferent")} />
+      )}
+
+      {initialQuery && !isLoading && !isError && data && totalResults > 0 && (
+        <div className="mt-8 flex items-center gap-2 text-sm text-muted-foreground animate-fade-in">
+          <span className="flex size-2 rounded-full bg-accent" />
+          <span>
+            Found <strong className="text-foreground">{totalResults}</strong> result{totalResults === 1 ? "" : "s"} for{" "}
+            <span className="font-semibold text-accent">&ldquo;{initialQuery}&rdquo;</span>
+          </span>
+        </div>
       )}
 
       {initialQuery && !isLoading && !isError && data && (
