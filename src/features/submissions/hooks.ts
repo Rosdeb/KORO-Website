@@ -5,6 +5,7 @@ import { mapSubmissionPage } from "@/lib/api/mappers";
 export function useMySubmissions(page = 0, size = 20) {
   return useQuery({
     queryKey: ["submissions", "mine", page, size],
+    staleTime: 60 * 1000,
     queryFn: async () => mapSubmissionPage(await submissionsApi.mine(page, size)),
   });
 }

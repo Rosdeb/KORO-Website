@@ -109,7 +109,6 @@ export function AppMobileNav() {
             <Link
               key={tab.href}
               href={tab.href}
-              prefetch={true}
               className="flex flex-1"
               aria-current={active ? "page" : undefined}
             >

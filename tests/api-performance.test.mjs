@@ -201,3 +201,23 @@ test('concept, translations, and language requests start together and forward ca
   releases.forEach((resolve) => resolve());
   assert.equal((await result).translations[0].text, 'word');
 });
+
+test('concurrent in-flight GET requests to the same endpoint are deduplicated', async () => {
+  let networkCalls = 0;
+  const { apiClient } = client(async () => {
+    networkCalls += 1;
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    return Response.json([{ id: 'lang-1', name: 'Bengali' }]);
+  });
+
+  const [res1, res2, res3] = await Promise.all([
+    apiClient.get('/languages'),
+    apiClient.get('/languages'),
+    apiClient.get('/languages'),
+  ]);
+
+  assert.equal(networkCalls, 1, 'Only 1 network fetch should be made for 3 concurrent GET calls');
+  assert.equal(res1[0].name, 'Bengali');
+  assert.equal(res2[0].name, 'Bengali');
+  assert.equal(res3[0].name, 'Bengali');
+});

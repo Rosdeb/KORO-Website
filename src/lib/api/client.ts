@@ -165,24 +165,44 @@ async function refreshAccessToken(): Promise<string | null> {
   return refreshPromise;
 }
 
+const inFlightGetRequests = new Map<string, Promise<unknown>>();
+
 async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
+  const isGet = !options.method || options.method === "GET";
+  const token = getAccessToken();
+  const dedupKey = isGet && !options.signal?.aborted ? `${token ?? "anon"}:${path}` : null;
+
+  if (dedupKey && inFlightGetRequests.has(dedupKey)) {
+    return inFlightGetRequests.get(dedupKey) as Promise<T>;
+  }
+
   const controller = new AbortController();
   const abort = () => controller.abort(options.signal?.reason);
   if (options.signal?.aborted) abort();
   else options.signal?.addEventListener("abort", abort, { once: true });
   // Allow uploads and generated exports more time than ordinary reads.
   const timeout = setTimeout(() => controller.abort(), options.method === "GET" ? 30_000 : 120_000);
-  try {
-    return await performRequest<T>(path, { ...options, signal: controller.signal });
-  } catch (error) {
-    if (controller.signal.aborted && !options.signal?.aborted) {
-      throw new ApiError("The request took too long. Please try again.", 408);
-    }
-    throw error;
-  } finally {
-    clearTimeout(timeout);
-    options.signal?.removeEventListener("abort", abort);
+
+  const exec = performRequest<T>(path, { ...options, signal: controller.signal })
+    .catch((error) => {
+      if (controller.signal.aborted && !options.signal?.aborted) {
+        throw new ApiError("The request took too long. Please try again.", 408);
+      }
+      throw error;
+    })
+    .finally(() => {
+      clearTimeout(timeout);
+      options.signal?.removeEventListener("abort", abort);
+      if (dedupKey) {
+        inFlightGetRequests.delete(dedupKey);
+      }
+    });
+
+  if (dedupKey) {
+    inFlightGetRequests.set(dedupKey, exec);
   }
+
+  return exec;
 }
 
 async function performRequest<T>(path: string, options: RequestOptions): Promise<T> {

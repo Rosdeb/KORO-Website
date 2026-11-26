@@ -5,6 +5,7 @@ import { mapActivityPage } from "@/lib/api/mappers";
 export function useActivity(params?: { from?: string; to?: string; page?: number; size?: number }, enabled = true) {
   return useQuery({
     queryKey: ["activity", params],
+    staleTime: 60 * 1000,
     queryFn: async ({ signal }) => mapActivityPage(await activityApi.list(params, signal)),
     enabled,
   });
@@ -15,6 +16,7 @@ export function useActivity(params?: { from?: string; to?: string; page?: number
 export function useActivityStatistics() {
   return useQuery({
     queryKey: ["activity", "statistics"],
+    staleTime: 60 * 1000,
     queryFn: () => activityApi.statistics(),
   });
 }

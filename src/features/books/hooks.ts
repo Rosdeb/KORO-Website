@@ -15,6 +15,7 @@ export function useBooks(enabled = true) {
   return useQuery({
     queryKey: ["books"],
     enabled,
+    staleTime: 60 * 1000,
     queryFn: async () => {
       const [raw, languageMap] = await Promise.all([collectionsApi.list(), withLanguageMap(qc)]);
       return raw.map((c) => mapBook(c, languageMap));
@@ -26,6 +27,7 @@ export function useBook(id: string) {
   const qc = useQueryClient();
   return useQuery({
     queryKey: ["books", id],
+    staleTime: 60 * 1000,
     queryFn: async () => {
       const [raw, languageMap] = await Promise.all([collectionsApi.getById(id), withLanguageMap(qc)]);
       return mapBook(raw, languageMap);
