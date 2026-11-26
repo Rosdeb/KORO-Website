@@ -24,9 +24,18 @@ export default function TranslatePage() {
   const [query, setQuery] = useState("");
   const search = useTranslationSearch();
 
-  const effectiveToLanguage = toLanguage || languages?.[0]?.code || "";
-  const targetLanguage = languages?.find((l) => l.code === effectiveToLanguage);
-  const sourceLanguage = languages?.find((l) => l.code === "en");
+  // Filter out English from target languages so users translate from English to indigenous languages (e.g. Koch, Garo), preventing redundant English-to-English selection
+  const targetLanguages = (languages ?? []).filter(
+    (l) => l.code.trim().toLowerCase() !== "en" && l.name.trim().toLowerCase() !== "english"
+  );
+  const effectiveToLanguage =
+    toLanguage && targetLanguages.some((l) => l.code === toLanguage)
+      ? toLanguage
+      : targetLanguages[0]?.code || "";
+  const targetLanguage = targetLanguages.find((l) => l.code === effectiveToLanguage);
+  const sourceLanguage = languages?.find(
+    (l) => l.code.trim().toLowerCase() === "en" || l.name.trim().toLowerCase() === "english"
+  );
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -65,7 +74,7 @@ export default function TranslatePage() {
                   <SelectValue placeholder={t("translate.selectLanguage")} />
                 </SelectTrigger>
                 <SelectContent>
-                  {(languages ?? []).map((l) => (
+                  {targetLanguages.map((l) => (
                     <SelectItem key={l.code} value={l.code}>
                       {l.name}
                     </SelectItem>
