@@ -11,6 +11,9 @@ vm.runInNewContext(ts.transpileModule(source, {
 }).outputText, { exports, require: () => ({}) });
 
 const {
+  DHAKA_TIMEZONE,
+  toDhakaDateString,
+  toTimezoneDateString,
   extractDayCounts,
   getColorLevel,
   generateCalendarDays,
@@ -18,7 +21,7 @@ const {
   computeStreakStats,
 } = exports;
 
-test('extractDayCounts aggregates activities by YYYY-MM-DD correctly', () => {
+test('extractDayCounts aggregates activities by YYYY-MM-DD correctly without timeZone', () => {
   const entries = [
     { createdAt: '2026-11-10T10:00:00.000Z' },
     { createdAt: '2026-11-10T14:30:00.000Z' },
@@ -31,6 +34,19 @@ test('extractDayCounts aggregates activities by YYYY-MM-DD correctly', () => {
   assert.equal(counts['2026-11-10'], 3);
   assert.equal(counts['2026-11-11'], 1);
   assert.equal(counts['2026-11-12'], undefined);
+});
+
+test('extractDayCounts with Asia/Dhaka timezone correctly offsets UTC timestamps (+06:00)', () => {
+  // 2026-11-10 20:00:00 UTC is 2026-11-11 02:00:00 in Dhaka (UTC+6)
+  const entries = [
+    { createdAt: '2026-11-10T10:00:00.000Z' }, // 16:00 Nov 10 in Dhaka
+    { createdAt: '2026-11-10T20:00:00.000Z' }, // 02:00 Nov 11 in Dhaka
+  ];
+  const counts = extractDayCounts(entries, DHAKA_TIMEZONE);
+  assert.equal(counts['2026-11-10'], 1);
+  assert.equal(counts['2026-11-11'], 1);
+
+  assert.equal(toDhakaDateString('2026-11-10T20:00:00.000Z'), '2026-11-11');
 });
 
 test('getColorLevel returns appropriate 0-4 thresholds', () => {

@@ -1,4 +1,6 @@
-// Utilities for GitHub-like activity heatmap calendar
+// Utilities for GitHub-like activity and contribution heatmap calendar
+
+export const DHAKA_TIMEZONE = "Asia/Dhaka";
 
 export interface HeatmapDay {
   date: Date;
@@ -21,6 +23,9 @@ export interface ActivityStreakStats {
   currentStreak: number;
 }
 
+/**
+ * Formats a Date object to YYYY-MM-DD in local time
+ */
 export function toLocalDateString(date: Date): string {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -29,23 +34,62 @@ export function toLocalDateString(date: Date): string {
 }
 
 /**
- * Extracts activity counts per day from raw activity entries
- * Similar to extracting CL counts from changelog
+ * Formats a Date, string, or timestamp to YYYY-MM-DD in the specified timezone (default Asia/Dhaka)
  */
-export function extractDayCounts(entries: { createdAt?: string | number }[]): Record<string, number> {
+export function toTimezoneDateString(
+  date: Date | string | number,
+  timeZone: string = DHAKA_TIMEZONE,
+): string {
+  try {
+    const d = typeof date === "object" ? date : new Date(date);
+    if (Number.isNaN(d.getTime())) return "";
+
+    // Intl.DateTimeFormat with en-CA yields YYYY-MM-DD
+    const formatter = new Intl.DateTimeFormat("en-CA", {
+      timeZone,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    });
+    return formatter.format(d);
+  } catch {
+    return "";
+  }
+}
+
+/**
+ * Convenience helper to format in Asia/Dhaka
+ */
+export function toDhakaDateString(date: Date | string | number): string {
+  return toTimezoneDateString(date, DHAKA_TIMEZONE);
+}
+
+/**
+ * Extracts contribution/activity counts per day from raw activity or contribution entries.
+ * When timeZone is provided (e.g. "Asia/Dhaka"), timestamps are mapped to the given timezone day.
+ * When timeZone is omitted, maintains legacy string splitting behavior.
+ */
+export function extractDayCounts(
+  entries: { createdAt?: string | number }[],
+  timeZone?: string,
+): Record<string, number> {
   const counts: Record<string, number> = {};
   for (const entry of entries) {
     if (!entry?.createdAt) continue;
     let dateStr = "";
-    if (typeof entry.createdAt === "string") {
-      dateStr = entry.createdAt.split("T")[0];
-      if (dateStr.includes(" ")) {
-        dateStr = dateStr.split(" ")[0];
-      }
-    } else if (typeof entry.createdAt === "number") {
-      const d = new Date(entry.createdAt);
-      if (!Number.isNaN(d.getTime())) {
-        dateStr = toLocalDateString(d);
+    if (timeZone) {
+      dateStr = toTimezoneDateString(entry.createdAt, timeZone);
+    } else {
+      if (typeof entry.createdAt === "string") {
+        dateStr = entry.createdAt.split("T")[0];
+        if (dateStr.includes(" ")) {
+          dateStr = dateStr.split(" ")[0];
+        }
+      } else if (typeof entry.createdAt === "number") {
+        const d = new Date(entry.createdAt);
+        if (!Number.isNaN(d.getTime())) {
+          dateStr = toLocalDateString(d);
+        }
       }
     }
     if (dateStr && /^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
@@ -55,6 +99,9 @@ export function extractDayCounts(entries: { createdAt?: string | number }[]): Re
   return counts;
 }
 
+/**
+ * GitHub color intensity level (0 to 4)
+ */
 export function getColorLevel(count: number, maxCount: number): 0 | 1 | 2 | 3 | 4 {
   if (!count || count <= 0) return 0;
   if (maxCount <= 4) {

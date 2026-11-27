@@ -14,6 +14,10 @@ export function useExportPdf() {
   return useMutation({
     mutationFn: async (payload: { collectionId: string; languageId: string }) =>
       mapExportRecord(await exportApi.toPdf(payload)),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["export-history"] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["export-history"] });
+      queryClient.invalidateQueries({ queryKey: ["activity"] });
+      queryClient.invalidateQueries({ queryKey: ["contributions"] });
+    },
   });
 }

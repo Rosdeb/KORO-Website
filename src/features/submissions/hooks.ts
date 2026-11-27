@@ -23,6 +23,10 @@ export function useCreateSubmission() {
       exampleSentence?: string;
       note?: string;
     }) => submissionsApi.create(payload),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["submissions", "mine"] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["submissions", "mine"] });
+      queryClient.invalidateQueries({ queryKey: ["activity"] });
+      queryClient.invalidateQueries({ queryKey: ["contributions"] });
+    },
   });
 }

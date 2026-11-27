@@ -1,45 +1,38 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Activity, Languages, BookmarkPlus, Camera, FileDown } from "lucide-react";
-import { useActivity, useActivityStatistics } from "@/features/activity/hooks";
+import { Activity, Languages, BookmarkPlus, Camera, FileDown, PlusCircle } from "lucide-react";
+import { useActivityStatistics } from "@/features/activity/hooks";
+import { useContributions } from "@/features/activity/contributions";
 import { useI18n } from "@/features/i18n/context";
 import { ActivityHeatmap } from "@/components/activity/activity-heatmap";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils/cn";
-import { ActivityEntry } from "@/types";
 
 export default function ActivityPage() {
   const { t } = useI18n();
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
   const { data: statsData } = useActivityStatistics();
-  const { data: defaultActivity, isLoading: defaultLoading } = useActivity();
-  const { data: pagedActivity, isLoading: pagedLoading } = useActivity({ page: 0, size: 50 });
-  const { data: dayActivity } = useActivity(
-    selectedDate ? { from: selectedDate, to: selectedDate, size: 50 } : undefined,
-    Boolean(selectedDate),
-  );
+  const {
+    contributions,
+    dayCounts,
+    totalContributions,
+    isLoading,
+  } = useContributions();
 
-  const entries = useMemo(() => {
-    const list: ActivityEntry[] = [];
-    const seen = new Set<string>();
-    for (const item of [
-      ...(defaultActivity?.content ?? []),
-      ...(pagedActivity?.content ?? []),
-      ...(dayActivity?.content ?? []),
-    ]) {
-      if (item?.id && !seen.has(item.id)) {
-        seen.add(item.id);
-        list.push(item);
-      }
-    }
-    return list;
-  }, [defaultActivity, pagedActivity, dayActivity]);
-
-  const isLoading = defaultLoading && pagedLoading && entries.length === 0;
+  const submissionCount = useMemo(() => {
+    return contributions.filter((c) => c.type === "DICTIONARY_SUBMISSION").length;
+  }, [contributions]);
 
   const breakdown = [
+    {
+      label: "Dictionary Words",
+      value: submissionCount,
+      icon: PlusCircle,
+      color: "text-emerald-600 dark:text-emerald-400",
+      bg: "bg-emerald-500/10",
+    },
     {
       label: "Translations",
       value: statsData?.translations,
@@ -72,7 +65,6 @@ export default function ActivityPage() {
 
   return (
     <div className="flex flex-col gap-8">
-
       {/* Header */}
       <div>
         <div className="flex items-center gap-2">
@@ -85,10 +77,11 @@ export default function ActivityPage() {
         <p className="mt-1 text-sm text-muted-foreground">{t("activity.subtitle")}</p>
       </div>
 
-      {/* Heatmap (includes stat cards) */}
+      {/* GitHub-style Contribution Heatmap */}
       <ActivityHeatmap
-        entries={entries}
-        totalActivities={statsData?.totalActivities}
+        contributions={contributions}
+        dayCounts={dayCounts}
+        totalActivities={totalContributions}
         isLoading={isLoading}
         selectedDate={selectedDate}
         onSelectDate={setSelectedDate}
@@ -98,25 +91,24 @@ export default function ActivityPage() {
       <div className="rounded-xl border border-border bg-card">
         <div className="border-b border-border px-5 py-4">
           <h2 className="text-sm font-semibold">Breakdown</h2>
-          <p className="mt-0.5 text-xs text-muted-foreground">Lifetime activity by type</p>
+          <p className="mt-0.5 text-xs text-muted-foreground">Lifetime community contributions by type</p>
         </div>
-        <div className="grid grid-cols-2 gap-px bg-border sm:grid-cols-4">
+        <div className="grid grid-cols-2 gap-px bg-border sm:grid-cols-3 lg:grid-cols-5">
           {breakdown.map((s) => (
             <div key={s.label} className="flex flex-col gap-3 bg-card p-5">
               <div className={cn("flex size-9 items-center justify-center rounded-lg", s.bg)}>
                 <s.icon className={cn("size-4", s.color)} />
               </div>
-              {s.value === undefined ? (
+              {isLoading && s.value === undefined ? (
                 <Skeleton className="h-7 w-16 rounded" />
               ) : (
-                <p className="text-2xl font-bold tabular-nums">{s.value}</p>
+                <p className="text-2xl font-bold tabular-nums text-foreground">{s.value ?? 0}</p>
               )}
               <p className="text-xs text-muted-foreground">{s.label}</p>
             </div>
           ))}
         </div>
       </div>
-
     </div>
   );
 }
