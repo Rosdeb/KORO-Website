@@ -116,27 +116,27 @@ function PodiumCard({
   const rawVal = statValue(entry, type);
   const val = rawVal.toLocaleString();
   const ratio = Math.min(1, Math.max(0.18, rawVal / (maxVal || 1)));
-  const barHeightPx = Math.round(ratio * 80) + 16;
+  const barHeightPx = Math.round(ratio * 70) + 14;
 
   const avatarSize =
     entry.rank === 1
-      ? "size-12 sm:size-16"
+      ? "size-7 sm:size-12 md:size-14"
       : entry.rank <= 3
-      ? "size-10 sm:size-13"
-      : "size-9 sm:size-11";
+      ? "size-6 sm:size-10 md:size-12"
+      : "size-5 sm:size-8 md:size-10";
 
   return (
-    <div className="flex min-w-[62px] sm:min-w-[76px] flex-1 flex-col items-center text-center justify-end">
+    <div className="flex min-w-0 flex-1 flex-col items-center text-center justify-end">
       <div className="relative">
-        <Avatar className={cn(avatarSize, "ring-2", m.ring)}>
+        <Avatar className={cn(avatarSize, "ring-1 sm:ring-2", m.ring)}>
           <AvatarImage src={resolveApiFileUrl(entry.profileImage)} alt="" />
-          <AvatarFallback className={cn("text-xs font-semibold", m.bg, m.text)}>
+          <AvatarFallback className={cn("text-[8px] sm:text-xs font-semibold", m.bg, m.text)}>
             {initials(entry.name)}
           </AvatarFallback>
         </Avatar>
         <span
           className={cn(
-            "absolute -bottom-1 -right-1 flex size-4 items-center justify-center rounded-full text-[9px] font-bold shadow-xs",
+            "absolute -bottom-1 -right-1 flex size-3 sm:size-4 items-center justify-center rounded-full text-[7px] sm:text-[9px] font-bold shadow-xs",
             m.bg,
             m.text,
           )}
@@ -144,15 +144,18 @@ function PodiumCard({
           {entry.rank}
         </span>
       </div>
-      <p className="mt-2 max-w-[64px] sm:max-w-[74px] truncate text-xs font-semibold">
-        {entry.name}
-        {isCurrent && <span className="text-accent"> ·you</span>}
+      <p className="mt-1 w-full truncate text-[8px] sm:text-xs font-medium px-0.5">
+        <span className="sm:hidden">{entry.name.split(" ")[0]}</span>
+        <span className="hidden sm:inline">{entry.name}</span>
+        {isCurrent && <span className="text-accent font-bold"> ·you</span>}
       </p>
-      <p className={cn("mt-0.5 text-xs sm:text-sm font-bold tabular-nums", m.text)}>{val}</p>
+      <p className={cn("text-[8px] sm:text-xs font-bold tabular-nums leading-tight", m.text)}>
+        {rawVal >= 10000 ? `${(rawVal / 1000).toFixed(0)}k` : val}
+      </p>
       <div
         style={{ height: `${barHeightPx}px` }}
         className={cn(
-          "mt-2 w-full rounded-t border-x border-t transition-all duration-300",
+          "mt-1 sm:mt-2 w-full rounded-t border-x border-t transition-all duration-300",
           m.bar,
         )}
       />
@@ -175,19 +178,17 @@ function Podium({
   const maxVal = Math.max(...top.map((e) => statValue(e, type)), 1);
 
   return (
-    <div className="overflow-hidden rounded-xl border border-border bg-card px-3 pb-0 pt-8 sm:px-6 sm:pt-10">
-      <div className="overflow-x-auto pb-1 scrollbar-thin">
-        <div className="flex items-end justify-between sm:justify-center gap-2 sm:gap-3.5 min-w-[640px]">
-          {top.map((e) => (
-            <PodiumCard
-              key={e.userId}
-              entry={e}
-              type={type}
-              isCurrent={e.userId === currentUserId}
-              maxVal={maxVal}
-            />
-          ))}
-        </div>
+    <div className="overflow-hidden rounded-xl border border-border bg-card px-2 pb-0 pt-6 sm:px-6 sm:pt-10 w-full">
+      <div className="flex items-end justify-between gap-1 sm:gap-2.5 w-full">
+        {top.map((e) => (
+          <PodiumCard
+            key={e.userId}
+            entry={e}
+            type={type}
+            isCurrent={e.userId === currentUserId}
+            maxVal={maxVal}
+          />
+        ))}
       </div>
     </div>
   );
