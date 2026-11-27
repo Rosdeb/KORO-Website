@@ -61,6 +61,17 @@ const MEDAL: Record<number, { bg: string; text: string; ring: string; bar: strin
   },
 };
 
+function getMedal(rank: number) {
+  return (
+    MEDAL[rank] ?? {
+      bg: "bg-muted dark:bg-muted/40",
+      text: "text-muted-foreground",
+      ring: "ring-border",
+      bar: "border-border/60 bg-muted/20 dark:bg-muted/10",
+    }
+  );
+}
+
 function RankBadge({ rank, isCurrent }: { rank: number; isCurrent?: boolean }) {
   const m = MEDAL[rank];
   if (m) {
@@ -94,35 +105,57 @@ function PodiumCard({
   entry,
   type,
   isCurrent,
+  maxVal = 1,
 }: {
   entry: LeaderboardEntry;
   type: LeaderboardType;
   isCurrent: boolean;
+  maxVal?: number;
 }) {
-  const m = MEDAL[entry.rank];
-  const val = statValue(entry, type).toLocaleString();
-  const topPad: Record<number, string> = { 1: "pt-6", 2: "pt-14", 3: "pt-20" };
-  const avatarSize: Record<number, string> = { 1: "size-14 sm:size-20", 2: "size-12 sm:size-16", 3: "size-10 sm:size-14" };
-  const barH: Record<number, string> = { 1: "h-20", 2: "h-14", 3: "h-9" };
+  const m = getMedal(entry.rank);
+  const rawVal = statValue(entry, type);
+  const val = rawVal.toLocaleString();
+  const ratio = Math.min(1, Math.max(0.18, rawVal / (maxVal || 1)));
+  const barHeightPx = Math.round(ratio * 80) + 16;
+
+  const avatarSize =
+    entry.rank === 1
+      ? "size-12 sm:size-16"
+      : entry.rank <= 3
+      ? "size-10 sm:size-13"
+      : "size-9 sm:size-11";
+
   return (
-    <div className={cn("flex flex-1 flex-col items-center text-center", topPad[entry.rank])}>
+    <div className="flex min-w-[62px] sm:min-w-[76px] flex-1 flex-col items-center text-center justify-end">
       <div className="relative">
-        <Avatar className={cn(avatarSize[entry.rank], "ring-2", m?.ring ?? "ring-border")}>
+        <Avatar className={cn(avatarSize, "ring-2", m.ring)}>
           <AvatarImage src={resolveApiFileUrl(entry.profileImage)} alt="" />
-          <AvatarFallback className={cn("text-xs font-semibold", m?.bg, m?.text)}>
+          <AvatarFallback className={cn("text-xs font-semibold", m.bg, m.text)}>
             {initials(entry.name)}
           </AvatarFallback>
         </Avatar>
-        <span className={cn("absolute -bottom-1 -right-1 flex size-4 items-center justify-center rounded-full text-[9px] font-bold", m?.bg, m?.text)}>
+        <span
+          className={cn(
+            "absolute -bottom-1 -right-1 flex size-4 items-center justify-center rounded-full text-[9px] font-bold shadow-xs",
+            m.bg,
+            m.text,
+          )}
+        >
           {entry.rank}
         </span>
       </div>
-      <p className="mt-2 max-w-[72px] truncate text-xs font-semibold">
+      <p className="mt-2 max-w-[64px] sm:max-w-[74px] truncate text-xs font-semibold">
         {entry.name}
         {isCurrent && <span className="text-accent"> ·you</span>}
       </p>
-      <p className={cn("mt-0.5 text-sm font-bold tabular-nums", m?.text)}>{val}</p>
-      <div className={cn("mt-2 w-full rounded-t border-x border-t", barH[entry.rank], m?.bar ?? "border-border bg-muted/20")} />
+      <p className={cn("mt-0.5 text-xs sm:text-sm font-bold tabular-nums", m.text)}>{val}</p>
+      <div
+        style={{ height: `${barHeightPx}px` }}
+        className={cn(
+          "mt-2 w-full rounded-t border-x border-t transition-all duration-300",
+          m.bar,
+        )}
+      />
     </div>
   );
 }
@@ -136,27 +169,25 @@ function Podium({
   type: LeaderboardType;
   currentUserId?: string;
 }) {
-  const top = entries.slice(0, 3);
+  const top = entries.slice(0, 10);
   if (top.length < 1) return null;
 
-  const ordered =
-    top.length === 3
-      ? [top[1], top[0], top[2]]
-      : top.length === 2
-      ? [top[1], top[0]]
-      : [top[0]];
+  const maxVal = Math.max(...top.map((e) => statValue(e, type)), 1);
 
   return (
-    <div className="overflow-hidden rounded-xl border border-border bg-card px-4 pb-0 pt-10 sm:px-8 sm:pt-12">
-      <div className="flex items-end justify-center gap-3 sm:gap-6">
-        {ordered.map((e) => (
-          <PodiumCard
-            key={e.userId}
-            entry={e}
-            type={type}
-            isCurrent={e.userId === currentUserId}
-          />
-        ))}
+    <div className="overflow-hidden rounded-xl border border-border bg-card px-3 pb-0 pt-8 sm:px-6 sm:pt-10">
+      <div className="overflow-x-auto pb-1 scrollbar-thin">
+        <div className="flex items-end justify-between sm:justify-center gap-2 sm:gap-3.5 min-w-[640px]">
+          {top.map((e) => (
+            <PodiumCard
+              key={e.userId}
+              entry={e}
+              type={type}
+              isCurrent={e.userId === currentUserId}
+              maxVal={maxVal}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -258,8 +289,8 @@ export function PublicLeaderboard() {
   });
 
   const data = query.isSuccess ? query.data : undefined;
-  const topEntries = data?.entries.slice(0, 3) ?? [];
-  const restEntries = data?.entries.slice(3) ?? [];
+  const topEntries = data?.entries.slice(0, 10) ?? [];
+  const restEntries = data?.entries.slice(10) ?? [];
 
   const periodLabel =
     period === "ALL_TIME" ? "All time" : period === "MONTHLY" ? "This month" : "This week";
