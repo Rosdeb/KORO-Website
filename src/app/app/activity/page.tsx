@@ -1,9 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Activity, Languages, BookmarkPlus, Camera, FileDown, PlusCircle } from "lucide-react";
 import { useActivityStatistics } from "@/features/activity/hooks";
-import { useContributions } from "@/features/activity/contributions";
+import { useContributions, useDateContributions } from "@/features/activity/contributions";
 import { useI18n } from "@/features/i18n/context";
 import { ActivityHeatmap } from "@/components/activity/activity-heatmap";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -15,15 +15,19 @@ export default function ActivityPage() {
 
   const { data: statsData } = useActivityStatistics();
   const {
-    contributions,
     dayCounts,
     totalContributions,
+    stats: summaryStats,
     isLoading,
   } = useContributions();
 
-  const submissionCount = useMemo(() => {
-    return contributions.filter((c) => c.type === "DICTIONARY_SUBMISSION").length;
-  }, [contributions]);
+  const {
+    contributions: dateContributions,
+    isLoading: isDateLoading,
+  } = useDateContributions(selectedDate);
+
+  const stats = summaryStats ?? statsData;
+  const submissionCount = stats?.submissions ?? 0;
 
   const breakdown = [
     {
@@ -35,28 +39,28 @@ export default function ActivityPage() {
     },
     {
       label: "Translations",
-      value: statsData?.translations,
+      value: stats?.translations,
       icon: Languages,
       color: "text-accent",
       bg: "bg-accent/10",
     },
     {
       label: "Words saved",
-      value: statsData?.savedWords,
+      value: stats?.savedWords,
       icon: BookmarkPlus,
       color: "text-muted-foreground",
       bg: "bg-muted",
     },
     {
       label: "Image scans",
-      value: statsData?.imageRecognitions,
+      value: stats?.imageRecognitions,
       icon: Camera,
       color: "text-muted-foreground",
       bg: "bg-muted",
     },
     {
       label: "PDF exports",
-      value: statsData?.pdfExports,
+      value: stats?.pdfExports,
       icon: FileDown,
       color: "text-muted-foreground",
       bg: "bg-muted",
@@ -79,12 +83,13 @@ export default function ActivityPage() {
 
       {/* GitHub-style Contribution Heatmap */}
       <ActivityHeatmap
-        contributions={contributions}
         dayCounts={dayCounts}
         totalActivities={totalContributions}
         isLoading={isLoading}
         selectedDate={selectedDate}
         onSelectDate={setSelectedDate}
+        dateContributions={dateContributions}
+        isDateLoading={isDateLoading}
       />
 
       {/* Breakdown */}

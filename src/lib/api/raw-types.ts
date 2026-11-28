@@ -194,6 +194,13 @@ export interface RawActivityStatistics {
   imageRecognitions: number;
   pdfExports: number;
   savedWords: number;
+  submissions?: number;
+}
+
+export interface RawActivitySummary {
+  dayCounts?: Record<string, number>;
+  totalContributions?: number;
+  stats?: RawActivityStatistics;
 }
 
 export interface RawLeaderboardEntry {

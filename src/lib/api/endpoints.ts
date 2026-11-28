@@ -17,6 +17,7 @@ import type {
   RawActivityLog,
   RawActivityPage,
   RawActivityStatistics,
+  RawActivitySummary,
   RawAdminStatistics,
   RawCategory,
   RawCollection,
@@ -186,6 +187,8 @@ export const activityApi = {
   list: (params?: { from?: string; to?: string; page?: number; size?: number }, signal?: AbortSignal) =>
     apiClient.get<RawActivityLog[] | RawActivityPage>(`/activity${toQuery(params)}`, { auth: true, signal }),
   statistics: () => apiClient.get<RawActivityStatistics>("/activity/statistics", { auth: true }),
+  summary: (timezone = "Asia/Dhaka", signal?: AbortSignal) =>
+    apiClient.get<RawActivitySummary>(`/activity/summary?timezone=${encodeURIComponent(timezone)}`, { auth: true, signal }),
 };
 
 export const profileApi = {

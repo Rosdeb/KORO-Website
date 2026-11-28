@@ -36,6 +36,8 @@ import { ContributionRecord, ContributionType } from "@/features/activity/contri
 
 export interface ActivityHeatmapProps {
   contributions?: ContributionRecord[];
+  dateContributions?: ContributionRecord[];
+  isDateLoading?: boolean;
   entries?: ActivityEntry[];
   dayCounts?: Record<string, number>;
   totalActivities?: number;
@@ -125,6 +127,8 @@ function formatDhakaTime(createdAt: string): string {
 
 export function ActivityHeatmap({
   contributions = [],
+  dateContributions,
+  isDateLoading = false,
   entries = [],
   dayCounts: externalDayCounts,
   totalActivities,
@@ -198,6 +202,9 @@ export function ActivityHeatmap({
   // Filter contributions on the clicked day
   const selectedDayContributions = useMemo(() => {
     if (!selectedDate) return [];
+    if (dateContributions !== undefined) {
+      return dateContributions;
+    }
     if (contributions.length > 0) {
       return contributions.filter((c) => {
         const d = c.dhakaDate || toDhakaDateString(c.createdAt);
@@ -214,7 +221,7 @@ export function ActivityHeatmap({
         createdAt: entry.createdAt,
         dhakaDate: selectedDate,
       }));
-  }, [contributions, entries, selectedDate]);
+  }, [dateContributions, contributions, entries, selectedDate]);
 
   // Auto-scroll to current week on mobile devices
   useEffect(() => {
@@ -496,10 +503,13 @@ export function ActivityHeatmap({
                   {formatDhakaDate(selectedDate, locale)}
                 </h3>
                 <p className="text-xs text-muted-foreground">
-                  {selectedDayContributions.length}{" "}
-                  {selectedDayContributions.length === 1
-                    ? t("activity.contributionOn") || "contribution"
-                    : t("activity.contributionsOn") || "contributions"}
+                  {isDateLoading
+                    ? (locale === "bn" ? "লোড হচ্ছে…" : "Loading activities…")
+                    : `${selectedDayContributions.length} ${
+                        selectedDayContributions.length === 1
+                          ? t("activity.contributionOn") || "contribution"
+                          : t("activity.contributionsOn") || "contributions"
+                      }`}
                 </p>
               </div>
             </div>
@@ -516,7 +526,24 @@ export function ActivityHeatmap({
           </div>
 
           {/* Contributions List */}
-          {selectedDayContributions.length > 0 ? (
+          {isDateLoading ? (
+            <div className="flex flex-col gap-2.5 py-1">
+              <div className="flex items-center gap-3.5 rounded-lg border border-border/60 bg-muted/20 p-3">
+                <Skeleton className="size-8 rounded-md" />
+                <div className="flex-1 space-y-1.5">
+                  <Skeleton className="h-4 w-44" />
+                  <Skeleton className="h-3 w-28" />
+                </div>
+              </div>
+              <div className="flex items-center gap-3.5 rounded-lg border border-border/60 bg-muted/20 p-3">
+                <Skeleton className="size-8 rounded-md" />
+                <div className="flex-1 space-y-1.5">
+                  <Skeleton className="h-4 w-36" />
+                  <Skeleton className="h-3 w-24" />
+                </div>
+              </div>
+            </div>
+          ) : selectedDayContributions.length > 0 ? (
             <div className="flex flex-col gap-2.5">
               {selectedDayContributions.map((item) => {
                 const IconComponent = getContributionIcon(item.type);

@@ -105,35 +105,51 @@ function normalizeSubmissionToContribution(submission: Submission): Contribution
 }
 
 export function useContributions() {
-  const activityQuery = useQuery({
-    queryKey: ["activity", { size: 100 }],
+  const summaryQuery = useQuery({
+    queryKey: ["activity", "summary", "Asia/Dhaka"],
     staleTime: 60 * 1000,
-    queryFn: async ({ signal }) => mapActivityPage(await activityApi.list({ size: 100 }, signal)),
+    queryFn: ({ signal }) => activityApi.summary("Asia/Dhaka", signal),
+    retry: 1,
+  });
+
+  // Fallback queries only if summary API fails (e.g. older backend returning 404)
+  const isSummaryError = summaryQuery.isError;
+
+  const activityQuery = useQuery({
+    queryKey: ["activity", { size: 50 }],
+    staleTime: 60 * 1000,
+    enabled: isSummaryError,
+    queryFn: async ({ signal }) => mapActivityPage(await activityApi.list({ size: 50 }, signal)),
   });
 
   const submissionsQuery = useQuery({
-    queryKey: ["submissions", "mine", 0, 100],
+    queryKey: ["submissions", "mine", 0, 50],
     staleTime: 60 * 1000,
-    queryFn: async () => mapSubmissionPage(await submissionsApi.mine(0, 100)),
+    enabled: isSummaryError,
+    queryFn: async () => mapSubmissionPage(await submissionsApi.mine(0, 50)),
   });
 
-  const { contributions, contributionsByDate, dayCounts } = useMemo(() => {
+  const { dayCounts, totalContributions, stats } = useMemo(() => {
+    if (summaryQuery.data && !isSummaryError) {
+      return {
+        dayCounts: summaryQuery.data.dayCounts ?? {},
+        totalContributions: summaryQuery.data.totalContributions ?? 0,
+        stats: summaryQuery.data.stats,
+      };
+    }
+
+    // Fallback derivation
     const list: ContributionRecord[] = [];
     const seen = new Set<string>();
 
-    // 1. Process dictionary submissions
-    const submissions = submissionsQuery.data?.content ?? [];
-    for (const sub of submissions) {
+    for (const sub of submissionsQuery.data?.content ?? []) {
       const rec = normalizeSubmissionToContribution(sub);
       if (rec && !seen.has(rec.id)) {
         seen.add(rec.id);
         list.push(rec);
       }
     }
-
-    // 2. Process genuine activity logs
-    const activities = activityQuery.data?.content ?? [];
-    for (const act of activities) {
+    for (const act of activityQuery.data?.content ?? []) {
       const rec = normalizeActivityToContribution(act);
       if (rec && !seen.has(rec.id)) {
         seen.add(rec.id);
@@ -141,48 +157,59 @@ export function useContributions() {
       }
     }
 
-    // Sort by createdAt descending (most recent first)
-    list.sort((a, b) => {
-      const timeA = new Date(a.createdAt).getTime() || 0;
-      const timeB = new Date(b.createdAt).getTime() || 0;
-      return timeB - timeA;
-    });
-
-    // Group by Dhaka date (YYYY-MM-DD)
-    const byDate: Record<string, ContributionRecord[]> = {};
     const counts: Record<string, number> = {};
-
     for (const item of list) {
       const d = item.dhakaDate;
-      if (!byDate[d]) {
-        byDate[d] = [];
-      }
-      byDate[d].push(item);
       counts[d] = (counts[d] ?? 0) + 1;
     }
 
     return {
-      contributions: list,
-      contributionsByDate: byDate,
       dayCounts: counts,
+      totalContributions: list.length,
+      stats: undefined,
     };
-  }, [activityQuery.data, submissionsQuery.data]);
+  }, [summaryQuery.data, isSummaryError, submissionsQuery.data, activityQuery.data]);
 
-  const isLoading = activityQuery.isLoading || submissionsQuery.isLoading;
-  const isError = activityQuery.isError && submissionsQuery.isError;
+  const isLoading = summaryQuery.isLoading || (isSummaryError && (activityQuery.isLoading || submissionsQuery.isLoading));
 
   const refetch = () => {
-    activityQuery.refetch();
-    submissionsQuery.refetch();
+    summaryQuery.refetch();
+    if (isSummaryError) {
+      activityQuery.refetch();
+      submissionsQuery.refetch();
+    }
   };
 
   return {
-    contributions,
-    contributionsByDate,
     dayCounts,
-    totalContributions: contributions.length,
+    totalContributions,
+    stats,
     isLoading,
-    isError,
+    isError: isSummaryError && activityQuery.isError && submissionsQuery.isError,
     refetch,
+    contributions: [] as ContributionRecord[],
+  };
+}
+
+export function useDateContributions(selectedDate: string | null) {
+  const query = useQuery({
+    queryKey: ["activity", "date", selectedDate],
+    enabled: !!selectedDate,
+    staleTime: 5 * 60 * 1000,
+    queryFn: async ({ signal }) => {
+      if (!selectedDate) return [];
+      const res = await activityApi.list({ from: selectedDate, to: selectedDate, size: 50 }, signal);
+      const page = mapActivityPage(res);
+      return page.content
+        .map(normalizeActivityToContribution)
+        .filter((c): c is ContributionRecord => c !== null);
+    },
+  });
+
+  return {
+    contributions: query.data ?? [],
+    isLoading: query.isLoading && !query.data,
+    isError: query.isError,
+    refetch: query.refetch,
   };
 }

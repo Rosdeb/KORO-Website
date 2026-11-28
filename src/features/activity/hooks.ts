@@ -20,3 +20,11 @@ export function useActivityStatistics() {
     queryFn: () => activityApi.statistics(),
   });
 }
+
+export function useActivitySummary(timezone = "Asia/Dhaka") {
+  return useQuery({
+    queryKey: ["activity", "summary", timezone],
+    staleTime: 60 * 1000,
+    queryFn: ({ signal }) => activityApi.summary(timezone, signal),
+  });
+}
