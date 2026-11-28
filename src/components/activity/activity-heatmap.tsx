@@ -353,18 +353,18 @@ export function ActivityHeatmap({
 
         {/* Heatmap Grid SVG */}
         <div className="relative pt-4">
-          {isLoading ? (
-            <Skeleton className="h-[125px] w-full rounded-lg" />
-          ) : (
-            <div
-              ref={scrollContainerRef}
-              className="overflow-x-auto pb-2 -mx-1 px-1 scrollbar-thin select-none"
+          <div
+            ref={scrollContainerRef}
+            className="overflow-x-auto pb-2 -mx-1 px-1 scrollbar-thin select-none"
+          >
+            <svg
+              viewBox={`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`}
+              className={cn(
+                "w-full min-w-[725px] max-w-full overflow-visible font-sans transition-opacity duration-200",
+                isLoading && "opacity-60 animate-pulse",
+              )}
+              style={{ maxHeight: 150 }}
             >
-              <svg
-                viewBox={`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`}
-                className="w-full min-w-[725px] max-w-full overflow-visible font-sans"
-                style={{ maxHeight: 150 }}
-              >
                 {/* Month Labels */}
                 {monthLabels.map((lbl, idx) => (
                   <text
@@ -428,7 +428,6 @@ export function ActivityHeatmap({
                 </g>
               </svg>
             </div>
-          )}
 
           {/* GitHub-Authentic Tooltip */}
           {hoveredDay && (

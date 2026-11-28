@@ -15,6 +15,8 @@ export default function ActivityPage() {
 
   const { data: statsData } = useActivityStatistics();
   const {
+    contributions,
+    contributionsByDate,
     dayCounts,
     totalContributions,
     stats: summaryStats,
@@ -24,10 +26,10 @@ export default function ActivityPage() {
   const {
     contributions: dateContributions,
     isLoading: isDateLoading,
-  } = useDateContributions(selectedDate);
+  } = useDateContributions(selectedDate, contributionsByDate);
 
   const stats = summaryStats ?? statsData;
-  const submissionCount = stats?.submissions ?? 0;
+  const submissionCount = stats?.submissions ?? contributions.filter((c) => c.type === "DICTIONARY_SUBMISSION").length;
 
   const breakdown = [
     {
@@ -83,6 +85,7 @@ export default function ActivityPage() {
 
       {/* GitHub-style Contribution Heatmap */}
       <ActivityHeatmap
+        contributions={contributions}
         dayCounts={dayCounts}
         totalActivities={totalContributions}
         isLoading={isLoading}
